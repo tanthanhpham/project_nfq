@@ -8,6 +8,7 @@
 /var/
 /vendor/
 /database
+/.idea
 ###< symfony/framework-bundle ###
 
 ###> symfony/webpack-encore-bundle ###
