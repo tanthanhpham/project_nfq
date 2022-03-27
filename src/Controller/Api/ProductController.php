@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\Product;
 use App\Repository\ProductRepository;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -13,6 +14,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends AbstractFOSRestController
 {
+    public const PRODUCT_PAGE_LIMIT = 10;
+    public const PRODUCT_PAGE_OFFSET = 0;
     private $productRepository;
 
     public function __construct(ProductRepository $productRepository)
@@ -23,15 +26,31 @@ class ProductController extends AbstractFOSRestController
     /**
      * @Rest\Get("/products")
      */
-    public function getProducts(): Response
+    public function getProducts(Request $request): Response
     {
-        $products = $this->productRepository->findAll();
+        $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
+        $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
+        $products = $this->productRepository->findBy([], [], $limit, $offset);
 
-        $serializer = SerializerBuilder::create()->build();
-        $convertToJson = $serializer->serialize($products, 'json', SerializationContext::create()->setGroups('show'));
-        $products = $serializer->deserialize($convertToJson, 'array', 'json');
+        $productsList = array_map('self::dataTransferObject',$products);
 
-        return $this->handleView($this->view($products));
+        return $this->handleView($this->view($productsList));
     }
 
+    /**
+     * @param Product $product
+     * @return array
+     */
+    public function dataTransferObject(Product $product): array
+    {
+        $formattedProduct = [];
+
+        $formattedProduct['id'] = $product->getId();
+        $formattedProduct['name'] = $product->getName();
+        $formattedProduct['image'] = $product->getImage();
+        $formattedProduct['category'] = $product->getCategory()->getId();
+        $formattedProduct['price'] = $product->getPrice();
+
+        return $formattedProduct;
+    }
 }
