@@ -155,7 +155,6 @@
     "myclabs/deep-copy": {
         "version": "1.11.0"
     },
-<<<<<<< HEAD
     "nelmio/alice": {
         "version": "3.10",
         "recipe": {
@@ -168,8 +167,6 @@
             "config/packages/nelmio_alice.yaml"
         ]
     },
-=======
->>>>>>> d2a52f8 (require testing symfony)
     "nikic/php-parser": {
         "version": "v4.13.2"
     },
@@ -703,7 +700,6 @@
     "symfony/yaml": {
         "version": "v5.4.3"
     },
-<<<<<<< HEAD
     "theofidry/alice-data-fixtures": {
         "version": "1.5",
         "recipe": {
@@ -713,8 +709,6 @@
             "ref": "fe5a50faf580eb58f08ada2abe8afbd2d4941e05"
         }
     },
-=======
->>>>>>> d2a52f8 (require testing symfony)
     "theseer/tokenizer": {
         "version": "1.2.1"
     },

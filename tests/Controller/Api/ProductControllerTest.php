@@ -12,16 +12,27 @@ use App\Tests\Controller\BaseWebTestCase;
 class ProductControllerTest extends BaseWebTestCase
 {
     use ReloadDatabaseTrait;
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
 
     public function testGetProducts()
     {
         $productFixtures = new ProductFixtures();
         $this->loadFixture($productFixtures);
 
-        $this->assertTrue(true);
+        $this->client->request(
+            Request::METHOD_GET,
+            '/api/products',
+            [],
+            [],
+            [
+                'HTTP_ACCEPT' => 'application/json',
+            ]
+        );
+
+        $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        $data = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertIsArray($data);
+        $this->assertCount(1, $data);
+        $product = $data[0];
+        $this->assertSame('Product name', $product['name']);
     }
 }
