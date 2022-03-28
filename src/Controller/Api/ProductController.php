@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Product;
+use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -32,6 +33,22 @@ class ProductController extends AbstractFOSRestController
         $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
         $products = $this->productRepository->findBy([], [], $limit, $offset);
 
+        $productsList = array_map('self::dataTransferObject',$products);
+
+        return $this->handleView($this->view($productsList));
+    }
+
+    /**
+     * @Rest\Post("/products/search")
+     */
+    public function search(Request $request): Response
+    {
+        $requestData = json_decode($request->getContent(), true);
+
+        $products = $this->productRepository->findAll();
+        if (isset($requestData['category']) && $requestData['category'] != "" && $requestData['category'] != 1){
+            $products = $this->productRepository->findBy(['category' => $requestData['category']]);
+        }
         $productsList = array_map('self::dataTransferObject',$products);
 
         return $this->handleView($this->view($productsList));
