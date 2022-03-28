@@ -33,7 +33,7 @@ class ProductController extends AbstractFOSRestController
         $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
         $products = $this->productRepository->findBy([], [], $limit, $offset);
 
-        $productsList = array_map('self::dataTransferObject',$products);
+        $productsList = array_map('self::dataTransferObject', $products);
 
         return $this->handleView($this->view($productsList));
     }
@@ -46,10 +46,10 @@ class ProductController extends AbstractFOSRestController
         $requestData = json_decode($request->getContent(), true);
 
         $products = $this->productRepository->findAll();
-        if (isset($requestData['category']) && $requestData['category'] != "" && $requestData['category'] != 1){
+        if (isset($requestData['category']) && $requestData['category'] != "" && $requestData['category'] != 1) {
             $products = $this->productRepository->findBy(['category' => $requestData['category']]);
         }
-        $productsList = array_map('self::dataTransferObject',$products);
+        $productsList = array_map('self::dataTransferObject', $products);
 
         return $this->handleView($this->view($productsList));
     }
