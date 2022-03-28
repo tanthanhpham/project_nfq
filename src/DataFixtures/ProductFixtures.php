@@ -21,6 +21,7 @@ class ProductFixtures extends Fixture
 
         $category = new Category();
         $category->setName('Category name');
+        $category->setImage('/category_image');
 
         $product->setCategory($category);
         $manager->persist($product);
