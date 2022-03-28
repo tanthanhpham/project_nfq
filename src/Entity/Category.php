@@ -23,6 +23,7 @@ class Category
 
     /**
      * @ORM\Column(type="string", length=50)
+     * @Groups({"show"})
      */
     private $name;
 
@@ -40,6 +41,12 @@ class Category
      * @ORM\OneToMany(targetEntity=Product::class, mappedBy="category")
      */
     private $products;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups({"show"})
+     */
+    private $image;
 
     public function __construct()
     {
@@ -128,5 +135,17 @@ class Category
     public function __toString(): string
     {
         return $this->getName();
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(string $image): self
+    {
+        $this->image = $image;
+
+        return $this;
     }
 }
