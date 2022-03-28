@@ -3,7 +3,6 @@
 namespace App\Tests\Controller\Api;
 
 use App\DataFixtures\ProductFixtures;
-use App\Entity\Product;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;

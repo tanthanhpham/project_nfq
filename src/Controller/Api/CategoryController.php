@@ -2,9 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Product;
 use App\Repository\CategoryRepository;
-use App\Repository\ProductRepository;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
@@ -25,7 +23,7 @@ class CategoryController extends AbstractFOSRestController
     /**
      * @Rest\Get("/categories")
      */
-    public function getProducts(): Response
+    public function getCategories(): Response
     {
         $categories = $this->categoryRepository->findAll();
 
