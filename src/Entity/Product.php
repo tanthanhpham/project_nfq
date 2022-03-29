@@ -55,6 +55,16 @@ class Product
      */
     private $category;
 
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $createAt;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $updateAt;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -135,5 +145,29 @@ class Product
     public function __toString(): string
     {
         return $this->getName();
+    }
+
+    public function getCreateAt(): ?\DateTimeInterface
+    {
+        return $this->createAt;
+    }
+
+    public function setCreateAt(\DateTimeInterface $createAt): self
+    {
+        $this->createAt = $createAt;
+
+        return $this;
+    }
+
+    public function getUpdateAt(): ?\DateTimeInterface
+    {
+        return $this->updateAt;
+    }
+
+    public function setUpdateAt(\DateTimeInterface $updateAt): self
+    {
+        $this->updateAt = $updateAt;
+
+        return $this;
     }
 }
