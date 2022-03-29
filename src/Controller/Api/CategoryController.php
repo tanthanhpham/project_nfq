@@ -31,6 +31,6 @@ class CategoryController extends AbstractFOSRestController
         $convertToJson = $serializer->serialize($categories, 'json', SerializationContext::create()->setGroups(array('show')));
         $categories = $serializer->deserialize($convertToJson, 'array', 'json');
 
-        return $this->handleView($this->view($categories));
+        return $this->handleView($this->view($categories, Response::HTTP_OK));
     }
 }

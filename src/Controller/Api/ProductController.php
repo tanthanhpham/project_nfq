@@ -35,7 +35,7 @@ class ProductController extends AbstractFOSRestController
 
         $productsList = array_map('self::dataTransferObject', $products);
 
-        return $this->handleView($this->view($productsList));
+        return $this->handleView($this->view($productsList, Response::HTTP_OK));
     }
 
     /**
@@ -43,12 +43,14 @@ class ProductController extends AbstractFOSRestController
      */
     public function filter(Request $request): Response
     {
+        $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
+        $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
         $requestData = json_decode($request->getContent(), true);
 
-        $products = $this->productRepository->filter($requestData);
+        $products = $this->productRepository->filter($requestData, $limit, $offset);
         $productsList = array_map('self::dataTransferObject', $products);
 
-        return $this->handleView($this->view($productsList));
+        return $this->handleView($this->view($productsList, Response::HTTP_OK));
     }
 
     /**

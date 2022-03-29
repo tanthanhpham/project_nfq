@@ -47,9 +47,11 @@ class ProductRepository extends ServiceEntityRepository
 
     /**
      * @param $arrayParams
-     * @return float|int|mixed|string
+     * @param $limit
+     * @param $offset
+     * @return array
      */
-    public function filter($arrayParams)
+    public function filter($arrayParams, $limit, $offset): array
     {
         $queryBuilder = $this->createQueryBuilder('p');
         if (isset($arrayParams['minPrice']) && $arrayParams['minPrice'] != '') {
@@ -71,6 +73,8 @@ class ProductRepository extends ServiceEntityRepository
         }
 
         return $queryBuilder
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
             ->getQuery()
             ->execute();
     }
