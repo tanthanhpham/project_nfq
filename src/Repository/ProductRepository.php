@@ -64,7 +64,7 @@ class ProductRepository extends ServiceEntityRepository
                 ->setParameter('maxPrice', $arrayParams['maxPrice']);
         }
 
-        if (isset($arrayParams['category']) && $arrayParams['category'] != 0) {
+        if (isset($arrayParams['category']) && $arrayParams['category'] != '' && $arrayParams['category'] != 1) {
             $queryBuilder
                 ->andWhere('p.category = :category')
                 ->setParameter('category', $arrayParams['category']);
