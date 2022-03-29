@@ -14,7 +14,7 @@ This is the final project for Unlock program.
     ```
 4. Install library:
     ```
-    $ ddocker exec -it php bash 
+    $ docker exec -it php bash 
     $ composer install
     ```
 5. Create tables
