@@ -39,16 +39,13 @@ class ProductController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Post("/products/search")
+     * @Rest\Post("/products/filter")
      */
-    public function search(Request $request): Response
+    public function filter(Request $request): Response
     {
         $requestData = json_decode($request->getContent(), true);
 
-        $products = $this->productRepository->findAll();
-        if (isset($requestData['category']) && $requestData['category'] != "" && $requestData['category'] != 1) {
-            $products = $this->productRepository->findBy(['category' => $requestData['category']]);
-        }
+        $products = $this->productRepository->filter($requestData);
         $productsList = array_map('self::dataTransferObject', $products);
 
         return $this->handleView($this->view($productsList));

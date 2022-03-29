@@ -35,13 +35,15 @@ class ProductControllerTest extends BaseWebTestCase
         $this->assertSame('Product name', $product['name']);
     }
 
-    public function testSearch()
+    public function testFilter()
     {
         $productFixtures = new ProductFixtures();
         $this->loadFixture($productFixtures);
 
         $payload = [
-            'Category' => 1
+            'category' => 1,
+            'minPrice' => 200000,
+            'maxPrice' => 500000
         ];
         $this->client->request(
             Request::METHOD_GET,

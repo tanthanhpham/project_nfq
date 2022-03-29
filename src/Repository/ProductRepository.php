@@ -44,4 +44,34 @@ class ProductRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * @param $arrayParams
+     * @return float|int|mixed|string
+     */
+    public function filter($arrayParams)
+    {
+        $queryBuilder = $this->createQueryBuilder('p');
+        if (isset($arrayParams['minPrice']) && $arrayParams['minPrice'] != '') {
+            $queryBuilder
+                ->andWhere('p.price >= :minPrice')
+                ->setParameter('minPrice', $arrayParams['minPrice']);
+        }
+
+        if (isset($arrayParams['maxPrice']) && $arrayParams['maxPrice'] != '') {
+            $queryBuilder
+                ->andWhere('p.price <= :maxPrice')
+                ->setParameter('maxPrice', $arrayParams['maxPrice']);
+        }
+
+        if (isset($arrayParams['category']) && $arrayParams['category'] != 0) {
+            $queryBuilder
+                ->andWhere('p.category = :category')
+                ->setParameter('category', $arrayParams['category']);
+        }
+
+        return $queryBuilder
+            ->getQuery()
+            ->execute();
+    }
 }
