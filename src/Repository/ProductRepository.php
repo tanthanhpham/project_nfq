@@ -46,30 +46,39 @@ class ProductRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param $arrayParams
+     * @param $criteria
+     * @param $orderBy
      * @param $limit
      * @param $offset
      * @return array
      */
-    public function filter($arrayParams, $limit, $offset): array
+    public function filter($criteria, $orderBy, $limit, $offset): array
     {
         $queryBuilder = $this->createQueryBuilder('p');
-        if (isset($arrayParams['minPrice']) && $arrayParams['minPrice'] != '') {
+        if (isset($criteria['minPrice']) && $criteria['minPrice'] != '') {
             $queryBuilder
                 ->andWhere('p.price >= :minPrice')
-                ->setParameter('minPrice', $arrayParams['minPrice']);
+                ->setParameter('minPrice', $criteria['minPrice']);
         }
 
-        if (isset($arrayParams['maxPrice']) && $arrayParams['maxPrice'] != '') {
+        if (isset($criteria['maxPrice']) && $criteria['maxPrice'] != '') {
             $queryBuilder
                 ->andWhere('p.price <= :maxPrice')
-                ->setParameter('maxPrice', $arrayParams['maxPrice']);
+                ->setParameter('maxPrice', $criteria['maxPrice']);
         }
 
-        if (isset($arrayParams['category']) && $arrayParams['category'] != '' && $arrayParams['category'] != 1) {
+        if (isset($criteria['category']) && $criteria['category'] != '' && $criteria['category'] != 1) {
             $queryBuilder
                 ->andWhere('p.category = :category')
-                ->setParameter('category', $arrayParams['category']);
+                ->setParameter('category', $criteria['category']);
+        }
+
+        if (!empty($orderBy)) {
+            $arrayKeyOrder = array_keys($orderBy);
+            $sort = 'p.' . $arrayKeyOrder[0];
+            $order = $orderBy[$arrayKeyOrder[0]];
+            $queryBuilder
+                ->orderBy($sort, $order);
         }
 
         return $queryBuilder
