@@ -3,6 +3,7 @@
 namespace App\Tests\Controller\Api;
 
 use App\DataFixtures\CategoryFixtures;
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
@@ -19,7 +20,7 @@ class CategoryControllerTest extends BaseWebTestCase
 
         $this->client->request(
             Request::METHOD_GET,
-            '/api/categories',
+            'api/categories',
             [],
             [],
             [
