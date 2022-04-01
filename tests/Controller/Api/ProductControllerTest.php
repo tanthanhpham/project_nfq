@@ -30,7 +30,7 @@ class ProductControllerTest extends BaseWebTestCase
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
         $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertIsArray($data);
-        $this->assertCount(1, $data);
+        $this->assertCount(2, $data);
         $product = $data[0];
         $this->assertSame('Product name', $product['name']);
     }
@@ -42,12 +42,12 @@ class ProductControllerTest extends BaseWebTestCase
 
         $payload = [
             'category' => 1,
-            'minPrice' => 200000,
-            'maxPrice' => 500000
+            'minPrice' => 20000,
+            'maxPrice' => 50000
         ];
         $this->client->request(
-            Request::METHOD_GET,
-            '/api/products',
+            Request::METHOD_POST,
+            '/api/products/filter',
             [],
             [],
             [
@@ -55,6 +55,7 @@ class ProductControllerTest extends BaseWebTestCase
             ],
             json_encode($payload)
         );
+
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
         $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertIsArray($data);

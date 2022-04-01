@@ -31,7 +31,7 @@ class ProductController extends AbstractFOSRestController
     {
         $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
         $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
-        $products = $this->productRepository->findBy([], ['createAt' => 'ASC'], $limit, $offset);
+        $products = $this->productRepository->findBy([], ['createdAt' => 'ASC'], $limit, $offset);
 
         $productsList = array_map('self::dataTransferObject', $products);
 
@@ -47,7 +47,7 @@ class ProductController extends AbstractFOSRestController
         $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
         $requestData = json_decode($request->getContent(), true);
 
-        $products = $this->productRepository->filter($requestData, ['createAt' => 'DESC'], $limit, $offset);
+        $products = $this->productRepository->filter($requestData, ['createdAt' => 'DESC'], $limit, $offset);
         $productsList = array_map('self::dataTransferObject', $products);
 
         return $this->handleView($this->view($productsList, Response::HTTP_OK));
