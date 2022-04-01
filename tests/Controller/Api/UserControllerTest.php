@@ -12,6 +12,7 @@ use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Symfony\Bundle\FrameworkBundle\Client as Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -43,9 +44,7 @@ class UserControllerTest extends BaseWebTestCase
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
         $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertIsArray($data);
-        $this->assertCount(1, $data);
-        $user = $data[0];
-        $this->assertSame('User name', $user['name']);
+        $this->assertSame('User name', $data['name']);
     }
 
     public function testGetAllUser()
@@ -94,9 +93,8 @@ class UserControllerTest extends BaseWebTestCase
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
         $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertIsArray($data);
-        $this->assertCount(1, $data);
-        $user = $data[0];
-        $this->assertSame('User name', $user['name']);
+
+        $this->assertSame('User name', $data['name']);
     }
 
     public function testRegister()
@@ -104,28 +102,34 @@ class UserControllerTest extends BaseWebTestCase
         $payload = [
             'name' => 'User name',
             'email' => 'user@gmail.com',
-            'phone' => '088888888',
+            'phone' => '0981063207',
             'address' => 'User address',
             'password' => 'password',
-            'image' => '/image.png'
         ];
+
+        $image = new UploadedFile(
+            __DIR__. '/../../../fixtures/test.png',
+            'test.png',
+            'png',
+            null,
+            true
+        );
 
         $this->client->request(
             Request::METHOD_POST,
-            'api/register',
-            [],
-            [],
+            'api/register', $payload,
             [
-                'HTTP_ACCEPT' => 'application/json',
+                'image' => $image
             ],
-            json_encode($payload)
+            [
+                'HTTP_ACCEPT' => 'application/x-www-form-urlencoded',
+                'CONTENT_TYPE' => 'multipart/form-data',
+            ]
         );
 
         $this->assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
         $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertIsArray($data);
-        $this->assertCount(1, $data);
-        $user = $data[0];
-        $this->assertSame('User name', $user['name']);
+        $this->assertSame('User name', $data['name']);
     }
 }

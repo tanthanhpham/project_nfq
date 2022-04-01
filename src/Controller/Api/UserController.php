@@ -10,7 +10,6 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerBuilder;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -37,10 +36,8 @@ class UserController extends AbstractFOSRestController
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
         $requestData = $request->request->all();
-        dd($requestData);
         $form->submit($requestData);
         if ($form->isSubmitted() && $form->isValid()) {
-
             $user->setPassword($encoder->hashPassword($user, $requestData['password']));
             $user->setCreatedAt(new \DateTime());
             $user->setUpdatedAt(new \DateTime());
@@ -53,7 +50,7 @@ class UserController extends AbstractFOSRestController
             }
             $this->userRepository->add($user);
 
-            return $this->handleView($this->view($user, Response::HTTP_CREATED));
+            return $this->handleView($this->view(["message" => "Register successfully"], Response::HTTP_CREATED));
         }
 
         $errorsMessage = [];
@@ -84,7 +81,7 @@ class UserController extends AbstractFOSRestController
      */
     public function getOneUser($id): Response
     {
-        $user = $this->userRepository->findBy(['id' => $id, 'deletedAt' => null]);
+        $user = $this->userRepository->findOneBy(['id' => $id]);
 
         $serializer = SerializerBuilder::create()->build();
         $convertToJson = $serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('showUser')));
@@ -117,7 +114,7 @@ class UserController extends AbstractFOSRestController
     {
         $requestData = json_decode($request->getContent(), true);
         $email = $requestData['email'];
-        $user = $this->userRepository->findBy(['email' => $email, 'deletedAt' => null]);
+        $user = $this->userRepository->findOneBy(['email' => $email, 'deletedAt' => null]);
 
         $serializer = SerializerBuilder::create()->build();
         $convertToJson = $serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('showUser')));

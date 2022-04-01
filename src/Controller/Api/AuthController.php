@@ -7,14 +7,9 @@ use App\Form\UserType;
 use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
-use JMS\Serializer\SerializationContext;
-use JMS\Serializer\SerializerBuilder;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 
 class AuthController extends AbstractFOSRestController
@@ -53,7 +48,7 @@ class AuthController extends AbstractFOSRestController
             }
             $this->userRepository->add($user);
 
-            return $this->handleView($this->view($user, Response::HTTP_CREATED));
+            return $this->handleView($this->view(["message" => "Register successfully"], Response::HTTP_CREATED));
         }
 
         $errorsMessage = [];
@@ -62,6 +57,6 @@ class AuthController extends AbstractFOSRestController
             $errorsMessage[$paramError[0]] = $paramError[1];
         }
 
-        return $this->handleView($this->view($errorsMessage, Response::HTTP_CREATED));
+        return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
     }
 }
