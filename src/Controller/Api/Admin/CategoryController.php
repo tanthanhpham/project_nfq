@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Api;
+namespace App\Controller\Api\Admin;
 
 use App\Repository\CategoryRepository;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
