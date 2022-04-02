@@ -4,17 +4,26 @@ namespace App\Controller\Api\Admin;
 
 use App\Entity\User;
 use App\Form\UserType;
+use App\Form\UserUpdateType;
 use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
+/**
+ * @IsGranted("ROLE_ADMIN")
+ */
 class AuthController extends AbstractFOSRestController
 {
+    public const PATH = '127.0.0.1/uploads/images/';
+
     private $userRepository;
 
     public function __construct(UserRepository $userRepository)
@@ -23,7 +32,22 @@ class AuthController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Post ("/admins")
+     * @Rest\Get ("/users")
+     * @return Response
+     */
+    public function getAllUser(): Response
+    {
+        $users = $this->userRepository->findBy(['deletedAt' => null]);
+
+        $serializer = SerializerBuilder::create()->build();
+        $convertToJson = $serializer->serialize($users, 'json', SerializationContext::create()->setGroups(array('showUser')));
+        $users = $serializer->deserialize($convertToJson, 'array', 'json');
+
+        return $this->handleView($this->view($users, Response::HTTP_OK));
+    }
+
+    /**
+     * @Rest\Post ("/admin/users")
      * @param Request $request
      * @param UserPasswordHasherInterface $encoder
      * @return Response
@@ -44,6 +68,7 @@ class AuthController extends AbstractFOSRestController
             $uploadFile = $request->files->get('image');
             if ($uploadFile) {
                 $saveFile = $fileUploader->upload($uploadFile);
+                $saveFile = self::PATH . $saveFile;
                 $user->setImage($saveFile);
             }
             $this->userRepository->add($user);
@@ -58,5 +83,35 @@ class AuthController extends AbstractFOSRestController
         }
 
         return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
+    }
+
+    /**
+     * @Rest\Delete("/admin/users/{id}")
+     * @param integer $id
+     * @return Response
+     */
+    public function deleteUser(int $id): Response
+    {
+        try {
+            $user = $this->userRepository->find($id);
+            if (!$user) {
+                return $this->handleView($this->view(
+                    ['error' => 'No user was found with this id.'],
+                    Response::HTTP_NOT_FOUND
+                ));
+            }
+
+            $user->setDeletedAt(new \DateTime());
+            $this->userRepository->add($user);
+
+            return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
+        } catch (\Exception $e) {
+            //Need to add log the error message
+        }
+
+        return $this->handleView($this->view(
+            ['error' => 'Something went wrong! Please contact support.'],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        ));
     }
 }

@@ -39,3 +39,9 @@ services:
             class: App\Form\UserType
             calls:
                 - [ setUserRepository, [ '@App\Repository\UserRepository' ] ]
+
+    App\Form\UserUpdateType:
+            class: App\Form\UserUpdateType
+            calls:
+                - [ setUserRepository, [ '@App\Repository\UserRepository' ] ]
+
