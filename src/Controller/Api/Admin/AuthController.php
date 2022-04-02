@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Controller\Api;
+namespace App\Controller\Api\Admin;
 
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
 use App\Service\FileUploader;
+use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use FOS\RestBundle\Controller\Annotations as Rest;
 
 class AuthController extends AbstractFOSRestController
 {

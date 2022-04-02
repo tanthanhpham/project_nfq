@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\View\View;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class UserController extends AbstractFOSRestController
 {
@@ -77,6 +79,7 @@ class UserController extends AbstractFOSRestController
     /**
      * @Rest\Get ("/users/{id}")
      * @param $id
+     * @IsGranted("ROLE_USER")
      * @return Response
      */
     public function getOneUser($id): Response
@@ -92,6 +95,7 @@ class UserController extends AbstractFOSRestController
 
     /**
      * @Rest\Get ("/users")
+     * @IsGranted("ROLE_USER")
      * @return Response
      */
     public function getAllUser(): Response
@@ -107,6 +111,7 @@ class UserController extends AbstractFOSRestController
 
     /**
      * @Rest\Post ("/users/email")
+     * @IsGranted("ROLE_USER")
      * @param Request $request
      * @return Response
      */
