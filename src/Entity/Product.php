@@ -34,12 +34,6 @@ class Product
     private $price;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"show"})
-     */
-    private $image;
-
-    /**
      * @ORM\Column(type="text", nullable=true)
      * @Groups({"show"})
      */
@@ -87,6 +81,11 @@ class Product
      */
     private $productItems;
 
+    /**
+     * @ORM\Column(type="array")
+     */
+    private $images = [];
+
     public function __construct()
     {
         $this->galleries = new ArrayCollection();
@@ -118,18 +117,6 @@ class Product
     public function setPrice(int $price): self
     {
         $this->price = $price;
-
-        return $this;
-    }
-
-    public function getImage(): ?string
-    {
-        return $this->image;
-    }
-
-    public function setImage(string $image): self
-    {
-        $this->image = $image;
 
         return $this;
     }
@@ -279,6 +266,18 @@ class Product
                 $productItem->setProduct(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getImages(): ?array
+    {
+        return $this->images;
+    }
+
+    public function setImages(array $images): self
+    {
+        $this->images = $images;
 
         return $this;
     }
