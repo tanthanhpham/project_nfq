@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class ProductType extends AbstractType
+class ProductUpdateType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -34,9 +34,6 @@ class ProductType extends AbstractType
                     ])
                 ]
             ])
-            ->add('images', CollectionType::class, [
-                'entry_type' => FileType::class
-            ])
             ->add('price', NumberType::class)
             ->add('description', TextareaType::class)
             ->add('material', TextareaType::class)
@@ -48,9 +45,6 @@ class ProductType extends AbstractType
                         'message' => 'Category can not be null',
                     ]),
                 ]
-            ])
-            ->add('productItems', CollectionType::class, [
-                'entry_type' => ProductItem::class
             ])
         ;
     }

@@ -5,15 +5,23 @@ namespace App\Controller\Api\Admin;
 use App\Entity\Gallery;
 use App\Entity\Product;
 use App\Entity\ProductItem;
+use App\Form\ProductItemUpdateType;
 use App\Form\ProductType;
+use App\Form\ProductUpdateType;
+use App\Repository\ProductItemRepository;
 use App\Repository\ProductRepository;
+use App\Repository\SizeRepository;
 use App\Service\FileUploader;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Validator\Constraints\Image;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @IsGranted("ROLE_ADMIN")
@@ -22,11 +30,17 @@ class ProductController extends AbstractFOSRestController
 {
     public const PRODUCT_PAGE_LIMIT = 10;
     public const PRODUCT_PAGE_OFFSET = 0;
-    private $productRepository;
+    public const PATH = '127.0.0.1/uploads/images/';
 
-    public function __construct(ProductRepository $productRepository)
+    private $productRepository;
+    private $sizeRepository;
+    private $productItemRepository;
+
+    public function __construct(ProductRepository $productRepository, SizeRepository $sizeRepository, ProductItemRepository $productItemRepository)
     {
         $this->productRepository = $productRepository;
+        $this->sizeRepository = $sizeRepository;
+        $this->productItemRepository = $productItemRepository;
     }
 
     /**
@@ -63,25 +77,95 @@ class ProductController extends AbstractFOSRestController
     {
         $product = new Product();
         $form = $this->createForm(ProductType::class, $product);
+        $requestData = $request->request->all();
         $form->submit($request->request->all());
 
-        $imagePath = [];
-        $images = $request->files->get('image');
-        if ($images) {
-            $saveFile = $fileUploader->upload($images);
-            $imagePath[] = $saveFile;
-        }
         if ($form->isSubmitted()) {
-            $product->setImage($imagePath);
             $product->setCreateAt(new \DateTime());
             $product->setUpdateAt(new \DateTime());
 
+            $gallery = $request->files->get('images');
+            $imagesPath = [];
+            foreach ($gallery as $image) {
+                $saveFile = $fileUploader->upload($image);
+                $saveFile = self::PATH . $saveFile;
+                $imagesPath[] = $saveFile;
+            }
+
+            $product->setImages($imagesPath);
+
+            $productItemsData = (json_decode($requestData['productItems'][0], true));
+            foreach ($productItemsData as $productItemData){
+                $productItem = new ProductItem();
+                $size = $this->sizeRepository->find($productItemData['size']);
+                $productItem->setSize($size);
+                $productItem->setProduct($product);
+                $productItem->setAmount($productItemData['amount']);
+                $product->addProductItem($productItem);
+            }
             $this->productRepository->add($product);
+            $product = self::dataTransferProductObject($product);
 
             return $this->handleView($this->view($product, Response::HTTP_CREATED));
         }
 
         return $this->handleView($this->view($form->getErrors(), Response::HTTP_BAD_REQUEST));
+    }
+
+    /**
+     * @Rest\Put("admin/products/{id}")
+     * @param Request $request
+     * @param Product $product
+     * @return Response
+     */
+    public function updateProduct(Product $product, Request $request): Response
+    {
+        $form = $this->createForm(ProductUpdateType::class, $product);
+        $form->submit($request->request->all());
+        if ($form->isSubmitted()) {
+            $product->setUpdateAt(new \DateTime());
+            $this->productRepository->add($product);
+
+            return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
+        }
+
+        return $this->handleView($this->view($form->getErrors(), Response::HTTP_BAD_REQUEST));
+    }
+
+    /**
+     * @Rest\Get("admin/products/{id}/productItems")
+     * @param Product $product
+     * @return Response
+     */
+    public function getProductItems(Product $product): Response
+    {
+        $productItems = $product->getProductItems();
+
+        $serializer = SerializerBuilder::create()->build();
+        $convertToJson = $serializer->serialize($productItems, 'json', SerializationContext::create()->setGroups(array('showProductItems')));
+        $productItems = $serializer->deserialize($convertToJson, 'array', 'json');
+
+        return $this->handleView($this->view($productItems, Response::HTTP_OK));
+    }
+
+    /**
+     * @Rest\Put("admin/products/{id}/productItem")
+     * @param Request $request
+     * @param Product $product
+     * @return Response
+     */
+    public function updateProductItem(Product $product, Request $request): Response
+    {
+        $requestData = json_decode($request->getContent(),true);
+        foreach ($requestData as $productItemData){
+            $productItem = $this->productItemRepository->find($productItemData['id']);
+            $size = $this->sizeRepository->find($productItemData['size']);
+            $productItem->setSize($size);
+            $productItem->setAmount($productItemData['amount']);
+            $product->addProductItem($productItem);
+        }
+        $this->productRepository->add($product);
+        return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
     }
 
     /**
@@ -94,7 +178,7 @@ class ProductController extends AbstractFOSRestController
 
         $formattedProduct['id'] = $product->getId();
         $formattedProduct['name'] = $product->getName();
-        $formattedProduct['image'] = $product->getImage();
+        $formattedProduct['image'] = $product->getImages();
         $formattedProduct['category'] = $product->getCategory()->getName();
         $formattedProduct['price'] = $product->getPrice();
         $formattedProduct['color'] = $product->getColor();
@@ -116,11 +200,7 @@ class ProductController extends AbstractFOSRestController
         $formattedProduct['price'] = $product->getPrice();
         $formattedProduct['color'] = $product->getColor();
         $formattedProduct['material'] = $product->getMaterial();
-
-        $gallery = $product->getGalleries();
-        foreach ($gallery as $image) {
-            $formattedProduct['gallery'][] =  $image->getPath();
-        }
+        $formattedProduct['images'] = $product->getImages();
 
         $items = $product->getProductItems();
         foreach ($items as $item) {

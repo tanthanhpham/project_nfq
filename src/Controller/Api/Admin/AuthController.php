@@ -32,7 +32,7 @@ class AuthController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Get ("/users")
+     * @Rest\Get ("/admin/users")
      * @return Response
      */
     public function getAllUser(): Response
