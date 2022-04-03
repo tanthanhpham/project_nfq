@@ -6,6 +6,7 @@ use App\Repository\ProductItemRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ProductItemRepository::class)
@@ -16,11 +17,13 @@ class ProductItem
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"showProductItems"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"showProductItems"})
      */
     private $amount;
 
@@ -31,6 +34,7 @@ class ProductItem
 
     /**
      * @ORM\ManyToOne(targetEntity=Size::class, inversedBy="productItems", cascade={"persist"})
+     * @Groups({"showProductItems"})
      */
     private $size;
 

@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\User;
 use App\Form\UserType;
+use App\Form\UserUpdateType;
 use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -17,9 +18,12 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Validator\Constraints\Image;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserController extends AbstractFOSRestController
 {
+    public const PATH = '127.0.0.1/uploads/images/';
     private $userRepository;
 
     public function __construct(UserRepository $userRepository)
@@ -48,6 +52,7 @@ class UserController extends AbstractFOSRestController
             $uploadFile = $request->files->get('image');
             if ($uploadFile) {
                 $saveFile = $fileUploader->upload($uploadFile);
+                $saveFile = self::PATH . $saveFile;
                 $user->setImage($saveFile);
             }
             $this->userRepository->add($user);
@@ -94,22 +99,6 @@ class UserController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Get ("/users")
-     * @IsGranted("ROLE_USER")
-     * @return Response
-     */
-    public function getAllUser(): Response
-    {
-        $users = $this->userRepository->findBy(['deletedAt' => null]);
-
-        $serializer = SerializerBuilder::create()->build();
-        $convertToJson = $serializer->serialize($users, 'json', SerializationContext::create()->setGroups(array('showUser')));
-        $users = $serializer->deserialize($convertToJson, 'array', 'json');
-
-        return $this->handleView($this->view($users, Response::HTTP_OK));
-    }
-
-    /**
      * @Rest\Post ("/users/email")
      * @IsGranted("ROLE_USER")
      * @param Request $request
@@ -126,5 +115,71 @@ class UserController extends AbstractFOSRestController
         $user = $serializer->deserialize($convertToJson, 'array', 'json');
 
         return $this->handleView($this->view($user, Response::HTTP_OK));
+    }
+
+    /**
+     * @Rest\Put ("/users/{id}")
+     * @IsGranted("ROLE_USER")
+     * @param Request $request
+     * @return Response
+     */
+    public function updateAdmin(User $user, Request $request): Response
+    {
+        $form = $this->createForm(UserUpdateType::class, $user);
+        $requestData = json_decode($request->getContent(), true);
+        $form->submit($requestData);
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $user->setUpdatedAt(new \DateTime());
+            $this->userRepository->add($user);
+
+            return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
+        }
+
+        $errorsMessage = [];
+        foreach ($form->getErrors(true, true) as $error) {
+            $paramError = explode('=>', $error->getMessage());
+            $errorsMessage[$paramError[0]] = $paramError[1];
+        }
+
+        return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
+    }
+
+    /**
+     * @Rest\Post("/users/{id}/image")
+     * @IsGranted("ROLE_USER")
+     * @param Request $request
+     * @param FileUploader $fileUploader
+     * @param ValidatorInterface $validator
+     * @return Response
+     */
+    public function updateAvatar(Request $request, User $user, FileUploader $fileUploader, ValidatorInterface $validator): Response
+    {
+        $uploadFile = $request->files->get('image');
+
+        if (!$uploadFile) {
+            return $this->handleView($this->view(['error' => 'Please choose image to upload.'], Response::HTTP_BAD_REQUEST));
+        }
+
+        $errors = $validator->validate($uploadFile, new Image([
+            'maxSize' => '5M',
+            'mimeTypes' => [
+                "image/jpeg",
+                "image/jpg",
+                "image/png",
+            ],
+            'maxSizeMessage' => 'File is too large.',
+            'mimeTypesMessage' => 'Please upload a valid Image file.',
+        ]));
+
+        if (count($errors)) {
+            return $this->handleView($this->view(['error' => $errors], Response::HTTP_BAD_REQUEST));
+        }
+        $saveFile = $fileUploader->upload($uploadFile);
+        $saveFile = self::PATH . $saveFile;
+        $user->setImage($saveFile);
+        $this->userRepository->add($user);
+
+        return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
     }
 }

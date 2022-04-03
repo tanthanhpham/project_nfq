@@ -90,7 +90,7 @@ class HomeController extends AbstractFOSRestController
 
         $formattedProduct['id'] = $product->getId();
         $formattedProduct['name'] = $product->getName();
-        $formattedProduct['image'] = $product->getImage();
+        $formattedProduct['image'] = $product->getImages();
         $formattedProduct['category'] = $product->getCategory()->getName();
         $formattedProduct['price'] = $product->getPrice();
         $formattedProduct['color'] = $product->getColor();
@@ -112,11 +112,7 @@ class HomeController extends AbstractFOSRestController
         $formattedProduct['price'] = $product->getPrice();
         $formattedProduct['color'] = $product->getColor();
         $formattedProduct['material'] = $product->getMaterial();
-
-        $gallery = $product->getGalleries();
-        foreach ($gallery as $image) {
-            $formattedProduct['gallery'][] =  $image->getPath();
-        }
+        $formattedProduct['images'] = $product->getImages();
 
         $items = $product->getProductItems();
         foreach ($items as $item) {
