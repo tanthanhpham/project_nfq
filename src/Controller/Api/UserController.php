@@ -100,7 +100,6 @@ class UserController extends AbstractFOSRestController
 
     /**
      * @Rest\Post ("/users/email")
-     * @IsGranted("ROLE_USER")
      * @param Request $request
      * @return Response
      */
