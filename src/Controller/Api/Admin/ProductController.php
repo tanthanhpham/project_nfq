@@ -30,7 +30,7 @@ class ProductController extends AbstractFOSRestController
 {
     public const PRODUCT_PAGE_LIMIT = 10;
     public const PRODUCT_PAGE_OFFSET = 0;
-    public const PATH = '127.0.0.1/uploads/images/';
+    public const PATH = 'http://127.0.0.1/uploads/images/';
 
     private $productRepository;
     private $sizeRepository;

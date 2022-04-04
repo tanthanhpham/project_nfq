@@ -16,7 +16,7 @@ use FOS\RestBundle\View\View;
 
 class HomeController extends AbstractFOSRestController
 {
-    public const PRODUCT_PAGE_LIMIT = 10;
+    public const PRODUCT_PAGE_LIMIT = 12;
     public const PRODUCT_PAGE_OFFSET = 0;
     private $productRepository;
     private $categoryRepository;
@@ -59,11 +59,14 @@ class HomeController extends AbstractFOSRestController
         $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
         $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
         $requestData = json_decode($request->getContent(), true);
+        $stringSort = explode('-',$requestData['sort']);
+        $key = $stringSort[0];
+        $orderBy = $stringSort[1];
 
-        $products = $this->productRepository->filter($requestData, ['createdAt' => 'DESC'], $limit, $offset);
-        $productsList = array_map('self::dataTransferObject', $products);
+        $products = $this->productRepository->filter($requestData, [$key => $orderBy], $limit, $offset);
+        $products = array_map('self::dataTransferObject', $products);
 
-        return $this->handleView($this->view($productsList, Response::HTTP_OK));
+        return $this->handleView($this->view($products, Response::HTTP_OK));
     }
 
     /**

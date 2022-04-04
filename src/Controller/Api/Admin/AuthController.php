@@ -22,7 +22,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
  */
 class AuthController extends AbstractFOSRestController
 {
-    public const PATH = '127.0.0.1/uploads/images/';
+    public const PATH = 'http://127.0.0.1/uploads/images/';
 
     private $userRepository;
 
