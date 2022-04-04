@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserController extends AbstractFOSRestController
 {
-    public const PATH = '127.0.0.1/uploads/images/';
+    public const PATH = 'http://127.0.0.1/uploads/images/';
     private $userRepository;
 
     public function __construct(UserRepository $userRepository)
@@ -122,7 +122,7 @@ class UserController extends AbstractFOSRestController
      * @param Request $request
      * @return Response
      */
-    public function updateAdmin(User $user, Request $request): Response
+    public function updateUser(User $user, Request $request): Response
     {
         $form = $this->createForm(UserUpdateType::class, $user);
         $requestData = json_decode($request->getContent(), true);
