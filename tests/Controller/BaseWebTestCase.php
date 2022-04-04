@@ -48,7 +48,7 @@ class BaseWebTestCase extends WebTestCase
         static::$kernel->boot();
         /** @var  JWTEncoderInterface $jwtEncode */
         $jwtEncode = static::$kernel->getContainer()->get('lexik_jwt_authentication.encoder');
-        self::$token = $jwtEncode->encode(['username' => 'phamtanthanhhaaa@gmail.com']);
+        self::$token = $jwtEncode->encode(['username' => 'user@gmail.com']);
     }
 
     /**

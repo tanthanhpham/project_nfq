@@ -26,77 +26,6 @@ class UserControllerTest extends BaseWebTestCase
 {
     use ReloadDatabaseTrait;
 
-    public function testGetOneUser()
-    {
-        $user = new UserFixtures();
-        $this->loadFixture($user);
-
-        $this->client->request(
-            Request::METHOD_GET,
-            'api/users/1',
-            [],
-            [],
-            [
-                'HTTP_ACCEPT' => 'application/json',
-            ]
-        );
-
-        $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        $data = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertIsArray($data);
-        $this->assertSame('User name', $data['name']);
-    }
-
-    public function testGetAllUser()
-    {
-        $user = new UserFixtures();
-        $this->loadFixture($user);
-
-        $this->client->request(
-            Request::METHOD_GET,
-            'api/users',
-            [],
-            [],
-            [
-                'HTTP_ACCEPT' => 'application/json',
-            ]
-        );
-
-        $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        $data = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertIsArray($data);
-        $this->assertCount(1, $data);
-        $user = $data[0];
-        $this->assertSame('User name', $user['name']);
-    }
-
-    public function testGetUserByEmail()
-    {
-        $user = new UserFixtures();
-        $this->loadFixture($user);
-
-        $payload = [
-            'email' => 'user@gmail.com',
-            'password' => 'password'
-        ];
-        $this->client->request(
-            Request::METHOD_POST,
-            'api/users/email',
-            [],
-            [],
-            [
-                'HTTP_ACCEPT' => 'application/json',
-            ],
-            json_encode($payload)
-        );
-
-        $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        $data = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertIsArray($data);
-
-        $this->assertSame('User name', $data['name']);
-    }
-
     public function testRegister()
     {
         $payload = [
@@ -128,8 +57,133 @@ class UserControllerTest extends BaseWebTestCase
         );
 
         $this->assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testGetOneUser()
+    {
+        $user = new UserFixtures();
+        $this->loadFixture($user);
+
+        $this->client->request(
+            Request::METHOD_GET,
+            'api/users/1',
+            [],
+            [],
+            [
+                'HTTP_ACCEPT' => 'application/json',
+                'HTTP_AUTHORIZATION' => sprintf('Bearer %s', self::$token)
+            ]
+        );
+
+        $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
         $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertIsArray($data);
         $this->assertSame('User name', $data['name']);
     }
+
+    public function testGetUserByEmail()
+    {
+        $user = new UserFixtures();
+        $this->loadFixture($user);
+
+        $payload = [
+            'email' => 'user@gmail.com',
+            'password' => 'password'
+        ];
+        $this->client->request(
+            Request::METHOD_POST,
+            'api/users/email',
+            [],
+            [],
+            [
+                'HTTP_ACCEPT' => 'application/json',
+            ],
+            json_encode($payload)
+        );
+
+        $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        $data = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertIsArray($data);
+
+        $this->assertSame('User name', $data['name']);
+    }
+
+    public function testUpdateUser()
+    {
+        $user = new UserFixtures();
+        $this->loadFixture($user);
+
+        $payload = [
+            "name" => "User name",
+            "email" => "user@gmail.com",
+            "phone" => "0888888888",
+            "address" => "User address"
+
+        ];
+        $this->client->request(
+            Request::METHOD_PUT,
+            'api/users/1',
+            [],
+            [],
+            [
+                'HTTP_ACCEPT' => 'application/json',
+                'HTTP_AUTHORIZATION' => sprintf('Bearer %s', self::$token)
+            ],
+            json_encode($payload)
+        );
+
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testUpdateAvatar()
+    {
+        $user = new UserFixtures();
+        $this->loadFixture($user);
+
+        $image = new UploadedFile(
+            __DIR__. '/../../../fixtures/test.png',
+            'test.png',
+            'png',
+            null,
+            true
+        );
+
+        $this->client->request(
+            Request::METHOD_POST,
+            'api/users/1/image',
+            [],
+            [
+                'image' => $image
+            ],
+            [
+                'HTTP_ACCEPT' => 'application/x-www-form-urlencoded',
+                'HTTP_AUTHORIZATION' => sprintf('Bearer %s', self::$token),
+            ]
+        );
+
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $this->client->getResponse()->getStatusCode());
+    }
+
+//    public function testGetAllUser()
+//    {
+//        $user = new UserFixtures();
+//        $this->loadFixture($user);
+//
+//        $this->client->request(
+//            Request::METHOD_GET,
+//            'api/users',
+//            [],
+//            [],
+//            [
+//                'HTTP_ACCEPT' => 'application/json',
+//            ]
+//        );
+//
+//        $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+//        $data = json_decode($this->client->getResponse()->getContent(), true);
+//        $this->assertIsArray($data);
+//        $this->assertCount(1, $data);
+//        $user = $data[0];
+//        $this->assertSame('User name', $user['name']);
+//    }
 }

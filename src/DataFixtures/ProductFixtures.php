@@ -19,10 +19,10 @@ class ProductFixtures extends Fixture
         $product = new Product();
         $product->setName('Product name');
         $product->setPrice(30000);
-        $product->setImage('/product_image');
+        $product->setImages(['/product_image']);
         $product->setMaterial('Product material');
         $product->setDescription('Product description');
-        $product->setImage('product_image.png');
+        $product->setImages(['product_image.png']);
         $product->setColor('Red');
         $product->setCreateAt(new \DateTime());
         $product->setUpdateAt(new \DateTime());
@@ -33,10 +33,10 @@ class ProductFixtures extends Fixture
         $product2 = new Product();
         $product2->setName('Product 2 name');
         $product2->setPrice(10000);
-        $product2->setImage('/product2_image');
+        $product2->setImages(['/product2_image']);
         $product2->setMaterial('Product 2 material');
         $product2->setDescription('Product 2 description');
-        $product2->setImage('product2_image.png');
+        $product2->setImages(['product2_image.png']);
         $product2->setColor('Red');
         $product2->setCreateAt(new \DateTime());
         $product2->setUpdateAt(new \DateTime());

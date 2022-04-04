@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Tests\Controller\Api;
+namespace App\Tests\Controller\Api\Admin;
 
 use App\DataFixtures\CategoryFixtures;
-use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
+use App\Tests\Controller\BaseWebTestCase;
+use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
-use App\Tests\Controller\BaseWebTestCase;
 
 class CategoryControllerTest extends BaseWebTestCase
 {
