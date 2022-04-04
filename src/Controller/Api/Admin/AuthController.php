@@ -90,7 +90,7 @@ class AuthController extends AbstractFOSRestController
      * @param integer $id
      * @return Response
      */
-    public function deleteUser(int $id): Response
+    public function deleteAdmin(int $id): Response
     {
         try {
             $user = $this->userRepository->find($id);
