@@ -50,7 +50,7 @@ class ProductController extends AbstractFOSRestController
     {
         $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
         $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
-        $products = $this->productRepository->findBy([], ['createdAt' => 'ASC'], $limit, $offset);
+        $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'ASC'], $limit, $offset);
 
         $productsList = array_map('self::dataTransferObject', $products);
 
@@ -166,6 +166,36 @@ class ProductController extends AbstractFOSRestController
         }
         $this->productRepository->add($product);
         return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
+    }
+
+    /**
+     * @Rest\Delete("admin/products/{id}")
+     * @param int $id
+     * @return Response
+     */
+    public function deleteProduct(int $id): Response
+    {
+        try {
+            $user = $this->productRepository->find($id);
+            if (!$user) {
+                return $this->handleView($this->view(
+                    ['error' => 'No product was found with this id.'],
+                    Response::HTTP_NOT_FOUND
+                ));
+            }
+
+            $user->setDeletedAt(new \DateTime());
+            $this->productRepository->add($user);
+
+            return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
+        } catch (\Exception $e) {
+            //Need to add log the error message
+        }
+
+        return $this->handleView($this->view(
+            ['error' => 'Something went wrong! Please contact support.'],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        ));
     }
 
     /**

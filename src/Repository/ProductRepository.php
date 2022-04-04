@@ -82,6 +82,7 @@ class ProductRepository extends ServiceEntityRepository
         }
 
         return $queryBuilder
+            ->andWhere('p.deletedAt is NULL')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->getQuery()
