@@ -7,6 +7,7 @@ use App\Form\UserType;
 use App\Form\UserUpdateType;
 use App\Repository\UserRepository;
 use App\Service\FileUploader;
+use App\Service\GetUserInfo;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerBuilder;
@@ -67,6 +68,23 @@ class UserController extends AbstractFOSRestController
         }
 
         return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
+    }
+
+    /**
+     * @Rest\post ("/users/check_email")
+     * @param Request $request
+     * @return Response
+     */
+    public function getCheckEmailExist(Request $request): Response
+    {
+        $requestData = json_decode($request->getContent(), true);
+        $user = $this->userRepository->findOneBy(['email' => $requestData]);
+        if ($user) {
+
+            return $this->handleView($this->view(true, Response::HTTP_OK));
+        }
+
+        return $this->handleView($this->view(false, Response::HTTP_OK));
     }
 
     /**

@@ -45,3 +45,6 @@ services:
             calls:
                 - [ setUserRepository, [ '@App\Repository\UserRepository' ] ]
 
+    App\Service\GetUserInfo:
+        arguments:
+            $tokenStorage: '@security.token_storage'
