@@ -42,4 +42,26 @@ class ProductControllerTest extends BaseWebTestCase
 
         $this->assertEquals(Response::HTTP_NO_CONTENT, $this->client->getResponse()->getStatusCode());
     }
+
+    public function testDeleteProduct()
+    {
+        $productFixtures = new ProductFixtures();
+        $this->loadFixture($productFixtures);
+
+        $user = new UserFixtures();
+        $this->loadFixture($user);
+
+        $this->client->request(
+            Request::METHOD_DELETE,
+            'api/admin/products/1',
+            [],
+            [],
+            [
+                'HTTP_ACCEPT' => 'application/json',
+                'HTTP_AUTHORIZATION' => sprintf('Bearer %s', self::$token)
+            ]
+        );
+
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $this->client->getResponse()->getStatusCode());
+    }
 }

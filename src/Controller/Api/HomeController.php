@@ -34,7 +34,7 @@ class HomeController extends AbstractFOSRestController
     {
         $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
         $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
-        $products = $this->productRepository->findBy([], ['createdAt' => 'ASC'], $limit, $offset);
+        $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'ASC'], $limit, $offset);
 
         $productsList = array_map('self::dataTransferObject', $products);
 
