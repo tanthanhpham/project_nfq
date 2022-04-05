@@ -43,9 +43,15 @@ class ProductItem
      */
     private $orderDetails;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Cart::class, mappedBy="productItem", cascade={"persist"})
+     */
+    private $carts;
+
     public function __construct()
     {
         $this->orderDetails = new ArrayCollection();
+        $this->carts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -113,6 +119,36 @@ class ProductItem
             // set the owning side to null (unless already changed)
             if ($orderDetail->getProductItem() === $this) {
                 $orderDetail->setProductItem(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Cart>
+     */
+    public function getCarts(): Collection
+    {
+        return $this->carts;
+    }
+
+    public function addCart(Cart $cart): self
+    {
+        if (!$this->carts->contains($cart)) {
+            $this->carts[] = $cart;
+            $cart->setProductItem($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCart(Cart $cart): self
+    {
+        if ($this->carts->removeElement($cart)) {
+            // set the owning side to null (unless already changed)
+            if ($cart->getProductItem() === $this) {
+                $cart->setProductItem(null);
             }
         }
 
