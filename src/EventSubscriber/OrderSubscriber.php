@@ -25,7 +25,7 @@ class OrderSubscriber implements EventSubscriberInterface
         $this->mailerService->send(
             'Hello',
             'tanthanh.pham@nfq.asia',
-            'tinhthanh.vo@nfq.asia',
+            'phamtanthanh.it@gmail.com',
             'Hello world'
         );
     }

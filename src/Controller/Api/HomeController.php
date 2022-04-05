@@ -111,13 +111,7 @@ class HomeController extends AbstractFOSRestController
         $event = new OrderEvent($order);
         $this->eventDispatcher->dispatch($event);
 
-        $mailerService->send(
-            'Hello',
-            'phamtanthanh.it@gmail.com',
-            'tinhthanh.vo@gmail.com',
-        'Hello world');
-
-        return $this->handleView($this->view('a'));
+        return $this->handleView($this->view(['success' => 'Send successfully']));
     }
 
     /**
