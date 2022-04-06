@@ -38,6 +38,11 @@ class OrderDetail
      */
     private $productItem;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Order::class, inversedBy="orderItems", cascade={"persist"})
+     */
+    private $purchaseOrder;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -87,6 +92,18 @@ class OrderDetail
     public function setProductItem(?ProductItem $productItem): self
     {
         $this->productItem = $productItem;
+
+        return $this;
+    }
+
+    public function getPurchaseOrder(): ?Order
+    {
+        return $this->purchaseOrder;
+    }
+
+    public function setPurchaseOrder(?Order $purchaseOrder): self
+    {
+        $this->purchaseOrder = $purchaseOrder;
 
         return $this;
     }

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\OrderRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -67,6 +69,16 @@ class Order
      * @ORM\Column(type="string", length=100)
      */
     private $recipientEmail;
+
+    /**
+     * @ORM\OneToMany(targetEntity=OrderDetail::class, mappedBy="purchaseOrder", cascade={"persist"})
+     */
+    private $orderItems;
+
+    public function __construct()
+    {
+        $this->orderItems = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -189,6 +201,36 @@ class Order
     public function setRecipientEmail(string $recipientEmail): self
     {
         $this->recipientEmail = $recipientEmail;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, OrderDetail>
+     */
+    public function getOrderItems(): Collection
+    {
+        return $this->orderItems;
+    }
+
+    public function addOrderItem(OrderDetail $orderItem): self
+    {
+        if (!$this->orderItems->contains($orderItem)) {
+            $this->orderItems[] = $orderItem;
+            $orderItem->setPurchaseOrder($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrderItem(OrderDetail $orderItem): self
+    {
+        if ($this->orderItems->removeElement($orderItem)) {
+            // set the owning side to null (unless already changed)
+            if ($orderItem->getPurchaseOrder() === $this) {
+                $orderItem->setPurchaseOrder(null);
+            }
+        }
 
         return $this;
     }
