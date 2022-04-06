@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Entity\Order;
 use App\Entity\OrderDetail;
 use App\Entity\ProductItem;
+use App\Event\OrderEvent;
 use App\Form\OrderType;
 use App\Repository\CartRepository;
 use App\Repository\OrderRepository;
@@ -13,6 +14,7 @@ use App\Service\GetUserInfo;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerBuilder;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -32,18 +34,21 @@ class OrderController extends AbstractFOSRestController
     private $productItemRepository;
     private $userLoginInfo;
     private $cartRepository;
+    private $eventDispatcher;
 
     public function __construct(
         OrderRepository $purchaseOrderRepository,
         GetUserInfo $userLogin,
         ProductItemRepository $productItemRepository,
-        CartRepository $cartRepository
+        CartRepository $cartRepository,
+        EventDispatcherInterface $eventDispatcher
     )
     {
         $this->purchaseOrderRepository = $purchaseOrderRepository;
         $this->userLoginInfo = $userLogin->getUserLoginInfo();
         $this->productItemRepository = $productItemRepository;
         $this->cartRepository = $cartRepository;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -104,9 +109,6 @@ class OrderController extends AbstractFOSRestController
                 $productItem->setAmount($productItem->getAmount() - $cartItemData->getAmount());
                 $this->productItemRepository->add($productItem);
                 $orderDetail->setProductItem($productItem);
-
-                $order->setDate(new \DateTime());
-                $order->setUpdatedAt(new \DateTime());
                 $order->addOrderItem($orderDetail);
 
                 $this->cartRepository->remove($cartItemData);
@@ -114,6 +116,9 @@ class OrderController extends AbstractFOSRestController
             $order->setTotalPrice($totalPrice);
             $order->setTotalQuantity($totalQuantity);
             $this->purchaseOrderRepository->add($order);
+
+            $event = new OrderEvent($order);
+            $this->eventDispatcher->dispatch($event);
             return $this->handleView($this->view(['message' => 'Add order successfully'], Response::HTTP_CREATED));
         }
 

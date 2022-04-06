@@ -102,7 +102,7 @@ class HomeController extends AbstractFOSRestController
 
     /**
      * @Rest\Get ("/email")
-     * @param MailerInterface $mailer
+     * @param MailerService $mailerService
      * @return Response
      */
     public function sendMail(MailerService $mailerService): Response
@@ -143,7 +143,7 @@ class HomeController extends AbstractFOSRestController
         $formattedProduct['id'] = $product->getId();
         $formattedProduct['name'] = $product->getName();
         $formattedProduct['description'] = $product->getDescription();
-        $formattedProduct['category'] = $product->getCategory()->getName();
+        $formattedProduct['category'] = $product->getCategory()->getId();
         $formattedProduct['price'] = $product->getPrice();
         $formattedProduct['color'] = $product->getColor();
         $formattedProduct['material'] = $product->getMaterial();

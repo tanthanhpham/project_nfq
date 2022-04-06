@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class ProductController extends AbstractFOSRestController
 {
-    public const PRODUCT_PAGE_LIMIT = 10;
+    public const PRODUCT_PAGE_LIMIT = 30;
     public const PRODUCT_PAGE_OFFSET = 0;
     public const PATH = 'http://127.0.0.1/uploads/images/';
 
@@ -50,7 +50,7 @@ class ProductController extends AbstractFOSRestController
     {
         $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
         $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
-        $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'ASC'], $limit, $offset);
+        $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'DESC'], $limit, $offset);
 
         $productsList = array_map('self::dataTransferObject', $products);
 
@@ -104,9 +104,8 @@ class ProductController extends AbstractFOSRestController
                 $product->addProductItem($productItem);
             }
             $this->productRepository->add($product);
-            $product = self::dataTransferProductObject($product);
 
-            return $this->handleView($this->view($product, Response::HTTP_CREATED));
+            return $this->handleView($this->view(['message' => 'Add product successfully'], Response::HTTP_CREATED));
         }
 
         return $this->handleView($this->view($form->getErrors(), Response::HTTP_BAD_REQUEST));

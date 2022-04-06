@@ -88,6 +88,8 @@ class Order
     public function __construct(User $user)
     {
         $this->setCreatedAt();
+        $this->setDate();
+        $this->setUpdatedAt();
         $this->setCustomer($user);
         $this->setStatus('1');
         $this->orderItems = new ArrayCollection();
@@ -115,9 +117,9 @@ class Order
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(): self
     {
-        $this->date = $date;
+        $this->date = new \DateTime('now');
 
         return $this;
     }
@@ -139,9 +141,9 @@ class Order
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
+    public function setUpdatedAt(): self
     {
-        $this->updatedAt = $updatedAt;
+        $this->updatedAt = new \DateTime('now');
 
         return $this;
     }

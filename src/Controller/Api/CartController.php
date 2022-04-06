@@ -212,6 +212,7 @@ class CartController extends AbstractFOSRestController
         $formattedCart['price'] = $cart->getTotal();
         $formattedCart['unitPrice'] = $cart->getProductItem()->getProduct()->getPrice();
         $formattedCart['images'] = $cart->getProductItem()->getProduct()->getImages();
+        $formattedCart['totalAmount'] = $cart->getProductItem()->getAmount();
 
         return $formattedCart;
     }

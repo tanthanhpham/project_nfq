@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Order;
 use Symfony\Component\Mailer\Exception\TransportException;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -16,13 +17,19 @@ class MailerService
     private $mailer;
 
     /**
+     * @var Environment
+     */
+    private $twig;
+
+    /**
      * MailerService constructor.
      *
      * @param MailerInterface $mailer
      */
-    public function __construct(MailerInterface $mailer)
+    public function __construct(MailerInterface $mailer, Environment $twig)
     {
         $this->mailer = $mailer;
+        $this->twig = $twig;
     }
 
     /**
@@ -36,14 +43,16 @@ class MailerService
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function send(string $subject, string $from, string $to, string $content): void
+    public function send(string $subject, string $from, string $to, string $template, array $parameters): void
     {
         try {
             $email = (new Email())
                 ->from($from)
                 ->to($to)
                 ->subject($subject)
-                ->text($content);
+                ->html(
+                    $this->twig->render($template, $parameters)
+                );
 
             $this->mailer->send($email);
         } catch (TransportException $e) {

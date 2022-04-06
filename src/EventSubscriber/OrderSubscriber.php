@@ -22,11 +22,16 @@ class OrderSubscriber implements EventSubscriberInterface
     {
         $order = $event->getOrder();
 
+        $params = [
+            "order" => $order
+        ];
+
         $this->mailerService->send(
             'Hello',
             'ttp.jp365@gmail.com',
             'phamtanthanh.it@gmail.com',
-            'Hello world'
+            OrderEvent::TEMPLATE_CONTACT,
+            $params
         );
     }
     public static function getSubscribedEvents()
