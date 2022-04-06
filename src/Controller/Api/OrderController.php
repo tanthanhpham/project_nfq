@@ -23,6 +23,11 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
  */
 class OrderController extends AbstractFOSRestController
 {
+    public const STATUS_PENDING = 1;
+    public const STATUS_APPROVED = 2;
+    public const STATUS_CANCELED = 3;
+    public const STATUS_COMPLETED = 4;
+
     private $purchaseOrderRepository;
     private $productItemRepository;
     private $userLoginInfo;
@@ -45,13 +50,26 @@ class OrderController extends AbstractFOSRestController
      * @Rest\Get("/users/orders")
      * @return Response
      */
-    public function getOrdersAction(): Response
+    public function getOrders(): Response
     {
         $userId = $this->userLoginInfo->getId();
         $orders = $this->purchaseOrderRepository->findBy(['deletedAt' => null, 'customer' => $userId], ['createdAt' => 'DESC']);
+        $transferOrders = array_map('self::dataTransferObject', $orders);
 
-        return $this->handleView($this->view($orders, Response::HTTP_OK));
+        return $this->handleView($this->view($transferOrders, Response::HTTP_OK));
     }
+
+    /**
+     * @param Order $purchaseOrder
+     * @return Response
+     */
+    public function getOrder(Order $purchaseOrder): Response
+    {
+        $transferPurchaseOrder = self::dataTransferDetailOrderObject($purchaseOrder);
+
+        return $this->handleView($this->view($transferPurchaseOrder, Response::HTTP_OK));
+    }
+
 
     /**
      * @Rest\Post("/users/orders")
@@ -95,11 +113,72 @@ class OrderController extends AbstractFOSRestController
             }
             $order->setTotalPrice($totalPrice);
             $order->setTotalQuantity($totalQuantity);
-
             $this->purchaseOrderRepository->add($order);
             return $this->handleView($this->view(['message' => 'Add order successfully'], Response::HTTP_CREATED));
         }
 
         return $this->handleView($this->view($form->getErrors(), Response::HTTP_BAD_REQUEST));
+    }
+
+    private function dataTransferObject(Order $purchaseOrder): array
+    {
+        $formattedPurchaseOrder = [];
+        $formattedPurchaseOrder['id'] = $purchaseOrder->getId();
+        $formattedPurchaseOrder['recipientName'] = $purchaseOrder->getRecipientName();
+        $formattedPurchaseOrder['recipientEmail'] = $purchaseOrder->getRecipientEmail();
+        $formattedPurchaseOrder['recipientPhone'] = $purchaseOrder->getRecipientPhone();
+        $formattedPurchaseOrder['addressDelivery'] = $purchaseOrder->getAddressDelivery();
+        switch (intval($purchaseOrder->getStatus())) {
+            case self::STATUS_PENDING:
+                $formattedPurchaseOrder['status'] = 'Pending';
+                break;
+            case self::STATUS_APPROVED:
+                $formattedPurchaseOrder['status'] = 'Approved';
+                break;
+            case self::STATUS_CANCELED:
+                $formattedPurchaseOrder['status'] = 'Canceled';
+                break;
+            case self::STATUS_COMPLETED:
+                $formattedPurchaseOrder['status'] = 'Completed';
+                break;
+        }
+        $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
+        $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
+
+        return $formattedPurchaseOrder;
+    }
+
+    private function dataTransferDetailOrderObject(Order $purchaseOrder): array
+    {
+        $formattedPurchaseOrder = [];
+        $formattedPurchaseOrder['id'] = $purchaseOrder->getId();
+        $formattedPurchaseOrder['recipientName'] = $purchaseOrder->getRecipientName();
+        $formattedPurchaseOrder['recipientEmail'] = $purchaseOrder->getRecipientEmail();
+        $formattedPurchaseOrder['recipientPhone'] = $purchaseOrder->getRecipientPhone();
+        $formattedPurchaseOrder['addressDelivery'] = $purchaseOrder->getAddressDelivery();
+        $formattedPurchaseOrder['status'] = $purchaseOrder->getStatus();
+        $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
+        $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
+
+        $cartItems = $purchaseOrder->getOrderItems();
+        foreach ($cartItems as $cartItem) {
+            $formattedPurchaseOrder['items'][] =  self::dataTransferItemObject($cartItem);
+        }
+
+        return $formattedPurchaseOrder;
+    }
+
+    private function dataTransferItemObject(OrderDetail $orderDetail): array
+    {
+        $item = [];
+        $productItem = $orderDetail->getProductItem();
+        $item['id'] = $orderDetail->getId();
+        $item['name'] = $productItem->getProduct()->getName();
+        $item['size'] = $productItem->getSize()->getName();
+        $item['amount'] = $orderDetail->getAmount();
+        $item['unitPrice'] = $productItem->getProduct()->getPrice();
+        $item['price'] = $orderDetail->getTotal();
+
+        return $item;
     }
 }

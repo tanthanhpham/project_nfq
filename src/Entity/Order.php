@@ -70,7 +70,6 @@ class Order
      */
     private $recipientEmail;
 
-
     /**
      * @ORM\Column(type="bigint")
      */
@@ -82,7 +81,7 @@ class Order
     private $totalQuantity;
 
     /**
-     * @ORM\OneToMany(targetEntity=OrderDetail::class, mappedBy="purchaseOrder", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=OrderDetail::class, mappedBy="purchaseOrder", orphanRemoval=true, cascade={"persist"})
      */
     private $orderItems;
 
