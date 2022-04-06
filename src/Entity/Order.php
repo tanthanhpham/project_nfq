@@ -75,9 +75,11 @@ class Order
      */
     private $orderItems;
 
-    public function __construct()
+    public function __construct(User $user)
     {
-        $this->orderItems = new ArrayCollection();
+        $this->setCreatedAt();
+        $this->setCustomer($user);
+        $this->setStatus('1');
     }
 
     public function getId(): ?int

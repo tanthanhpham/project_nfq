@@ -42,38 +42,13 @@ class OrderController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Get("/users/orders")
-     * @return Response
-     */
-    public function getOrdersAction(): Response
-    {
-        $userId = $this->userLoginInfo->getId();
-        $orders = $this->purchaseOrderRepository->findBy(['deleteAt' => null, 'customer' => $userId], ['createAt' => 'DESC']);
-        $transferOrders = array_map('self::dataTransferObject', $orders);
-
-        return $this->handleView($this->view($transferOrders, Response::HTTP_OK));
-    }
-
-    /**
-     * @Rest\Get("/users/orders/{id}")
-     * @param PurchaseOrder $purchaseOrder
-     * @return Response
-     */
-    public function getOrderAction(PurchaseOrder $purchaseOrder): Response
-    {
-        $transferPurchaseOrder = self::dataTransferDetailOrderObject($purchaseOrder);
-
-        return $this->handleView($this->view($transferPurchaseOrder, Response::HTTP_OK));
-    }
-
-    /**
      * @Rest\Post("/users/orders")
      * @param Request $request
      * @return Response
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function addOrderAction(Request $request): Response
+    public function insertOrder(Request $request): Response
     {
         $order = new Order($this->userLoginInfo);
         $form = $this->createForm(OrderType::class, $order);
@@ -92,26 +67,23 @@ class OrderController extends AbstractFOSRestController
                     return $this->handleView($this->view(['error' => 'Quantity is not enough.'], Response::HTTP_BAD_REQUEST));
                 }
 
-                $price = intval($cartItemData->getPrice()) * $amount;
+                $price = intval($cartItemData->getTotal()) * $amount;
                 $totalPrice += intval($price);
                 $totalAmount += $amount;
                 $orderDetail = new OrderDetail();
                 $orderDetail->setAmount($amount);
-                $orderDetail->setPrice($price);
+                $orderDetail->setTotal($price);
 
                 $productItem->setAmount($productItem->getAmount() - $amount);
                 $this->productItemRepository->add($productItem);
                 $orderDetail->setProductItem($productItem);
 
+                dd($orderDetail);
                 $order->addOrderItem($orderDetail);
                 $this->cartRepository->remove($cartItemData);
             }
-            $order->setTotalPrice($totalPrice);
-            $order->setAmount($totalAmount);
 
             $this->purchaseOrderRepository->add($order);
-            $transferPurchaseOrder = self::dataTransferDetailOrderObject($order);
-
             return $this->handleView($this->view($transferPurchaseOrder, Response::HTTP_CREATED));
         }
 
@@ -155,69 +127,5 @@ class OrderController extends AbstractFOSRestController
         return $this->handleView($this->view([
             'error' => 'Something went wrong! Please contact support.'
         ],Response::HTTP_INTERNAL_SERVER_ERROR));
-    }
-
-    private function dataTransferObject(PurchaseOrder $purchaseOrder): array
-    {
-        $formattedPurchaseOrder = [];
-        $formattedPurchaseOrder['id'] = $purchaseOrder->getId();
-        $formattedPurchaseOrder['recipientName'] = $purchaseOrder->getRecipientName();
-        $formattedPurchaseOrder['recipientEmail'] = $purchaseOrder->getRecipientEmail();
-        $formattedPurchaseOrder['recipientPhone'] = $purchaseOrder->getRecipientPhone();
-        $formattedPurchaseOrder['addressDelivery'] = $purchaseOrder->getAddressDelivery();
-        switch (intval($purchaseOrder->getStatus())) {
-            case 1:
-                $formattedPurchaseOrder['status'] = 'Pending';
-                break;
-            case 2:
-                $formattedPurchaseOrder['status'] = 'Approved';
-                break;
-            case 3:
-                $formattedPurchaseOrder['status'] = 'Canceled';
-                break;
-            case 4:
-                $formattedPurchaseOrder['status'] = 'Completed';
-                break;
-        }
-        $formattedPurchaseOrder['amount'] = $purchaseOrder->getAmount();
-        $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
-
-        return $formattedPurchaseOrder;
-    }
-
-    private function dataTransferDetailOrderObject(PurchaseOrder $purchaseOrder): array
-    {
-        $formattedPurchaseOrder = [];
-        $formattedPurchaseOrder['id'] = $purchaseOrder->getId();
-        $formattedPurchaseOrder['recipientName'] = $purchaseOrder->getRecipientName();
-        $formattedPurchaseOrder['recipientEmail'] = $purchaseOrder->getRecipientEmail();
-        $formattedPurchaseOrder['recipientPhone'] = $purchaseOrder->getRecipientPhone();
-        $formattedPurchaseOrder['addressDelivery'] = $purchaseOrder->getAddressDelivery();
-        $formattedPurchaseOrder['status'] = $purchaseOrder->getStatus();
-        $formattedPurchaseOrder['amount'] = $purchaseOrder->getAmount();
-        $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
-
-        $cartItems = $purchaseOrder->getOrderItems();
-        foreach ($cartItems as $cartItem) {
-            $formattedPurchaseOrder['items'][] =  self::dataTransferItemObject($cartItem);
-        }
-
-        return $formattedPurchaseOrder;
-    }
-
-    private function dataTransferItemObject(OrderDetail $orderDetail): array
-    {
-        $item = [];
-        $productItem = $orderDetail->getProductItem();
-
-        $item['id'] = $orderDetail->getId();
-        $item['name'] = $productItem->getProduct()->getName();
-        $item['color'] = $productItem->getProduct()->getColor()->getName();
-        $item['size'] = $productItem->getSize()->getValue();
-        $item['amount'] = $orderDetail->getAmount();
-        $item['unitPrice'] = $productItem->getProduct()->getPrice();
-        $item['price'] = $orderDetail->getPrice();
-
-        return $item;
     }
 }
