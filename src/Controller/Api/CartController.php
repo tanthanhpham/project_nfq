@@ -178,6 +178,26 @@ class CartController extends AbstractFOSRestController
     }
 
     /**
+     * @Rest\Get("/users/carts/count")
+     * @return Response
+     */
+    public function countCartItems(): Response
+    {
+        try {
+            $countCartItems = $this->cartRepository->countCartItems($this->userLoginInfo->getId());
+
+            return $this->handleView($this->view($countCartItems[0], Response::HTTP_OK));
+        } catch (\Exception $e) {
+            //Need to add log the error message
+        }
+
+        return $this->handleView($this->view(
+            ['error' => 'Something went wrong! Please contact support.'],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        ));
+    }
+
+    /**
      * @param Cart $cart
      * @return array
      */
