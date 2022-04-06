@@ -226,6 +226,7 @@ class ProductController extends AbstractFOSRestController
 
         $formattedProduct['id'] = $product->getId();
         $formattedProduct['name'] = $product->getName();
+        $formattedProduct['category'] = $product->getCategory()->getId();
         $formattedProduct['description'] = $product->getDescription();
         $formattedProduct['price'] = $product->getPrice();
         $formattedProduct['color'] = $product->getColor();

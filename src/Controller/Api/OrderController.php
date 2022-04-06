@@ -42,11 +42,21 @@ class OrderController extends AbstractFOSRestController
     }
 
     /**
+     * @Rest\Get("/users/orders")
+     * @return Response
+     */
+    public function getOrdersAction(): Response
+    {
+        $userId = $this->userLoginInfo->getId();
+        $orders = $this->purchaseOrderRepository->findBy(['deletedAt' => null, 'customer' => $userId], ['createdAt' => 'DESC']);
+
+        return $this->handleView($this->view($orders, Response::HTTP_OK));
+    }
+
+    /**
      * @Rest\Post("/users/orders")
      * @param Request $request
      * @return Response
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function insertOrder(Request $request): Response
     {
@@ -54,78 +64,42 @@ class OrderController extends AbstractFOSRestController
         $form = $this->createForm(OrderType::class, $order);
         $requestData = $request->request->all();
         $form->submit($requestData);
-
         $totalPrice = 0;
-        $totalAmount = 0;
+        $totalQuantity = 0;
         if ($form->isSubmitted()) {
             $cartItemsData = $this->userLoginInfo->getCarts();
             foreach ($cartItemsData as $cartItemData){
                 $productItem = $cartItemData->getProductItem();
-                $amount = intval($cartItemData->getAmount());
+                $quantity = $cartItemData->getAmount();
 
-                if($amount > $productItem->getAmount()) {
+                if ($quantity > $productItem->getAmount()) {
                     return $this->handleView($this->view(['error' => 'Quantity is not enough.'], Response::HTTP_BAD_REQUEST));
                 }
 
-                $price = intval($cartItemData->getTotal()) * $amount;
-                $totalPrice += intval($price);
-                $totalAmount += $amount;
-                $orderDetail = new OrderDetail();
-                $orderDetail->setAmount($amount);
-                $orderDetail->setTotal($price);
+                $totalPrice += $cartItemData->getTotal();
+                $totalQuantity += $cartItemData->getAmount();
 
-                $productItem->setAmount($productItem->getAmount() - $amount);
+                $orderDetail = new OrderDetail();
+                $orderDetail->setAmount($cartItemData->getAmount());
+                $orderDetail->setTotal($cartItemData->getTotal());
+
+                $productItem->setAmount($productItem->getAmount() - $cartItemData->getAmount());
                 $this->productItemRepository->add($productItem);
                 $orderDetail->setProductItem($productItem);
 
-                dd($orderDetail);
+                $order->setDate(new \DateTime());
+                $order->setUpdatedAt(new \DateTime());
                 $order->addOrderItem($orderDetail);
+
                 $this->cartRepository->remove($cartItemData);
             }
+            $order->setTotalPrice($totalPrice);
+            $order->setTotalQuantity($totalQuantity);
 
             $this->purchaseOrderRepository->add($order);
-            return $this->handleView($this->view($transferPurchaseOrder, Response::HTTP_CREATED));
+            return $this->handleView($this->view(['message' => 'Add order successfully'], Response::HTTP_CREATED));
         }
 
         return $this->handleView($this->view($form->getErrors(), Response::HTTP_BAD_REQUEST));
-    }
-
-    /**
-     * @Rest\Delete("/users/orders/{id}")
-     * @param PurchaseOrder $purchaseOrder
-     * @return Response
-     */
-    public function cancelPurchaseOrderAction(PurchaseOrder $purchaseOrder): Response
-    {
-        try {
-            $status = $purchaseOrder->getStatus();
-            if ($status == '1') {
-                $purchaseOrder->setStatus('3');
-                $purchaseOrder->setUpdateAt(new \DateTime());
-                $purchaseOrder->setDeleteAt(new \DateTime());
-
-                $items = $purchaseOrder->getOrderItems();
-                foreach ($items as $item) {
-                    $productItem = $item->getProductItem();
-                    $productItem->setAmount($productItem->getAmount() + $item->getAmount());
-                    $productItem->setUpdateAt(new \DateTime());
-
-                    $this->productItemRepository->add($productItem);
-                }
-
-                $this->purchaseOrderRepository->add($purchaseOrder);
-
-                return $this->handleView($this->view($purchaseOrder, Response::HTTP_OK));
-            }
-
-            return $this->handleView($this->view(['error' => 'This order is approved. So, your request is failed.'], Response::HTTP_BAD_REQUEST));
-        }
-        catch (\Exception $e) {
-            //write to log
-        }
-
-        return $this->handleView($this->view([
-            'error' => 'Something went wrong! Please contact support.'
-        ],Response::HTTP_INTERNAL_SERVER_ERROR));
     }
 }

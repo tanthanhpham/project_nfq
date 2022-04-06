@@ -47,6 +47,7 @@ class UserController extends AbstractFOSRestController
         if ($form->isSubmitted() && $form->isValid()) {
             $user->setPassword($encoder->hashPassword($user, $requestData['password']));
             $user->setUpdatedAt(new \DateTime());
+            $user->setCreatedAt();
             $user->setRoles(['ROLE_USER']);
 
             $uploadFile = $request->files->get('image');

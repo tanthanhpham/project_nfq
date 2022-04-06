@@ -47,7 +47,7 @@ class Product
 
     /**
      * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="products", cascade={"persist"})
-     * @Groups({"show"})
+     * @Groups({"show", "showProductItems"})
      */
     private $category;
 
