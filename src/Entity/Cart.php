@@ -28,9 +28,14 @@ class Cart
     private $total;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="carts")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="carts", cascade={"persist"})
      */
     private $user;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=ProductItem::class, inversedBy="carts", cascade={"persist"})
+     */
+    private $productItem;
 
     public function getId(): ?int
     {
@@ -69,6 +74,18 @@ class Cart
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getProductItem(): ?ProductItem
+    {
+        return $this->productItem;
+    }
+
+    public function setProductItem(?ProductItem $productItem): self
+    {
+        $this->productItem = $productItem;
 
         return $this;
     }

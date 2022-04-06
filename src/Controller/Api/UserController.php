@@ -46,7 +46,6 @@ class UserController extends AbstractFOSRestController
         $form->submit($requestData);
         if ($form->isSubmitted() && $form->isValid()) {
             $user->setPassword($encoder->hashPassword($user, $requestData['password']));
-            $user->setCreatedAt(new \DateTime());
             $user->setUpdatedAt(new \DateTime());
             $user->setRoles(['ROLE_USER']);
 
