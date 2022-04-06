@@ -60,6 +60,7 @@ class OrderController extends AbstractFOSRestController
     }
 
     /**
+     * @Rest\Get("/users/orders/{id}")
      * @param Order $purchaseOrder
      * @return Response
      */
@@ -69,7 +70,6 @@ class OrderController extends AbstractFOSRestController
 
         return $this->handleView($this->view($transferPurchaseOrder, Response::HTTP_OK));
     }
-
 
     /**
      * @Rest\Post("/users/orders")
