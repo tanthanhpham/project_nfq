@@ -2,8 +2,10 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\Order;
 use App\Entity\OrderDetail;
 use App\Entity\ProductItem;
+use App\Form\OrderType;
 use App\Repository\CartRepository;
 use App\Repository\OrderRepository;
 use App\Repository\ProductItemRepository;
@@ -73,8 +75,8 @@ class OrderController extends AbstractFOSRestController
      */
     public function addOrderAction(Request $request): Response
     {
-        $order = new PurchaseOrder($this->userLoginInfo);
-        $form = $this->createForm(PurchaseOrderType::class, $order);
+        $order = new Order($this->userLoginInfo);
+        $form = $this->createForm(OrderType::class, $order);
         $requestData = $request->request->all();
         $form->submit($requestData);
 
