@@ -29,6 +29,8 @@ class OrderController extends AbstractFOSRestController
     public const STATUS_APPROVED = 2;
     public const STATUS_CANCELED = 3;
     public const STATUS_COMPLETED = 4;
+    public const ORDER_PAGE_LIMIT = 10;
+    public const ORDER_PAGE_PAGE = 1;
 
     private $purchaseOrderRepository;
     private $productItemRepository;
@@ -49,6 +51,35 @@ class OrderController extends AbstractFOSRestController
         $this->productItemRepository = $productItemRepository;
         $this->cartRepository = $cartRepository;
         $this->eventDispatcher = $eventDispatcher;
+    }
+
+    /**
+     * @Rest\Get("/admin/orders")
+     * @return Response
+     */
+    public function getOrders(Request $request): Response
+    {
+        $limit = $request->get('limit', self::ORDER_PAGE_LIMIT);
+        $page = $request->get('page', self::ORDER_PAGE_PAGE);
+
+        $offset = $limit * ($page - 1);
+        $orders = $this->purchaseOrderRepository->findByConditions(['deletedAt' => null], ['createdAt' => 'DESC'], $limit, $offset);
+        $orders['data'] = array_map('self::dataTransferObject', $orders['data']);
+
+        return $this->handleView($this->view($orders, Response::HTTP_OK));
+    }
+
+    /**
+     * @Rest\Get("/admin/orders/{id}")
+     * @return Response
+     */
+    public function getOrder(int $id): Response
+    {
+
+        $order = $this->purchaseOrderRepository->findOneBy(['deletedAt' => null, 'id' => $id]);
+        $order = self::dataTransferDetailOrderObject($order);
+
+        return $this->handleView($this->view($order, Response::HTTP_OK));
     }
 
     /**

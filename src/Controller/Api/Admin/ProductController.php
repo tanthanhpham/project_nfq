@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class ProductController extends AbstractFOSRestController
 {
-    public const PRODUCT_PAGE_LIMIT = 30;
+    public const PRODUCT_PAGE_LIMIT = 10;
     public const PRODUCT_PAGE_PAGE = 1;
     public const PATH = 'http://127.0.0.1/uploads/images/';
 
@@ -214,11 +214,6 @@ class ProductController extends AbstractFOSRestController
         $formattedProduct['color'] = $product->getColor();
         $formattedProduct['material'] = $product->getMaterial();
         $formattedProduct['images'] = $product->getImages();
-
-        $items = $product->getProductItems();
-        foreach ($items as $item) {
-            $formattedProduct['items'][] =  $this->dataTransferItemObject($item);
-        }
 
         return $formattedProduct;
     }
