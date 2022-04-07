@@ -2,17 +2,27 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\Order;
 use App\Entity\Product;
 use App\Entity\ProductItem;
+use App\Event\OrderEvent;
 use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
+use App\Service\MailerService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerBuilder;
+use Monolog\Handler\SendGridHandler;
+use SendGrid;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
+use Symfony\Component\Mailer\Bridge\Sendgrid\Transport\SendgridApiTransport;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mime\Email;
 
 class HomeController extends AbstractFOSRestController
 {
@@ -20,11 +30,13 @@ class HomeController extends AbstractFOSRestController
     public const PRODUCT_PAGE_OFFSET = 0;
     private $productRepository;
     private $categoryRepository;
+    private $eventDispatcher;
 
-    public function __construct(ProductRepository $productRepository, CategoryRepository $categoryRepository)
+    public function __construct(ProductRepository $productRepository, CategoryRepository $categoryRepository, EventDispatcherInterface $eventDispatcher)
     {
         $this->productRepository = $productRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -59,9 +71,14 @@ class HomeController extends AbstractFOSRestController
         $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
         $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
         $requestData = json_decode($request->getContent(), true);
-        $stringSort = explode('-',$requestData['sort']);
-        $key = $stringSort[0];
-        $orderBy = $stringSort[1];
+        $key = 'createdAt';
+        $orderBy = 'DESC';
+        if (($requestData['sort']) != '')
+        {
+            $stringSort = explode('-',$requestData['sort']);
+            $key = $stringSort[0];
+            $orderBy = $stringSort[1];
+        }
 
         $products = $this->productRepository->filter($requestData, [$key => $orderBy], $limit, $offset);
         $products = array_map('self::dataTransferObject', $products);
@@ -81,6 +98,20 @@ class HomeController extends AbstractFOSRestController
         $categories = $serializer->deserialize($convertToJson, 'array', 'json');
 
         return $this->handleView($this->view($categories, Response::HTTP_OK));
+    }
+
+    /**
+     * @Rest\Get ("/email")
+     * @param MailerService $mailerService
+     * @return Response
+     */
+    public function sendMail(MailerService $mailerService): Response
+    {
+        $order = new Order();
+        $event = new OrderEvent($order);
+        $this->eventDispatcher->dispatch($event);
+
+        return $this->handleView($this->view(['success' => 'Send successfully']));
     }
 
     /**
@@ -112,6 +143,7 @@ class HomeController extends AbstractFOSRestController
         $formattedProduct['id'] = $product->getId();
         $formattedProduct['name'] = $product->getName();
         $formattedProduct['description'] = $product->getDescription();
+        $formattedProduct['category'] = $product->getCategory()->getId();
         $formattedProduct['price'] = $product->getPrice();
         $formattedProduct['color'] = $product->getColor();
         $formattedProduct['material'] = $product->getMaterial();

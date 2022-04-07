@@ -27,16 +27,18 @@ class OrderDetail
      */
     private $total;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Order::class, inversedBy="orderItems", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $order;
 
     /**
      * @ORM\ManyToOne(targetEntity=ProductItem::class, inversedBy="orderDetails", cascade={"persist"})
      */
     private $productItem;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Order::class, inversedBy="orderItems", cascade={"persist"})
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $purchaseOrder;
+
 
     public function getId(): ?int
     {
@@ -67,18 +69,6 @@ class OrderDetail
         return $this;
     }
 
-    public function getOrder(): ?Order
-    {
-        return $this->order;
-    }
-
-    public function setOrder(?Order $order): self
-    {
-        $this->order = $order;
-
-        return $this;
-    }
-
     public function getProductItem(): ?ProductItem
     {
         return $this->productItem;
@@ -102,4 +92,5 @@ class OrderDetail
 
         return $this;
     }
+
 }

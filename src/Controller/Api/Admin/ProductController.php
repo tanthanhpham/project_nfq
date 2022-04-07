@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class ProductController extends AbstractFOSRestController
 {
-    public const PRODUCT_PAGE_LIMIT = 10;
+    public const PRODUCT_PAGE_LIMIT = 30;
     public const PRODUCT_PAGE_OFFSET = 0;
     public const PATH = 'http://127.0.0.1/uploads/images/';
 
@@ -50,9 +50,9 @@ class ProductController extends AbstractFOSRestController
     {
         $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
         $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
-        $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'ASC'], $limit, $offset);
+        $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'DESC'], $limit, $offset);
 
-        $productsList = array_map('self::dataTransferObject', $products);
+        $productsList = array_map('self::dataTransferProductObject', $products);
 
         return $this->handleView($this->view($productsList, Response::HTTP_OK));
     }
@@ -104,9 +104,8 @@ class ProductController extends AbstractFOSRestController
                 $product->addProductItem($productItem);
             }
             $this->productRepository->add($product);
-            $product = self::dataTransferProductObject($product);
 
-            return $this->handleView($this->view($product, Response::HTTP_CREATED));
+            return $this->handleView($this->view(['message' => 'Add product successfully'], Response::HTTP_CREATED));
         }
 
         return $this->handleView($this->view($form->getErrors(), Response::HTTP_BAD_REQUEST));
@@ -197,25 +196,6 @@ class ProductController extends AbstractFOSRestController
             Response::HTTP_INTERNAL_SERVER_ERROR
         ));
     }
-
-    /**
-     * @param Product $product
-     * @return array
-     */
-    public function dataTransferObject(Product $product): array
-    {
-        $formattedProduct = [];
-
-        $formattedProduct['id'] = $product->getId();
-        $formattedProduct['name'] = $product->getName();
-        $formattedProduct['image'] = $product->getImages();
-        $formattedProduct['category'] = $product->getCategory()->getName();
-        $formattedProduct['price'] = $product->getPrice();
-        $formattedProduct['color'] = $product->getColor();
-
-        return $formattedProduct;
-    }
-
     /**
      * @param Product $product
      * @return array
@@ -226,6 +206,7 @@ class ProductController extends AbstractFOSRestController
 
         $formattedProduct['id'] = $product->getId();
         $formattedProduct['name'] = $product->getName();
+        $formattedProduct['category'] = $product->getCategory()->getId();
         $formattedProduct['description'] = $product->getDescription();
         $formattedProduct['price'] = $product->getPrice();
         $formattedProduct['color'] = $product->getColor();

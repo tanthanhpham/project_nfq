@@ -71,12 +71,27 @@ class Order
     private $recipientEmail;
 
     /**
-     * @ORM\OneToMany(targetEntity=OrderDetail::class, mappedBy="purchaseOrder", cascade={"persist"})
+     * @ORM\Column(type="bigint")
+     */
+    private $totalPrice;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $totalQuantity;
+
+    /**
+     * @ORM\OneToMany(targetEntity=OrderDetail::class, mappedBy="purchaseOrder", orphanRemoval=true, cascade={"persist"})
      */
     private $orderItems;
 
-    public function __construct()
+    public function __construct(User $user)
     {
+        $this->setCreatedAt();
+        $this->setDate();
+        $this->setUpdatedAt();
+        $this->setCustomer($user);
+        $this->setStatus('1');
         $this->orderItems = new ArrayCollection();
     }
 
@@ -102,9 +117,9 @@ class Order
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(): self
     {
-        $this->date = $date;
+        $this->date = new \DateTime('now');
 
         return $this;
     }
@@ -126,9 +141,9 @@ class Order
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
+    public function setUpdatedAt(): self
     {
-        $this->updatedAt = $updatedAt;
+        $this->updatedAt = new \DateTime('now');
 
         return $this;
     }
@@ -201,6 +216,31 @@ class Order
     public function setRecipientEmail(string $recipientEmail): self
     {
         $this->recipientEmail = $recipientEmail;
+
+        return $this;
+    }
+
+
+    public function getTotalPrice(): ?string
+    {
+        return $this->totalPrice;
+    }
+
+    public function setTotalPrice(string $totalPrice): self
+    {
+        $this->totalPrice = $totalPrice;
+
+        return $this;
+    }
+
+    public function getTotalQuantity(): ?int
+    {
+        return $this->totalQuantity;
+    }
+
+    public function setTotalQuantity(int $totalQuantity): self
+    {
+        $this->totalQuantity = $totalQuantity;
 
         return $this;
     }
