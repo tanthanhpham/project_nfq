@@ -22,6 +22,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
  */
 class AuthController extends AbstractFOSRestController
 {
+    public const USER_PAGE_LIMIT = 10;
+    public const USER_PAGE_PAGE = 1;
     public const PATH = 'http://127.0.0.1/uploads/images/';
 
     private $userRepository;
@@ -35,9 +37,13 @@ class AuthController extends AbstractFOSRestController
      * @Rest\Get ("/admin/users")
      * @return Response
      */
-    public function getAllUser(): Response
+    public function getAllUser(Request $request): Response
     {
-        $users = $this->userRepository->findBy(['deletedAt' => null]);
+        $limit = $request->get('limit', self::USER_PAGE_LIMIT);
+        $page = $request->get('page', self::USER_PAGE_PAGE);
+
+        $offset = $limit * ($page - 1);
+        $users = $this->userRepository->findByConditions(['deletedAt' => null], ['createdAt' => 'DESC'], $limit, $offset);
 
         $serializer = SerializerBuilder::create()->build();
         $convertToJson = $serializer->serialize($users, 'json', SerializationContext::create()->setGroups(array('showUser')));

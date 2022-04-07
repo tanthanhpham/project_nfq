@@ -29,6 +29,8 @@ class OrderController extends AbstractFOSRestController
     public const STATUS_APPROVED = 2;
     public const STATUS_CANCELED = 3;
     public const STATUS_COMPLETED = 4;
+    public const ORDER_PAGE_LIMIT = 10;
+    public const ORDER_PAGE_PAGE = 1;
 
     private $purchaseOrderRepository;
     private $productItemRepository;
@@ -55,13 +57,17 @@ class OrderController extends AbstractFOSRestController
      * @Rest\Get("/users/orders")
      * @return Response
      */
-    public function getOrders(): Response
+    public function getOrders(Request $request): Response
     {
         $userId = $this->userLoginInfo->getId();
-        $orders = $this->purchaseOrderRepository->findBy(['deletedAt' => null, 'customer' => $userId], ['createdAt' => 'DESC']);
-        $transferOrders = array_map('self::dataTransferObject', $orders);
+        $limit = $request->get('limit', self::ORDER_PAGE_LIMIT);
+        $page = $request->get('page', self::ORDER_PAGE_PAGE);
 
-        return $this->handleView($this->view($transferOrders, Response::HTTP_OK));
+        $offset = $limit * ($page - 1);
+        $orders = $this->purchaseOrderRepository->findByConditions(['deletedAt' => null, 'customer' => $userId], ['createdAt' => 'DESC'], $limit, $offset);
+        $orders['data'] = array_map('self::dataTransferObject', $orders['data']);
+
+        return $this->handleView($this->view($orders, Response::HTTP_OK));
     }
 
     /**

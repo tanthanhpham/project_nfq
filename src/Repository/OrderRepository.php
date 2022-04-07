@@ -44,6 +44,42 @@ class OrderRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+    /**
+     * @param array $param
+     * @param $limit
+     * @param $offset
+     * @param $orderBy
+     * @return array
+     */
+    public function findByConditions(array $param, $orderBy, $limit, $offset): array
+    {
+        $queryBuilder = $this->createQueryBuilder('p')
+            ->andWhere('p.deletedAt IS NULL');
+
+        if (isset($orderBy['createdAt'])) {
+            $queryBuilder
+                ->addOrderBy('p.createdAt', $orderBy['createdAt']);
+        }
+
+        if (!empty($orderBy)) {
+            $keyOrderList = array_keys($orderBy);
+            $column = 'p.' . $keyOrderList[0];
+            $valueSort = $orderBy[$keyOrderList[0]];
+            $queryBuilder
+                ->addOrderBy($column, $valueSort);
+        }
+
+        $products = $queryBuilder->getQuery()->getScalarResult();
+
+        $productPerPage = $queryBuilder
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->execute();
+
+        return ['data' => $productPerPage, 'total' => count($products)];
+    }
+
 
     // /**
     //  * @return Order[] Returns an array of Order objects
