@@ -80,6 +80,33 @@ class OrderRepository extends ServiceEntityRepository
         return ['data' => $productPerPage, 'total' => count($products)];
     }
 
+    /**
+     * @param array $param
+     * @return array
+     */
+    public function getDataForReport(array $param): array
+    {
+        $queryBuilder = $this->createQueryBuilder('o')
+            ->andWhere('o.deletedAt IS NULL')
+            ->orderBy('o.createdAt', 'ASC');
+
+        if (isset($param['status']) && !empty($param['status'])) {
+            $queryBuilder->andWhere('o.status = :status')
+                ->setParameter('status', $param['status']);
+        }
+
+        if (isset($param['fromDate']) && !empty($param['fromDate'])) {
+            $queryBuilder->andWhere('o.createdAt >= :fromDate')
+                ->setParameter('fromDate', $param['fromDate'] . ' 00:00:00');
+        }
+
+        if (isset($param['toDate']) && !empty($param['toDate'])) {
+            $queryBuilder->andWhere('o.createdAt <= :toDate')
+                ->setParameter('toDate', $param['toDate'] . ' 23:59:59');
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
 
     // /**
     //  * @return Order[] Returns an array of Order objects

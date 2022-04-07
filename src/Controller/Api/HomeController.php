@@ -9,6 +9,7 @@ use App\Event\OrderEvent;
 use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
 use App\Service\MailerService;
+use App\Service\PdfService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerBuilder;
@@ -114,6 +115,16 @@ class HomeController extends AbstractFOSRestController
         return $this->handleView($this->view(['success' => 'Send successfully']));
     }
 
+    /**
+     * @Rest\Get("/orders/{id}/export")
+     * @param Order $order
+     * @param PdfService $pdf
+     * @return void
+     */
+    public function generatePdfPersonne(Order $order, PdfService $pdf) {
+        $html = $this->render('export/pdf.html.twig', ['order' => $order]);
+        $pdf->showPdfFile($html);
+    }
     /**
      * @param Product $product
      * @return array

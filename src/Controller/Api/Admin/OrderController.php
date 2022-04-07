@@ -11,6 +11,9 @@ use App\Repository\CartRepository;
 use App\Repository\OrderRepository;
 use App\Repository\ProductItemRepository;
 use App\Service\GetUserInfo;
+use App\Service\PdfService;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerBuilder;
@@ -104,6 +107,44 @@ class OrderController extends AbstractFOSRestController
         $purchaseOrder = self::dataTransferObject($purchaseOrder);
 
         return $this->handleView($this->view($purchaseOrder, Response::HTTP_OK));
+    }
+
+    /**
+     * @return void
+     */
+    public function exportInvoice(int $id)
+    {
+        try {
+            $order = $this->purchaseOrderRepository->find($id);
+            // Configure Dompdf according to your needs
+            $pdfOptions = new Options();
+            $pdfOptions->set('defaultFont', 'Arial');
+
+            // Instantiate Dompdf with our options
+            $dompdf = new Dompdf($pdfOptions);
+
+            // Retrieve the HTML generated in our twig file
+            $html = $this->renderView('export/pdf.html.twig', [
+                'order' => $order
+            ]);
+
+            // Load HTML to Dompdf
+            $dompdf->loadHtml($html);
+
+            // (Optional) Setup the paper size and orientation 'portrait' or 'portrait'
+            $dompdf->setPaper('A5', 'landscape');
+
+            // Render the HTML as PDF
+            $dompdf->render();
+
+            // Output the generated PDF to Browser (force download)
+            $dompdf->stream("mypdf.pdf", [
+                "Attachment" => true
+            ]);
+        } catch (\Exception $e){
+
+        }
+
     }
 
     private function dataTransferObject(Order $purchaseOrder): array
