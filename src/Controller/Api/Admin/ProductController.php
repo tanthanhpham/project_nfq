@@ -157,7 +157,7 @@ class ProductController extends AbstractFOSRestController
     {
         $requestData = json_decode($request->getContent(),true);
         foreach ($requestData as $productItemData){
-            $productItem = $this->productItemRepository->find($productItemData['id']);
+            $productItem = $this->productItemRepository->findOneBy(['product' => $product->getId(), 'size' => $productItemData['size']]);
             $size = $this->sizeRepository->find($productItemData['size']);
             $productItem->setSize($size);
             $productItem->setAmount($productItemData['amount']);

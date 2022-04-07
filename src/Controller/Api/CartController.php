@@ -85,6 +85,17 @@ class CartController extends AbstractFOSRestController
                 $cartItem->setUser($this->userLoginInfo);
             }
 
+            $amount = $cartItem->getAmount() + $payload['amount'];
+            $total = $cartItem->getTotal() + $payload['total'];
+            if ($amount > $cartItem->getProductItem()->getAmount()){
+                return $this->handleView($this->view(
+                    ['error' => 'The product is quantity for this order has been exceeded'],
+                    Response::HTTP_BAD_REQUEST
+                ));
+            }
+            $payload['amount'] = $amount;
+            $payload['total'] = $total;
+
             $form = $this->createForm(CartItemType::class, $cartItem);
             $form->submit($payload);
             if ($form->isSubmitted() && $form->isValid()) {
@@ -207,6 +218,7 @@ class CartController extends AbstractFOSRestController
 
         $formattedCart['id'] = $cart->getId();
         $formattedCart['idProduct'] = $cart->getProductItem()->getProduct()->getId();
+        $formattedCart['idProductItem'] = $cart->getProductItem()->getId();
         $formattedCart['name'] = $cart->getProductItem()->getProduct()->getName();
         $formattedCart['color'] = $cart->getProductItem()->getProduct()->getColor();
         $formattedCart['size'] = $cart->getProductItem()->getSize()->getName();
@@ -218,5 +230,4 @@ class CartController extends AbstractFOSRestController
 
         return $formattedCart;
     }
-
 }
