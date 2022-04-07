@@ -143,7 +143,7 @@ class HomeController extends AbstractFOSRestController
         $formattedProduct['id'] = $product->getId();
         $formattedProduct['name'] = $product->getName();
         $formattedProduct['description'] = $product->getDescription();
-        $formattedProduct['category'] = $product->getCategory()->getId();
+        $formattedProduct['category'] = $product->getCategory()->getName();
         $formattedProduct['price'] = $product->getPrice();
         $formattedProduct['color'] = $product->getColor();
         $formattedProduct['material'] = $product->getMaterial();
