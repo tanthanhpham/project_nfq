@@ -91,6 +91,9 @@ class OrderController extends AbstractFOSRestController
         $totalQuantity = 0;
         if ($form->isSubmitted()) {
             $cartItemsData = $this->userLoginInfo->getCarts();
+            if (count($cartItemsData) == 0) {
+                return $this->handleView($this->view(['error' => 'Your cart is empty.'], Response::HTTP_BAD_REQUEST));
+            }
             foreach ($cartItemsData as $cartItemData){
                 $productItem = $cartItemData->getProductItem();
                 $quantity = $cartItemData->getAmount();
@@ -110,8 +113,8 @@ class OrderController extends AbstractFOSRestController
                 $this->productItemRepository->add($productItem);
                 $orderDetail->setProductItem($productItem);
                 $order->addOrderItem($orderDetail);
-
                 $this->cartRepository->remove($cartItemData);
+
             }
             $order->setTotalPrice($totalPrice);
             $order->setTotalQuantity($totalQuantity);
@@ -119,6 +122,7 @@ class OrderController extends AbstractFOSRestController
 
             $event = new OrderEvent($order);
             $this->eventDispatcher->dispatch($event);
+
             return $this->handleView($this->view(['message' => 'Add order successfully'], Response::HTTP_CREATED));
         }
 

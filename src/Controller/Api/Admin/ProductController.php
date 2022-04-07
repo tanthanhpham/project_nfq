@@ -52,7 +52,7 @@ class ProductController extends AbstractFOSRestController
         $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
         $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'DESC'], $limit, $offset);
 
-        $productsList = array_map('self::dataTransferObject', $products);
+        $productsList = array_map('self::dataTransferProductObject', $products);
 
         return $this->handleView($this->view($productsList, Response::HTTP_OK));
     }
@@ -196,27 +196,6 @@ class ProductController extends AbstractFOSRestController
             Response::HTTP_INTERNAL_SERVER_ERROR
         ));
     }
-
-    /**
-     * @param Product $product
-     * @return array
-     */
-    public function dataTransferObject(Product $product): array
-    {
-        $formattedProduct = [];
-
-        $formattedProduct['id'] = $product->getId();
-        $formattedProduct['name'] = $product->getName();
-        $formattedProduct['image'] = $product->getImages();
-        $formattedProduct['category'] = $product->getCategory()->getName();
-        $formattedProduct['price'] = $product->getPrice();
-        $formattedProduct['color'] = $product->getColor();
-        $formattedProduct['material'] = $product->getMaterial();
-        $formattedProduct['description'] = $product->getDescription();
-
-        return $formattedProduct;
-    }
-
     /**
      * @param Product $product
      * @return array

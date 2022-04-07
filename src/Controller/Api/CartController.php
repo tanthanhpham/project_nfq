@@ -204,7 +204,9 @@ class CartController extends AbstractFOSRestController
     private function dataTransferCartItemObject(Cart $cart): array
     {
         $formattedCart = [];
+
         $formattedCart['id'] = $cart->getId();
+        $formattedCart['idProduct'] = $cart->getProductItem()->getProduct()->getId();
         $formattedCart['name'] = $cart->getProductItem()->getProduct()->getName();
         $formattedCart['color'] = $cart->getProductItem()->getProduct()->getColor();
         $formattedCart['size'] = $cart->getProductItem()->getSize()->getName();

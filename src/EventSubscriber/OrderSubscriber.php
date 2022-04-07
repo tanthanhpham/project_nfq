@@ -27,9 +27,9 @@ class OrderSubscriber implements EventSubscriberInterface
         ];
 
         $this->mailerService->send(
-            'Hello',
+            'Confirm order information',
             'ttp.jp365@gmail.com',
-            'phamtanthanh.it@gmail.com',
+            $order->getRecipientEmail(),
             OrderEvent::TEMPLATE_CONTACT,
             $params
         );
