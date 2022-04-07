@@ -88,4 +88,58 @@ class ProductRepository extends ServiceEntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param array $param
+     * @param $limit
+     * @param $offset
+     * @param $orderBy
+     * @return array
+     */
+    public function findByConditions(array $param, $orderBy, $limit, $offset): array
+    {
+        $queryBuilder = $this->createQueryBuilder('p')
+            ->andWhere('p.deletedAt IS NULL');
+
+        if (isset($param['priceFrom']) && $param['priceFrom'] != '') {
+            $queryBuilder
+                ->andWhere('p.price >= :minPrice')
+                ->setParameter('minPrice', $param['priceFrom']);
+        }
+
+        if (isset($param['priceTo']) && $param['priceTo'] != '') {
+            $queryBuilder
+                ->andWhere('p.price <= :maxPrice')
+                ->setParameter('maxPrice', $param['priceTo']);
+        }
+
+        if (isset($param['category']) && $param['category'] != 0) {
+            $queryBuilder
+                ->andWhere('p.category = :categoryId')
+                ->setParameter('categoryId', $param['category']);
+        }
+
+
+        if (isset($orderBy['createdAt'])) {
+            $queryBuilder
+                ->addOrderBy('p.createdAt', $orderBy['createdAt']);
+        }
+        if (!empty($orderBy)) {
+            $keyOrderList = array_keys($orderBy);
+            $column = 'p.' . $keyOrderList[0];
+            $valueSort = $orderBy[$keyOrderList[0]];
+            $queryBuilder
+                ->addOrderBy($column, $valueSort);
+        }
+
+        $products = $queryBuilder->getQuery()->getScalarResult();
+
+        $productPerPage = $queryBuilder
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->execute();
+
+        return ['data' => $productPerPage, 'total' => count($products)];
+    }
 }

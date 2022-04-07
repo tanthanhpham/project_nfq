@@ -29,7 +29,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ProductController extends AbstractFOSRestController
 {
     public const PRODUCT_PAGE_LIMIT = 30;
-    public const PRODUCT_PAGE_OFFSET = 0;
+    public const PRODUCT_PAGE_PAGE = 1;
     public const PATH = 'http://127.0.0.1/uploads/images/';
 
     private $productRepository;
@@ -49,12 +49,14 @@ class ProductController extends AbstractFOSRestController
     public function getProducts(Request $request): Response
     {
         $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
-        $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
-        $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'DESC'], $limit, $offset);
+        $page = $request->get('page', self::PRODUCT_PAGE_PAGE);
 
-        $productsList = array_map('self::dataTransferProductObject', $products);
+        $offset = $limit * ($page - 1);
+        $products = $this->productRepository->findByConditions(['deletedAt' => null], ['createdAt' => 'DESC'], $limit, $offset);
 
-        return $this->handleView($this->view($productsList, Response::HTTP_OK));
+        $products['data'] = array_map('self::dataTransferProductObject', $products['data']);
+
+        return $this->handleView($this->view($products, Response::HTTP_OK));
     }
 
     /**
