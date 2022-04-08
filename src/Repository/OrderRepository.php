@@ -84,7 +84,7 @@ class OrderRepository extends ServiceEntityRepository
      * @param array $param
      * @return array
      */
-    public function getDataForReport(array $param): array
+    public function getDataForReportCommand(array $param): array
     {
         $queryBuilder = $this->createQueryBuilder('o')
             ->andWhere('o.deletedAt IS NULL')
@@ -106,6 +106,24 @@ class OrderRepository extends ServiceEntityRepository
         }
 
         return $queryBuilder->getQuery()->getResult();
+    }
+
+    public function getRevenue(?\DateTime $fromDate = null, ?\DateTime $toDate = null)
+    {
+        $queryBuilder = $this->createQueryBuilder('o')
+            ->select('SUM(o.totalPrice) as total');
+
+        if ($fromDate != null) {
+            $queryBuilder->andWhere('o.createdAt >= :fromDate')
+                ->setParameter('formDate', $fromDate);
+        }
+
+        if ($toDate != null) {
+            $queryBuilder->andWhere('o.createdAt <= :toDate')
+                ->setParameter('toDate', $toDate);
+        }
+
+        return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
     // /**

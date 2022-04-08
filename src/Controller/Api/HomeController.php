@@ -65,6 +65,30 @@ class HomeController extends AbstractFOSRestController
     }
 
     /**
+     * @Rest\Get("/bestSelling")
+     * @return Response
+     */
+    public function getBestSelling(): Response
+    {
+
+        $arrayBestSelling = $this->productRepository->findBestSelling();
+        $products = [];
+        $formattedProduct = [];
+        foreach ($arrayBestSelling as $item) {
+
+            $product = $this->productRepository->find($item['id']);
+            $formattedProduct['id'] = $product->getId();
+            $formattedProduct['name'] = $product->getName();
+            $formattedProduct['image'] = $product->getImages();
+            $formattedProduct['price'] = $product->getPrice();
+            $formattedProduct['totalQuantity'] = $item['TotalAmount'];
+            $products[] = $formattedProduct;
+        }
+
+        return $this->handleView($this->view($products, Response::HTTP_OK));
+    }
+
+    /**
      * @Rest\Post("/products/filter")
      */
     public function filter(Request $request): Response
@@ -101,30 +125,6 @@ class HomeController extends AbstractFOSRestController
         return $this->handleView($this->view($categories, Response::HTTP_OK));
     }
 
-    /**
-     * @Rest\Get ("/email")
-     * @param MailerService $mailerService
-     * @return Response
-     */
-    public function sendMail(MailerService $mailerService): Response
-    {
-        $order = new Order();
-        $event = new OrderEvent($order);
-        $this->eventDispatcher->dispatch($event);
-
-        return $this->handleView($this->view(['success' => 'Send successfully']));
-    }
-
-    /**
-     * @Rest\Get("/orders/{id}/export")
-     * @param Order $order
-     * @param PdfService $pdf
-     * @return void
-     */
-    public function generatePdfPersonne(Order $order, PdfService $pdf) {
-        $html = $this->render('export/pdf.html.twig', ['order' => $order]);
-        $pdf->showPdfFile($html);
-    }
     /**
      * @param Product $product
      * @return array

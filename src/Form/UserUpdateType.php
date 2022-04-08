@@ -27,26 +27,6 @@ class UserUpdateType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class, [
-                'constraints' => [
-                    new Length([
-                        'max' => 50,
-                        'maxMessage' => 'name=>Full name cannot be longer than 50 characters',
-                    ])
-                ]
-            ])
-            ->add('email', EmailType::class, [
-                'constraints' => [
-                    new Length([
-                        'max' => 150,
-                        'maxMessage' => 'email=>Email cannot be longer than 150 characters',
-                    ]),
-                    new Regex([
-                        'pattern' => '/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix',
-                        'message' => "email=>Email is incorrect"
-                    ])
-                ]
-            ])
             ->add('phone', TextType::class, [
                 'constraints' => [
                     new Regex([

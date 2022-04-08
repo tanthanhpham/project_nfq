@@ -143,6 +143,7 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['recipientEmail'] = $purchaseOrder->getRecipientEmail();
         $formattedPurchaseOrder['recipientPhone'] = $purchaseOrder->getRecipientPhone();
         $formattedPurchaseOrder['addressDelivery'] = $purchaseOrder->getAddressDelivery();
+        $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreatedAt();
         switch (intval($purchaseOrder->getStatus())) {
             case self::STATUS_PENDING:
                 $formattedPurchaseOrder['status'] = 'Pending';
@@ -159,6 +160,12 @@ class OrderController extends AbstractFOSRestController
         }
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
         $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
+        $cartItems = $purchaseOrder->getOrderItems();
+
+        foreach ($cartItems as $cartItem) {
+            $formattedPurchaseOrder['firstItem'][] =  self::dataTransferItemObject($cartItem);
+            break;
+        }
 
         return $formattedPurchaseOrder;
     }
@@ -174,6 +181,7 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['status'] = $purchaseOrder->getStatus();
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
         $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
+        $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreatedAt();
 
         $cartItems = $purchaseOrder->getOrderItems();
         foreach ($cartItems as $cartItem) {
@@ -193,6 +201,8 @@ class OrderController extends AbstractFOSRestController
         $item['amount'] = $orderDetail->getAmount();
         $item['unitPrice'] = $productItem->getProduct()->getPrice();
         $item['price'] = $orderDetail->getTotal();
+        $item['image'] = $orderDetail->getProductItem()->getProduct()->getImages();
+        $item['color'] = $orderDetail->getProductItem()->getProduct()->getColor();
 
         return $item;
     }

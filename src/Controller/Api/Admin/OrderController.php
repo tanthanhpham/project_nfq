@@ -110,41 +110,14 @@ class OrderController extends AbstractFOSRestController
     }
 
     /**
+     * @Rest\Get("/admin/orders/{id}/export")
+     * @param Order $order
+     * @param PdfService $pdf
      * @return void
      */
-    public function exportInvoice(int $id)
-    {
-        try {
-            $order = $this->purchaseOrderRepository->find($id);
-            // Configure Dompdf according to your needs
-            $pdfOptions = new Options();
-            $pdfOptions->set('defaultFont', 'Arial');
-
-            // Instantiate Dompdf with our options
-            $dompdf = new Dompdf($pdfOptions);
-
-            // Retrieve the HTML generated in our twig file
-            $html = $this->renderView('export/pdf.html.twig', [
-                'order' => $order
-            ]);
-
-            // Load HTML to Dompdf
-            $dompdf->loadHtml($html);
-
-            // (Optional) Setup the paper size and orientation 'portrait' or 'portrait'
-            $dompdf->setPaper('A5', 'landscape');
-
-            // Render the HTML as PDF
-            $dompdf->render();
-
-            // Output the generated PDF to Browser (force download)
-            $dompdf->stream("mypdf.pdf", [
-                "Attachment" => true
-            ]);
-        } catch (\Exception $e){
-
-        }
-
+    public function generatePdfPersonne(Order $order, PdfService $pdf) {
+        $html = $this->render('export/pdf.html.twig', ['order' => $order]);
+        $pdf->showPdfFile($html);
     }
 
     private function dataTransferObject(Order $purchaseOrder): array
@@ -186,6 +159,7 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['status'] = $purchaseOrder->getStatus();
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
         $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
+        $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreatedAt();
 
         $cartItems = $purchaseOrder->getOrderItems();
         foreach ($cartItems as $cartItem) {

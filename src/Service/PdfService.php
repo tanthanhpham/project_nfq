@@ -21,6 +21,7 @@ class PdfService
 
     public function showPdfFile($html) {
         $this->domPdf->loadHtml($html);
+        $this->domPdf->setPaper('A5', 'landscape');
         $this->domPdf->render();
         $this->domPdf->stream("details.pdf", [
             'Attachement' => true
