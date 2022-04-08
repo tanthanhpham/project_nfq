@@ -45,6 +45,11 @@ services:
             calls:
                 - [ setUserRepository, [ '@App\Repository\UserRepository' ] ]
 
+    App\Form\ProductType:
+                class: App\Form\ProductType
+                calls:
+                    - [ setProductRepository, [ '@App\Repository\ProductRepository' ] ]
+
     App\Service\GetUserInfo:
         arguments:
             $tokenStorage: '@security.token_storage'

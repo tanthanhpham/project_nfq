@@ -75,7 +75,6 @@ class HomeController extends AbstractFOSRestController
         $products = [];
         $formattedProduct = [];
         foreach ($arrayBestSelling as $item) {
-
             $product = $this->productRepository->find($item['id']);
             $formattedProduct['id'] = $product->getId();
             $formattedProduct['name'] = $product->getName();
@@ -98,9 +97,8 @@ class HomeController extends AbstractFOSRestController
         $requestData = json_decode($request->getContent(), true);
         $key = 'createdAt';
         $orderBy = 'DESC';
-        if (($requestData['sort']) != '')
-        {
-            $stringSort = explode('-',$requestData['sort']);
+        if (($requestData['sort']) != '') {
+            $stringSort = explode('-', $requestData['sort']);
             $key = $stringSort[0];
             $orderBy = $stringSort[1];
         }

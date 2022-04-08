@@ -70,7 +70,6 @@ class AuthController extends AbstractFOSRestController
             $form->submit($requestData);
             if ($form->isSubmitted() && $form->isValid()) {
                 $user->setPassword($encoder->hashPassword($user, $requestData['password']));
-                $user->setCreatedAt(new \DateTime());
                 $user->setUpdatedAt(new \DateTime());
                 $user->setRoles(['ROLE_ADMIN']);
 
@@ -92,13 +91,13 @@ class AuthController extends AbstractFOSRestController
             }
 
             return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
         }
 
         return $this->handleView($this->view([
             'error' => 'Something went wrong! Please contact support.'
-        ],Response::HTTP_INTERNAL_SERVER_ERROR));
+        ], Response::HTTP_INTERNAL_SERVER_ERROR));
     }
 
     /**

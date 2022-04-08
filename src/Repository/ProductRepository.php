@@ -156,5 +156,4 @@ class ProductRepository extends ServiceEntityRepository
 
         return $queryBuilder->getQuery()->getResult();
     }
-
 }

@@ -64,10 +64,10 @@ class ReportController extends AbstractFOSRestController
      * @Rest\Get("/admin/reports/chart")
      * @return Response
      */
-    public function getDataForChart()
+    public function getDataForChart(): Response
     {
+        $data = $this->purchaseOrderRepository->getChart();
 
+        return $this->handleView($this->view($data, Response::HTTP_OK));
     }
-
-
 }

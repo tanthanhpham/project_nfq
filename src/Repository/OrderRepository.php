@@ -126,6 +126,21 @@ class OrderRepository extends ServiceEntityRepository
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
+    public function getChart()
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT MONTH(created_at) as month, YEAR(created_at) as year ,SUM(total_price) as revenue
+                FROM `order`
+                WHERE deleted_at IS NULL
+                GROUP BY MONTH(created_at), YEAR(created_at)
+                ORDER BY YEAR(created_at) DESC, MONTH(created_at) DESC
+                LIMIT 12;";
+        $stmt = $conn->prepare($sql);
+
+        return $stmt->executeQuery()->fetchAllAssociative();
+    }
+
     // /**
     //  * @return Order[] Returns an array of Order objects
     //  */

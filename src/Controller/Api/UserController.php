@@ -48,7 +48,6 @@ class UserController extends AbstractFOSRestController
             if ($form->isSubmitted() && $form->isValid()) {
                 $user->setPassword($encoder->hashPassword($user, $requestData['password']));
                 $user->setUpdatedAt(new \DateTime());
-                $user->setCreatedAt();
                 $user->setRoles(['ROLE_USER']);
 
                 $uploadFile = $request->files->get('image');
@@ -69,7 +68,7 @@ class UserController extends AbstractFOSRestController
             }
 
             return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
         }
 
@@ -77,7 +76,6 @@ class UserController extends AbstractFOSRestController
             ['error' => 'Something went wrong! Please contact support.'],
             Response::HTTP_INTERNAL_SERVER_ERROR
         ));
-
     }
 
     /**
@@ -90,7 +88,6 @@ class UserController extends AbstractFOSRestController
         $requestData = json_decode($request->getContent(), true);
         $user = $this->userRepository->findOneBy(['email' => $requestData]);
         if ($user) {
-
             return $this->handleView($this->view(true, Response::HTTP_OK));
         }
 
@@ -156,7 +153,6 @@ class UserController extends AbstractFOSRestController
         $requestData = json_decode($request->getContent(), true);
         $form->submit($requestData);
         if ($form->isSubmitted() && $form->isValid()) {
-
             $user->setUpdatedAt(new \DateTime());
             $this->userRepository->add($user);
 

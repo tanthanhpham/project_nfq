@@ -56,7 +56,7 @@ class MailerService
 
             $this->mailer->send($email);
         } catch (TransportException $e) {
-            print $e->getMessage()."\n";
+            print $e->getMessage() . "\n";
             throw $e;
         }
     }

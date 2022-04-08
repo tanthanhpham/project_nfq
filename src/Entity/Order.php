@@ -87,9 +87,8 @@ class Order
 
     public function __construct(User $user)
     {
-        $this->setCreatedAt();
+        $this->createdAt = new \DateTime('now');
         $this->setDate();
-        $this->setUpdatedAt();
         $this->setCustomer($user);
         $this->setStatus('1');
         $this->orderItems = new ArrayCollection();
@@ -124,26 +123,26 @@ class Order
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreateAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(): self
+    public function setCreateAt(\DateTimeInterface $createdAt): self
     {
-        $this->createdAt = new \DateTime('now');
+        $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeInterface
+    public function getUpdateAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(): self
+    public function setUpdateAt(\DateTimeInterface $updatedAt): self
     {
-        $this->updatedAt = new \DateTime('now');
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }
