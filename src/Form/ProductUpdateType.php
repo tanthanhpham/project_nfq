@@ -17,6 +17,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
 
 class ProductUpdateType extends AbstractType
 {
@@ -28,6 +29,9 @@ class ProductUpdateType extends AbstractType
                     new NotBlank([
                         'message' => 'Product name can not be null',
                     ]),
+                    new NotNull([
+                        'message' => 'Product name can not be null',
+                    ]),
                     new Length([
                         'max' => 50,
                         'maxMessage' => 'Product name cannot be longer than 50 characters',
@@ -35,6 +39,9 @@ class ProductUpdateType extends AbstractType
                 ]
             ])
             ->add('price', NumberType::class)
+            ->add('images', FileType::class, [
+                'multiple' => true,
+            ])
             ->add('description', TextareaType::class)
             ->add('material', TextareaType::class)
             ->add('color', TextType::class)

@@ -142,4 +142,18 @@ class ProductRepository extends ServiceEntityRepository
 
         return ['data' => $productPerPage, 'total' => count($products)];
     }
+
+    public function findBestSelling()
+    {
+        $queryBuilder = $this->createQueryBuilder('p')
+            ->select('p')
+            ->select('p.id', 'SUM(oDetail.amount) as TotalAmount')
+            ->where('p.deletedAt IS NULL')
+            ->innerJoin('p.productItems', 'pItems')
+            ->innerJoin('pItems.orderDetails', 'oDetail')
+            ->innerJoin('oDetail.purchaseOrder', 'o')
+            ->groupBy('p.id');
+
+        return $queryBuilder->getQuery()->getResult();
+    }
 }

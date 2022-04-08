@@ -44,8 +44,7 @@ class OrderController extends AbstractFOSRestController
         ProductItemRepository $productItemRepository,
         CartRepository $cartRepository,
         EventDispatcherInterface $eventDispatcher
-    )
-    {
+    ) {
         $this->purchaseOrderRepository = $purchaseOrderRepository;
         $this->userLoginInfo = $userLogin->getUserLoginInfo();
         $this->productItemRepository = $productItemRepository;
@@ -100,7 +99,7 @@ class OrderController extends AbstractFOSRestController
             if (count($cartItemsData) == 0) {
                 return $this->handleView($this->view(['error' => 'Your cart is empty.'], Response::HTTP_BAD_REQUEST));
             }
-            foreach ($cartItemsData as $cartItemData){
+            foreach ($cartItemsData as $cartItemData) {
                 $productItem = $cartItemData->getProductItem();
                 $quantity = $cartItemData->getAmount();
 
@@ -120,10 +119,10 @@ class OrderController extends AbstractFOSRestController
                 $orderDetail->setProductItem($productItem);
                 $order->addOrderItem($orderDetail);
                 $this->cartRepository->remove($cartItemData);
-
             }
             $order->setTotalPrice($totalPrice);
             $order->setTotalQuantity($totalQuantity);
+            $order->setUpdateAt(new \DateTime('now'));
             $this->purchaseOrderRepository->add($order);
 
             $event = new OrderEvent($order);
@@ -143,6 +142,8 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['recipientEmail'] = $purchaseOrder->getRecipientEmail();
         $formattedPurchaseOrder['recipientPhone'] = $purchaseOrder->getRecipientPhone();
         $formattedPurchaseOrder['addressDelivery'] = $purchaseOrder->getAddressDelivery();
+        $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt();
+
         switch (intval($purchaseOrder->getStatus())) {
             case self::STATUS_PENDING:
                 $formattedPurchaseOrder['status'] = 'Pending';
@@ -159,6 +160,12 @@ class OrderController extends AbstractFOSRestController
         }
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
         $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
+        $cartItems = $purchaseOrder->getOrderItems();
+
+        foreach ($cartItems as $cartItem) {
+            $formattedPurchaseOrder['firstItem'][] =  self::dataTransferItemObject($cartItem);
+            break;
+        }
 
         return $formattedPurchaseOrder;
     }
@@ -174,6 +181,7 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['status'] = $purchaseOrder->getStatus();
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
         $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
+        $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt();
 
         $cartItems = $purchaseOrder->getOrderItems();
         foreach ($cartItems as $cartItem) {
@@ -193,6 +201,8 @@ class OrderController extends AbstractFOSRestController
         $item['amount'] = $orderDetail->getAmount();
         $item['unitPrice'] = $productItem->getProduct()->getPrice();
         $item['price'] = $orderDetail->getTotal();
+        $item['image'] = $orderDetail->getProductItem()->getProduct()->getImages();
+        $item['color'] = $orderDetail->getProductItem()->getProduct()->getColor();
 
         return $item;
     }

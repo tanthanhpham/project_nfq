@@ -40,34 +40,42 @@ class UserController extends AbstractFOSRestController
      */
     public function register(Request $request, UserPasswordHasherInterface $encoder, FileUploader $fileUploader): Response
     {
-        $user = new User();
-        $form = $this->createForm(UserType::class, $user);
-        $requestData = $request->request->all();
-        $form->submit($requestData);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $user->setPassword($encoder->hashPassword($user, $requestData['password']));
-            $user->setUpdatedAt(new \DateTime());
-            $user->setCreatedAt();
-            $user->setRoles(['ROLE_USER']);
+        try {
+            $user = new User();
+            $form = $this->createForm(UserType::class, $user);
+            $requestData = $request->request->all();
+            $form->submit($requestData);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $user->setPassword($encoder->hashPassword($user, $requestData['password']));
+                $user->setUpdatedAt(new \DateTime());
+                $user->setRoles(['ROLE_USER']);
 
-            $uploadFile = $request->files->get('image');
-            if ($uploadFile) {
-                $saveFile = $fileUploader->upload($uploadFile);
-                $saveFile = self::PATH . $saveFile;
-                $user->setImage($saveFile);
+                $uploadFile = $request->files->get('image');
+                if ($uploadFile) {
+                    $saveFile = $fileUploader->upload($uploadFile);
+                    $saveFile = self::PATH . $saveFile;
+                    $user->setImage($saveFile);
+                }
+                $this->userRepository->add($user);
+
+                return $this->handleView($this->view(["message" => "Register successfully"], Response::HTTP_CREATED));
             }
-            $this->userRepository->add($user);
 
-            return $this->handleView($this->view(["message" => "Register successfully"], Response::HTTP_CREATED));
+            $errorsMessage = [];
+            foreach ($form->getErrors(true, true) as $error) {
+                $paramError = explode('=>', $error->getMessage());
+                $errorsMessage[$paramError[0]] = $paramError[1];
+            }
+
+            return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
         }
 
-        $errorsMessage = [];
-        foreach ($form->getErrors(true, true) as $error) {
-            $paramError = explode('=>', $error->getMessage());
-            $errorsMessage[$paramError[0]] = $paramError[1];
-        }
-
-        return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
+        return $this->handleView($this->view(
+            ['error' => 'Something went wrong! Please contact support.'],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        ));
     }
 
     /**
@@ -80,7 +88,6 @@ class UserController extends AbstractFOSRestController
         $requestData = json_decode($request->getContent(), true);
         $user = $this->userRepository->findOneBy(['email' => $requestData]);
         if ($user) {
-
             return $this->handleView($this->view(true, Response::HTTP_OK));
         }
 
@@ -146,7 +153,6 @@ class UserController extends AbstractFOSRestController
         $requestData = json_decode($request->getContent(), true);
         $form->submit($requestData);
         if ($form->isSubmitted() && $form->isValid()) {
-
             $user->setUpdatedAt(new \DateTime());
             $this->userRepository->add($user);
 

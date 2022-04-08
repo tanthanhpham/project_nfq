@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Aloha!</title>
+
+    <style type="text/css">
+        * {
+            font-family: Verdana, Arial, sans-serif;
+        }
+        table{
+            font-size: x-small;
+        }
+        tfoot tr td{
+            font-weight: bold;
+            font-size: x-small;
+        }
+        .gray {
+            background-color: lightgray
+        }
+        .footer-page {
+            width: 100%;
+            border-top: black 2px solid;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            text-align: center;
+        }
+        body {
+            position: relative;
+            margin: 0;
+            height: 100%;
+        }
+
+    </style>
+
+</head>
+<body>
+<div>
+    <h4 style="text-align: center; margin-bottom: 0" >Invoice</h4>
+    <table width="100%">
+        <tr>
+            <td style="display: block">
+                {{ order.getRecipientName() }}
+            </td>
+            <td style="display: block">
+                {{ order.getRecipientEmail() }}
+            </td>
+            <td style="display: block">
+                {{ order.getRecipientPhone() }}
+            </td>
+            <td style="display: block">
+                {{ order.getAddressDelivery() }}
+            </td>
+            </pre>
+        </tr>
+
+    </table>
+
+    <br/>
+
+    <table width="100%">
+        <thead style="background-color: lightgray;">
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Quantity</th>
+            <th>Unit Price $</th>
+            <th>Total $</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for orderDetail in order.getOrderItems() %}
+        <tr>
+            <th scope="row">1</th>
+            <td style="padding-left: 10px">{{ orderDetail.getProductItem().getProduct().getName() }}</td>
+            <td style="text-align: center">{{ orderDetail.getAmount() }}</td>
+            <td style="text-align: center">{{ orderDetail.getProductItem().getProduct().getPrice() }}</td>
+            <td align="right">{{ orderDetail.getTotal() }}</td>
+            {% endfor %}
+        </tr>
+        </tbody>
+
+        <tfoot>
+        <tr>
+            <td colspan="3"></td>
+            <td align="right">Subtotal $</td>
+            <td align="right">1000000</td>
+        </tr>
+        <tr>
+            <td colspan="3"></td>
+            <td align="right">Ship $</td>
+            <td align="right">10</td>
+        </tr>
+        <tr>
+            <td colspan="3"></td>
+            <td align="right">Total $</td>
+            <td align="right" class="gray">{{ order.totalPrice() }}</td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div class="footer-page">
+    <h5 style="margin: 5px 0">ANT Store</h5>
+    <h6 style="margin: 0">Cai Khe, Ninh Kieu, Can Tho</h6>
+</div>
+
+</body>
+</html>

@@ -48,7 +48,8 @@ class CartController extends AbstractFOSRestController
             $page = intval($request->get('page', self::CART_ITEMS_PAGE_NUMBER));
             $offset = $limit * ($page - 1);
             $carts = $this->cartRepository->findBy(
-                ['user' => $this->userLoginInfo->getId()],[],
+                ['user' => $this->userLoginInfo->getId()],
+                [],
                 $limit,
                 $offset
             );
@@ -63,7 +64,7 @@ class CartController extends AbstractFOSRestController
 
         return $this->handleView($this->view([
             'error' => 'Something went wrong! Please contact support.'
-        ],Response::HTTP_INTERNAL_SERVER_ERROR));
+        ], Response::HTTP_INTERNAL_SERVER_ERROR));
     }
 
     /**
@@ -87,7 +88,7 @@ class CartController extends AbstractFOSRestController
             } else {
                 $amount = $cartItem->getAmount() + $payload['amount'];
                 $total = $cartItem->getTotal() + $payload['total'];
-                if ($amount > $cartItem->getProductItem()->getAmount()){
+                if ($amount > $cartItem->getProductItem()->getAmount()) {
                     return $this->handleView($this->view(
                         ['error' => 'The product is quantity for this order has been exceeded'],
                         Response::HTTP_BAD_REQUEST
@@ -117,7 +118,7 @@ class CartController extends AbstractFOSRestController
 
         return $this->handleView($this->view([
             'error' => 'Something went wrong! Please contact support.'
-        ],Response::HTTP_INTERNAL_SERVER_ERROR));
+        ], Response::HTTP_INTERNAL_SERVER_ERROR));
     }
 
     /**
@@ -157,7 +158,7 @@ class CartController extends AbstractFOSRestController
 
         return $this->handleView($this->view([
             'error' => 'Something went wrong! Please contact support.'
-        ],Response::HTTP_INTERNAL_SERVER_ERROR));
+        ], Response::HTTP_INTERNAL_SERVER_ERROR));
     }
 
     /**
@@ -186,7 +187,7 @@ class CartController extends AbstractFOSRestController
 
         return $this->handleView($this->view([
             'error' => 'Something went wrong! Please contact support.'
-        ],Response::HTTP_INTERNAL_SERVER_ERROR));
+        ], Response::HTTP_INTERNAL_SERVER_ERROR));
     }
 
     /**

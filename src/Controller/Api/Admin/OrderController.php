@@ -11,6 +11,9 @@ use App\Repository\CartRepository;
 use App\Repository\OrderRepository;
 use App\Repository\ProductItemRepository;
 use App\Service\GetUserInfo;
+use App\Service\PdfService;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerBuilder;
@@ -19,6 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Validator\Constraints\Date;
 
 /**
  * @IsGranted("ROLE_ADMIN")
@@ -44,8 +48,7 @@ class OrderController extends AbstractFOSRestController
         ProductItemRepository $productItemRepository,
         CartRepository $cartRepository,
         EventDispatcherInterface $eventDispatcher
-    )
-    {
+    ) {
         $this->purchaseOrderRepository = $purchaseOrderRepository;
         $this->userLoginInfo = $userLogin->getUserLoginInfo();
         $this->productItemRepository = $productItemRepository;
@@ -94,9 +97,9 @@ class OrderController extends AbstractFOSRestController
     {
         $status = $request->get('status');
 
-        if($status != $purchaseOrder->getStatus()) {
+        if ($status != $purchaseOrder->getStatus()) {
             $purchaseOrder->setStatus($status);
-            $purchaseOrder->setUpdatedAt();
+            $purchaseOrder->setUpdateAt(new \DateTime('now'));
         }
 
         $this->purchaseOrderRepository->add($purchaseOrder);
@@ -104,6 +107,18 @@ class OrderController extends AbstractFOSRestController
         $purchaseOrder = self::dataTransferObject($purchaseOrder);
 
         return $this->handleView($this->view($purchaseOrder, Response::HTTP_OK));
+    }
+
+    /**
+     * @Rest\Get("/admin/orders/{id}/export")
+     * @param Order $order
+     * @param PdfService $pdf
+     * @return void
+     */
+    public function generatePdfPersonne(Order $order, PdfService $pdf)
+    {
+        $html = $this->render('export/pdf.html.twig', ['order' => $order]);
+        $pdf->showPdfFile($html);
     }
 
     private function dataTransferObject(Order $purchaseOrder): array
@@ -114,6 +129,8 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['recipientEmail'] = $purchaseOrder->getRecipientEmail();
         $formattedPurchaseOrder['recipientPhone'] = $purchaseOrder->getRecipientPhone();
         $formattedPurchaseOrder['addressDelivery'] = $purchaseOrder->getAddressDelivery();
+        $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt()->format('Y-m-d H:i');
+
         switch (intval($purchaseOrder->getStatus())) {
             case self::STATUS_PENDING:
                 $formattedPurchaseOrder['status'] = 'Pending';
@@ -145,6 +162,7 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['status'] = $purchaseOrder->getStatus();
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
         $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
+        $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt()->format('Y-m-d H:i:s');
 
         $cartItems = $purchaseOrder->getOrderItems();
         foreach ($cartItems as $cartItem) {
@@ -167,5 +185,4 @@ class OrderController extends AbstractFOSRestController
 
         return $item;
     }
-
 }

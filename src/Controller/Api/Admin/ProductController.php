@@ -12,6 +12,7 @@ use App\Repository\ProductItemRepository;
 use App\Repository\ProductRepository;
 use App\Repository\SizeRepository;
 use App\Service\FileUploader;
+use App\Service\HandleDataOutput;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -35,12 +36,14 @@ class ProductController extends AbstractFOSRestController
     private $productRepository;
     private $sizeRepository;
     private $productItemRepository;
+    private $handleDataOutput;
 
-    public function __construct(ProductRepository $productRepository, SizeRepository $sizeRepository, ProductItemRepository $productItemRepository)
+    public function __construct(ProductRepository $productRepository, SizeRepository $sizeRepository, ProductItemRepository $productItemRepository, HandleDataOutput $handleDataOutput)
     {
         $this->productRepository = $productRepository;
         $this->sizeRepository = $sizeRepository;
         $this->productItemRepository = $productItemRepository;
+        $this->handleDataOutput = $handleDataOutput;
     }
 
     /**
@@ -80,10 +83,8 @@ class ProductController extends AbstractFOSRestController
         $product = new Product();
         $form = $this->createForm(ProductType::class, $product);
         $requestData = $request->request->all();
-        $form->submit($request->request->all());
-
-        if ($form->isSubmitted()) {
-            $product->setCreateAt(new \DateTime());
+        $form->submit($requestData);
+        if ($form->isSubmitted() && $form->isValid()) {
             $product->setUpdateAt(new \DateTime());
 
             $gallery = $request->files->get('images');
@@ -97,7 +98,7 @@ class ProductController extends AbstractFOSRestController
             $product->setImages($imagesPath);
 
             $productItemsData = (json_decode($requestData['productItems'][0], true));
-            foreach ($productItemsData as $productItemData){
+            foreach ($productItemsData as $productItemData) {
                 $productItem = new ProductItem();
                 $size = $this->sizeRepository->find($productItemData['size']);
                 $productItem->setSize($size);
@@ -109,28 +110,43 @@ class ProductController extends AbstractFOSRestController
 
             return $this->handleView($this->view(['message' => 'Add product successfully'], Response::HTTP_CREATED));
         }
+        $errorsMessage = $this->handleDataOutput->getFormErrorMessage($form);
 
-        return $this->handleView($this->view($form->getErrors(), Response::HTTP_BAD_REQUEST));
+        return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
     }
 
     /**
-     * @Rest\Put("admin/products/{id}")
+     * @Rest\Post("admin/products/{id}")
      * @param Request $request
      * @param Product $product
      * @return Response
      */
-    public function updateProduct(Product $product, Request $request): Response
+    public function updateProduct(Product $product, Request $request, FileUploader $fileUploader): Response
     {
+        $oldImages = $product->getImages();
         $form = $this->createForm(ProductUpdateType::class, $product);
         $form->submit($request->request->all());
-        if ($form->isSubmitted()) {
+
+        if ($form->isSubmitted() && $form->isValid()) {
             $product->setUpdateAt(new \DateTime());
+            $gallery = $request->files->get('images');
+            $imagesPath = [];
+            if (!empty($gallery)) {
+                foreach ($gallery as $image) {
+                    $saveFile = $fileUploader->upload($image);
+                    $saveFile = self::PATH . $saveFile;
+                    $imagesPath[] = $saveFile;
+                }
+                $product->setImages($imagesPath);
+            }
+            $product->setImages($oldImages);
             $this->productRepository->add($product);
 
             return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
         }
+        $errorsMessage = $this->handleDataOutput->getFormErrorMessage($form);
 
-        return $this->handleView($this->view($form->getErrors(), Response::HTTP_BAD_REQUEST));
+        return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
     }
 
     /**
@@ -157,8 +173,8 @@ class ProductController extends AbstractFOSRestController
      */
     public function updateProductItem(Product $product, Request $request): Response
     {
-        $requestData = json_decode($request->getContent(),true);
-        foreach ($requestData as $productItemData){
+        $requestData = json_decode($request->getContent(), true);
+        foreach ($requestData as $productItemData) {
             $productItem = $this->productItemRepository->findOneBy(['product' => $product->getId(), 'size' => $productItemData['size']]);
             $size = $this->sizeRepository->find($productItemData['size']);
             $productItem->setSize($size);

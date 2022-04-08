@@ -92,5 +92,4 @@ class OrderDetail
 
         return $this;
     }
-
 }

@@ -12,6 +12,7 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerBuilder;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -27,10 +28,11 @@ class AuthController extends AbstractFOSRestController
     public const PATH = 'http://127.0.0.1/uploads/images/';
 
     private $userRepository;
-
-    public function __construct(UserRepository $userRepository)
+    private $logger;
+    public function __construct(UserRepository $userRepository, LoggerInterface $logger)
     {
         $this->userRepository = $userRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -60,35 +62,42 @@ class AuthController extends AbstractFOSRestController
      */
     public function addAdmin(Request $request, UserPasswordHasherInterface $encoder, FileUploader $fileUploader): Response
     {
-        $user = new User();
-        $form = $this->createForm(UserType::class, $user);
-        $requestData = $request->request->all();
+        try {
+            $user = new User();
+            $form = $this->createForm(UserType::class, $user);
+            $requestData = $request->request->all();
 
-        $form->submit($requestData);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $user->setPassword($encoder->hashPassword($user, $requestData['password']));
-            $user->setCreatedAt(new \DateTime());
-            $user->setUpdatedAt(new \DateTime());
-            $user->setRoles(['ROLE_ADMIN']);
+            $form->submit($requestData);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $user->setPassword($encoder->hashPassword($user, $requestData['password']));
+                $user->setUpdatedAt(new \DateTime());
+                $user->setRoles(['ROLE_ADMIN']);
 
-            $uploadFile = $request->files->get('image');
-            if ($uploadFile) {
-                $saveFile = $fileUploader->upload($uploadFile);
-                $saveFile = self::PATH . $saveFile;
-                $user->setImage($saveFile);
+                $uploadFile = $request->files->get('image');
+                if ($uploadFile) {
+                    $saveFile = $fileUploader->upload($uploadFile);
+                    $saveFile = self::PATH . $saveFile;
+                    $user->setImage($saveFile);
+                }
+                $this->userRepository->add($user);
+
+                return $this->handleView($this->view(["message" => "Register successfully"], Response::HTTP_CREATED));
             }
-            $this->userRepository->add($user);
 
-            return $this->handleView($this->view(["message" => "Register successfully"], Response::HTTP_CREATED));
+            $errorsMessage = [];
+            foreach ($form->getErrors(true, true) as $error) {
+                $paramError = explode('=>', $error->getMessage());
+                $errorsMessage[$paramError[0]] = $paramError[1];
+            }
+
+            return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
         }
 
-        $errorsMessage = [];
-        foreach ($form->getErrors(true, true) as $error) {
-            $paramError = explode('=>', $error->getMessage());
-            $errorsMessage[$paramError[0]] = $paramError[1];
-        }
-
-        return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
+        return $this->handleView($this->view([
+            'error' => 'Something went wrong! Please contact support.'
+        ], Response::HTTP_INTERNAL_SERVER_ERROR));
     }
 
     /**
@@ -112,7 +121,7 @@ class AuthController extends AbstractFOSRestController
 
             return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
         } catch (\Exception $e) {
-            //Need to add log the error message
+            $this->logger->error($e->getMessage());
         }
 
         return $this->handleView($this->view(
