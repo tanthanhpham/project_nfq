@@ -110,6 +110,19 @@ class HomeController extends AbstractFOSRestController
     }
 
     /**
+     * @Rest\Post("/products/search")
+     */
+    public function search(Request $request): Response
+    {
+        $requestData = json_decode($request->getContent(), true);
+        $keyWord = '%'.$requestData['key'].'%';
+        $products = $this->productRepository->search($keyWord, 10,0);
+        $products['data'] = array_map('self::dataTransferObject', $products['data']);
+
+        return $this->handleView($this->view([$products], Response::HTTP_OK));
+    }
+
+    /**
      * @Rest\Get("/categories")
      */
     public function getCategories(): Response

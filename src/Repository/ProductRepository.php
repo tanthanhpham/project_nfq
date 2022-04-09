@@ -152,8 +152,34 @@ class ProductRepository extends ServiceEntityRepository
             ->innerJoin('p.productItems', 'pItems')
             ->innerJoin('pItems.orderDetails', 'oDetail')
             ->innerJoin('oDetail.purchaseOrder', 'o')
-            ->groupBy('p.id');
+            ->groupBy('p.id')
+            ->setFirstResult(1)
+            ->setMaxResults(8);
 
         return $queryBuilder->getQuery()->getResult();
+    }
+
+    public function search(string $key, $limit, $offset)
+    {
+        $queryBuilder = $this->createQueryBuilder('p')
+            ->select('p')
+            ->orWhere('p.name LIKE :key')
+            ->setParameter('key', $key)
+            ->orWhere('p.description LIKE :key')
+            ->setParameter('key', $key)
+            ->orWhere('c.name LIKE :key')
+            ->andWhere('p.deletedAt is NULL')
+            ->setParameter('key', $key)
+            ->innerJoin('p.category', 'c');
+
+        $products = $queryBuilder->getQuery()->getScalarResult();
+        $productPerPage = $queryBuilder
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->addOrderBy('p.createdAt', 'DESC')
+            ->getQuery()
+            ->execute();
+
+        return ['data' => $productPerPage, 'total' => count($products)];
     }
 }
