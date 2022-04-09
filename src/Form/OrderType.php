@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Order;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -53,6 +54,13 @@ class OrderType extends AbstractType
                 ]
             ])
             ->add('addressDelivery', TextareaType::class)
+            ->add('shippingCost', NumberType::class, [
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'The shipping free can not be null',
+                    ]),
+                ]
+            ])
         ;
     }
 

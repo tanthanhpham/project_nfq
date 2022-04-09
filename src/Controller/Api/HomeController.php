@@ -27,8 +27,8 @@ use Symfony\Component\Mime\Email;
 
 class HomeController extends AbstractFOSRestController
 {
-    public const PRODUCT_PAGE_LIMIT = 12;
-    public const PRODUCT_PAGE_OFFSET = 0;
+    public const PRODUCT_PAGE_LIMIT = 10;
+    public const PRODUCT_PAGE_PAGE = 1;
     private $productRepository;
     private $categoryRepository;
     private $eventDispatcher;
@@ -93,8 +93,10 @@ class HomeController extends AbstractFOSRestController
     public function filter(Request $request): Response
     {
         $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
-        $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
+        $page = $request->get('page', self::PRODUCT_PAGE_PAGE);
         $requestData = json_decode($request->getContent(), true);
+
+        $offset = $limit * ($page - 1);
         $key = 'createdAt';
         $orderBy = 'DESC';
         if (($requestData['sort']) != '') {
@@ -114,12 +116,16 @@ class HomeController extends AbstractFOSRestController
      */
     public function search(Request $request): Response
     {
+        $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
+        $page = $request->get('page', self::PRODUCT_PAGE_PAGE);
         $requestData = json_decode($request->getContent(), true);
+
+        $offset = $limit * ($page - 1);
         $keyWord = '%'.$requestData['key'].'%';
-        $products = $this->productRepository->search($keyWord, 10,0);
+        $products = $this->productRepository->search($keyWord, $limit,$offset);
         $products['data'] = array_map('self::dataTransferObject', $products['data']);
 
-        return $this->handleView($this->view([$products], Response::HTTP_OK));
+        return $this->handleView($this->view($products, Response::HTTP_OK));
     }
 
     /**

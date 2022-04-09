@@ -134,6 +134,35 @@ class OrderController extends AbstractFOSRestController
         return $this->handleView($this->view($form->getErrors(), Response::HTTP_BAD_REQUEST));
     }
 
+    /**
+     * @Rest\Put("/user/orders/{id}")
+     * @param Order $purchaseOrder
+     * @param Request $request
+     * @return Response
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function updateStatusOrderAction(Order $purchaseOrder, Request $request): Response
+    {
+        $requestData = json_decode($request->getContent(), true);
+        $status = $requestData['status'];
+
+        if ($status != $purchaseOrder->getStatus()) {
+            $purchaseOrder->setStatus($status);
+            $purchaseOrder->setUpdateAt(new \DateTime('now'));
+            if ($status == self::STATUS_CANCELED) {
+                $purchaseOrder->setSubjectCancel('admin');
+                $purchaseOrder->setReasonCancel($requestData['reasonCancel']);
+            }
+        }
+
+        $this->purchaseOrderRepository->add($purchaseOrder);
+
+        $purchaseOrder = self::dataTransferObject($purchaseOrder);
+
+        return $this->handleView($this->view($purchaseOrder, Response::HTTP_OK));
+    }
+
     private function dataTransferObject(Order $purchaseOrder): array
     {
         $formattedPurchaseOrder = [];

@@ -94,11 +94,16 @@ class OrderController extends AbstractFOSRestController
      */
     public function updateStatusOrderAction(Order $purchaseOrder, Request $request): Response
     {
-        $status = $request->get('status');
+        $requestData = json_decode($request->getContent(), true);
+        $status = $requestData['status'];
 
         if ($status != $purchaseOrder->getStatus()) {
             $purchaseOrder->setStatus($status);
             $purchaseOrder->setUpdateAt(new \DateTime('now'));
+            if ($status == self::STATUS_CANCELED) {
+                $purchaseOrder->setSubjectCancel('admin');
+                $purchaseOrder->setReasonCancel($requestData['reasonCancel']);
+            }
         }
 
         $this->purchaseOrderRepository->add($purchaseOrder);

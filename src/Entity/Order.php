@@ -88,7 +88,17 @@ class Order
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $shippingCÃost;
+    private $shippingCost;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $reasonCancel;
+
+    /**
+     * @ORM\Column(type="string", length=100, nullable=true)
+     */
+    private $subjectCancel;
 
     public function __construct(User $user)
     {
@@ -200,6 +210,30 @@ class Order
         return $this;
     }
 
+    public function getSubjectCancel(): ?string
+    {
+        return $this->subjectCancel;
+    }
+
+    public function setSubjectCancel(string $subjectCancel): self
+    {
+        $this->subjectCancel = $subjectCancel;
+
+        return $this;
+    }
+
+    public function getReasonCancel(): ?string
+    {
+        return $this->reasonCancel;
+    }
+
+    public function setReasonCancel(string $reasonCancel): self
+    {
+        $this->reasonCancel = $reasonCancel;
+
+        return $this;
+    }
+
     public function getRecipientPhone(): ?string
     {
         return $this->recipientPhone;
@@ -279,14 +313,14 @@ class Order
         return $this;
     }
 
-    public function getShippingCÃost(): ?int
+    public function getShippingCost(): ?int
     {
-        return $this->shippingCÃost;
+        return $this->shippingCost;
     }
 
-    public function setShippingCÃost(?int $shippingCÃost): self
+    public function setShippingCost(?int $shippingCost): self
     {
-        $this->shippingCÃost = $shippingCÃost;
+        $this->shippingCost = $shippingCost;
 
         return $this;
     }
