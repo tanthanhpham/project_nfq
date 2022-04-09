@@ -147,14 +147,15 @@ class ProductRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('p')
             ->select('p')
-            ->select('p.id', 'SUM(oDetail.amount) as TotalAmount')
+            ->select('p.id', 'SUM(oDetail.amount) as totalAmount')
             ->where('p.deletedAt IS NULL')
             ->innerJoin('p.productItems', 'pItems')
             ->innerJoin('pItems.orderDetails', 'oDetail')
             ->innerJoin('oDetail.purchaseOrder', 'o')
             ->groupBy('p.id')
-            ->setFirstResult(1)
-            ->setMaxResults(8);
+            ->setFirstResult(0)
+            ->setMaxResults(7)
+            ->addOrderBy('totalAmount', 'DESC');
 
         return $queryBuilder->getQuery()->getResult();
     }

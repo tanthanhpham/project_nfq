@@ -46,7 +46,9 @@ class HomeController extends AbstractFOSRestController
     public function getProducts(Request $request): Response
     {
         $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
-        $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
+        $page = $request->get('page', self::PRODUCT_PAGE_PAGE);
+
+        $offset = $limit * ($page - 1);
         $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'ASC'], $limit, $offset);
 
         $productsList = array_map('self::dataTransferObject', $products);
@@ -70,7 +72,6 @@ class HomeController extends AbstractFOSRestController
      */
     public function getBestSelling(): Response
     {
-
         $arrayBestSelling = $this->productRepository->findBestSelling();
         $products = [];
         $formattedProduct = [];
@@ -80,7 +81,7 @@ class HomeController extends AbstractFOSRestController
             $formattedProduct['name'] = $product->getName();
             $formattedProduct['image'] = $product->getImages();
             $formattedProduct['price'] = $product->getPrice();
-            $formattedProduct['totalQuantity'] = $item['TotalAmount'];
+            $formattedProduct['totalQuantity'] = $item['totalAmount'];
             $products[] = $formattedProduct;
         }
 
