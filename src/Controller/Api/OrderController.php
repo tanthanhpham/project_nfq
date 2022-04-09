@@ -147,20 +147,19 @@ class OrderController extends AbstractFOSRestController
         $requestData = json_decode($request->getContent(), true);
         $status = $requestData['status'];
 
-        if ($status != $purchaseOrder->getStatus()) {
+        if ($purchaseOrder->getStatus() == self::STATUS_PENDING) {
             $purchaseOrder->setStatus($status);
             $purchaseOrder->setUpdateAt(new \DateTime('now'));
             if ($status == self::STATUS_CANCELED) {
-                $purchaseOrder->setSubjectCancel('admin');
+                $purchaseOrder->setSubjectCancel('user');
                 $purchaseOrder->setReasonCancel($requestData['reasonCancel']);
             }
+            $this->purchaseOrderRepository->add($purchaseOrder);
+
+            return $this->handleView($this->view(['message' => 'Cancel order successfully'], Response::HTTP_OK));
         }
 
-        $this->purchaseOrderRepository->add($purchaseOrder);
-
-        $purchaseOrder = self::dataTransferObject($purchaseOrder);
-
-        return $this->handleView($this->view($purchaseOrder, Response::HTTP_OK));
+        return $this->handleView($this->view(['message' => 'Can not cancel order'], Response::HTTP_OK));
     }
 
     private function dataTransferObject(Order $purchaseOrder): array
@@ -210,7 +209,8 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['status'] = $purchaseOrder->getStatus();
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
         $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
-        $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt();
+        $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt()->format('Y-m-d H:i:s');
+        $formattedPurchaseOrder['shippingCost'] = $purchaseOrder->getShippingCost();
 
         $cartItems = $purchaseOrder->getOrderItems();
         foreach ($cartItems as $cartItem) {

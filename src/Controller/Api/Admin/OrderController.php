@@ -167,6 +167,7 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
         $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
         $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt()->format('Y-m-d H:i:s');
+        $formattedPurchaseOrder['shippingCost'] = $purchaseOrder->getShippingCost();
 
         $cartItems = $purchaseOrder->getOrderItems();
         foreach ($cartItems as $cartItem) {
@@ -186,6 +187,7 @@ class OrderController extends AbstractFOSRestController
         $item['amount'] = $orderDetail->getAmount();
         $item['unitPrice'] = $productItem->getProduct()->getPrice();
         $item['price'] = $orderDetail->getTotal();
+        $item['image'] = $orderDetail->getProductItem()->getProduct()->getImages();
 
         return $item;
     }
