@@ -85,6 +85,11 @@ class Order
      */
     private $orderItems;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $shippingCÃost;
+
     public function __construct(User $user)
     {
         $this->createdAt = new \DateTime('now');
@@ -270,6 +275,18 @@ class Order
                 $orderItem->setPurchaseOrder(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getShippingCÃost(): ?int
+    {
+        return $this->shippingCÃost;
+    }
+
+    public function setShippingCÃost(?int $shippingCÃost): self
+    {
+        $this->shippingCÃost = $shippingCÃost;
 
         return $this;
     }

@@ -78,7 +78,6 @@ class OrderController extends AbstractFOSRestController
      */
     public function getOrder(int $id): Response
     {
-
         $order = $this->purchaseOrderRepository->findOneBy(['deletedAt' => null, 'id' => $id]);
         $order = self::dataTransferDetailOrderObject($order);
 

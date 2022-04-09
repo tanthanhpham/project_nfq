@@ -60,7 +60,7 @@ class ReportRevenueCommand extends Command
             $arguments['status'] = $input->getArgument('status');
             $arguments['fromDate'] = $input->getArgument('fromDate');
             $arguments['toDate'] = $input->getArgument('toDate');
-            $listOrderPurchase = $this->orderRepository->getDataForReport($arguments);
+            $listOrderPurchase = $this->orderRepository->getDataForReportCommand($arguments);
 
             $orderExportData = [];
             if ($listOrderPurchase) {
