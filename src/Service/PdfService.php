@@ -7,17 +7,18 @@ use Dompdf\Options;
 
 class PdfService
 {
-    private $domPdf;
+    public const PATH = 'http://127.0.0.1/uploads/files/';
 
-    public function __construct()
+    private $domPdf;
+    private $projectDir;
+
+    public function __construct(string $projectDir)
     {
         $this->domPdf = new DomPdf();
-
         $pdfOptions = new Options();
-
         $pdfOptions->set('defaultFont', 'Garamond');
-
         $this->domPdf->setOptions($pdfOptions);
+        $this->projectDir = $projectDir;
     }
 
     public function showPdfFile($html)
@@ -30,10 +31,22 @@ class PdfService
         ]);
     }
 
-    public function generateBinaryPDF($html)
+    /**
+     * @param $html
+     * @return string|null
+     */
+    public function generateBinaryPDF($html): string
     {
         $this->domPdf->loadHtml($html);
+        $this->domPdf->setPaper('A5', 'landscape');
         $this->domPdf->render();
-        $this->domPdf->output();
+        $output = $this->domPdf->output();
+
+        $fileName = '/files/invoice' . date('YmdHis') . '.pdf';
+        $filePath = $this->projectDir . '/public' . $fileName;
+
+        file_put_contents($filePath, $output);
+
+        return $fileName;
     }
 }

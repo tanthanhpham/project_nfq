@@ -27,8 +27,8 @@ use Symfony\Component\Mime\Email;
 
 class HomeController extends AbstractFOSRestController
 {
-    public const PRODUCT_PAGE_LIMIT = 12;
-    public const PRODUCT_PAGE_OFFSET = 0;
+    public const PRODUCT_PAGE_LIMIT = 10;
+    public const PRODUCT_PAGE_PAGE = 1;
     private $productRepository;
     private $categoryRepository;
     private $eventDispatcher;
@@ -46,9 +46,10 @@ class HomeController extends AbstractFOSRestController
     public function getProducts(Request $request): Response
     {
         $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
-        $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
-        $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'ASC'], $limit, $offset);
+        $page = $request->get('page', self::PRODUCT_PAGE_PAGE);
 
+        $offset = $limit * ($page - 1);
+        $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'ASC'], $limit, $offset);
         $productsList = array_map('self::dataTransferObject', $products);
 
         return $this->handleView($this->view($productsList, Response::HTTP_OK));
@@ -70,7 +71,6 @@ class HomeController extends AbstractFOSRestController
      */
     public function getBestSelling(): Response
     {
-
         $arrayBestSelling = $this->productRepository->findBestSelling();
         $products = [];
         $formattedProduct = [];
@@ -80,7 +80,7 @@ class HomeController extends AbstractFOSRestController
             $formattedProduct['name'] = $product->getName();
             $formattedProduct['image'] = $product->getImages();
             $formattedProduct['price'] = $product->getPrice();
-            $formattedProduct['totalQuantity'] = $item['TotalAmount'];
+            $formattedProduct['totalQuantity'] = $item['totalAmount'];
             $products[] = $formattedProduct;
         }
 
@@ -93,8 +93,10 @@ class HomeController extends AbstractFOSRestController
     public function filter(Request $request): Response
     {
         $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
-        $offset = $request->get('offset', self::PRODUCT_PAGE_OFFSET);
+        $page = $request->get('page', self::PRODUCT_PAGE_PAGE);
         $requestData = json_decode($request->getContent(), true);
+
+        $offset = $limit * ($page - 1);
         $key = 'createdAt';
         $orderBy = 'DESC';
         if (($requestData['sort']) != '') {
@@ -102,7 +104,7 @@ class HomeController extends AbstractFOSRestController
             $key = $stringSort[0];
             $orderBy = $stringSort[1];
         }
-
+        $requestData['keyword'] = '%'.$requestData['keyword'].'%';
         $products = $this->productRepository->filter($requestData, [$key => $orderBy], $limit, $offset);
         $products = array_map('self::dataTransferObject', $products);
 

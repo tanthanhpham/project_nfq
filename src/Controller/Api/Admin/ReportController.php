@@ -50,8 +50,9 @@ class ReportController extends AbstractFOSRestController
     public function getReport(): Response
     {
         $report = [];
-        $report['total'] = count($this->productRepository->findBy(['deletedAt' => null]));
+        $report['totalProduct'] = count($this->productRepository->findBy(['deletedAt' => null]));
         $report['totalRevenue'] = $this->purchaseOrderRepository->getRevenue();
+        $report['totalOrder'] = count($this->purchaseOrderRepository->findBy(['deletedAt' => null]));
         $pendingOrder = $this->purchaseOrderRepository->findBy(['deletedAt' => null, 'status' => self::STATUS_PENDING]);
         $approvedOrder = $this->purchaseOrderRepository->findBy(['deletedAt' => null, 'status' => self::STATUS_APPROVED]);
         $report['order']['pending'] = count($pendingOrder);

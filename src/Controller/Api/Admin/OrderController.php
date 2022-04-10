@@ -94,14 +94,22 @@ class OrderController extends AbstractFOSRestController
      */
     public function updateStatusOrderAction(Order $purchaseOrder, Request $request): Response
     {
-        $status = $request->get('status');
+        $requestData = json_decode($request->getContent(), true);
+        $status = $requestData['status'];
 
         if ($status != $purchaseOrder->getStatus()) {
             $purchaseOrder->setStatus($status);
             $purchaseOrder->setUpdateAt(new \DateTime('now'));
+            if ($status == self::STATUS_CANCELED) {
+                $purchaseOrder->setSubjectCancel('admin');
+                $purchaseOrder->setReasonCancel($requestData['reasonCancel']);
+            }
         }
 
         $this->purchaseOrderRepository->add($purchaseOrder);
+
+        $event = new OrderEvent($purchaseOrder);
+        $this->eventDispatcher->dispatch($event);
 
         $purchaseOrder = self::dataTransferObject($purchaseOrder);
 
@@ -112,12 +120,14 @@ class OrderController extends AbstractFOSRestController
      * @Rest\Get("/admin/orders/{id}/export")
      * @param Order $order
      * @param PdfService $pdf
-     * @return void
+     * @return Response
      */
-    public function generatePdfPersonne(Order $order, PdfService $pdf)
+    public function generatePdfInvoice(Order $order, PdfService $pdf): Response
     {
         $html = $this->render('export/pdf.html.twig', ['order' => $order]);
-        $pdf->showPdfFile($html);
+        $filePath = 'http://127.0.0.1' . $pdf->generateBinaryPDF($html);
+
+        return $this->handleView($this->view($filePath, Response::HTTP_OK));
     }
 
     private function dataTransferObject(Order $purchaseOrder): array
@@ -162,6 +172,7 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
         $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
         $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt()->format('Y-m-d H:i:s');
+        $formattedPurchaseOrder['shippingCost'] = $purchaseOrder->getShippingCost();
 
         $cartItems = $purchaseOrder->getOrderItems();
         foreach ($cartItems as $cartItem) {
@@ -181,6 +192,7 @@ class OrderController extends AbstractFOSRestController
         $item['amount'] = $orderDetail->getAmount();
         $item['unitPrice'] = $productItem->getProduct()->getPrice();
         $item['price'] = $orderDetail->getTotal();
+        $item['image'] = $orderDetail->getProductItem()->getProduct()->getImages();
 
         return $item;
     }

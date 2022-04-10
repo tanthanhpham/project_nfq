@@ -21,18 +21,41 @@ class OrderSubscriber implements EventSubscriberInterface
     public function onSendOrder(OrderEvent $event)
     {
         $order = $event->getOrder();
+        $status = $order->getStatus();
 
         $params = [
             "order" => $order
         ];
 
-        $this->mailerService->send(
-            'Confirm order information',
-            'ttp.jp365@gmail.com',
-            $order->getRecipientEmail(),
-            OrderEvent::TEMPLATE_CONTACT,
-            $params
-        );
+        if ($status == OrderEvent::STATUS_APPROVED) {
+            $this->mailerService->send(
+                'Confirm order information',
+                'ttp.jp365@gmail.com',
+                $order->getRecipientEmail(),
+                OrderEvent::TEMPLATE_APPROVE,
+                $params
+            );
+        }
+
+        if ($status == OrderEvent::STATUS_CANCELED){
+            if ($order->getSubjectCancel() == 'admin') {
+                $this->mailerService->send(
+                    'Reject order',
+                    'ttp.jp365@gmail.com',
+                    $order->getRecipientEmail(),
+                    OrderEvent::TEMPLATE_REJECT,
+                    $params
+                );
+            } else {
+                $this->mailerService->send(
+                    'Cancel order',
+                    'ttp.jp365@gmail.com',
+                    $order->getRecipientEmail(),
+                    OrderEvent::TEMPLATE_CANCEL,
+                    $params
+                );
+            }
+        }
     }
     public static function getSubscribedEvents()
     {

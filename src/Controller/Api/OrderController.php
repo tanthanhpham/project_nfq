@@ -134,6 +134,37 @@ class OrderController extends AbstractFOSRestController
         return $this->handleView($this->view($form->getErrors(), Response::HTTP_BAD_REQUEST));
     }
 
+    /**
+     * @Rest\Put("/user/orders/{id}")
+     * @param Order $purchaseOrder
+     * @param Request $request
+     * @return Response
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function updateStatusOrderAction(Order $purchaseOrder, Request $request): Response
+    {
+        $requestData = json_decode($request->getContent(), true);
+        $status = $requestData['status'];
+
+        if ($purchaseOrder->getStatus() == self::STATUS_PENDING) {
+            $purchaseOrder->setStatus($status);
+            $purchaseOrder->setUpdateAt(new \DateTime('now'));
+            if ($status == self::STATUS_CANCELED) {
+                $purchaseOrder->setSubjectCancel('user');
+                $purchaseOrder->setReasonCancel($requestData['reasonCancel']);
+            }
+            $this->purchaseOrderRepository->add($purchaseOrder);
+
+            $event = new OrderEvent($purchaseOrder);
+            $this->eventDispatcher->dispatch($event);
+
+            return $this->handleView($this->view(['message' => 'Cancel order successfully'], Response::HTTP_OK));
+        }
+
+        return $this->handleView($this->view(['message' => 'Can not cancel order'], Response::HTTP_OK));
+    }
+
     private function dataTransferObject(Order $purchaseOrder): array
     {
         $formattedPurchaseOrder = [];
@@ -181,7 +212,8 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['status'] = $purchaseOrder->getStatus();
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
         $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
-        $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt();
+        $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt()->format('Y-m-d H:i:s');
+        $formattedPurchaseOrder['shippingCost'] = $purchaseOrder->getShippingCost();
 
         $cartItems = $purchaseOrder->getOrderItems();
         foreach ($cartItems as $cartItem) {

@@ -55,6 +55,18 @@ class ProductRepository extends ServiceEntityRepository
     public function filter($criteria, $orderBy, $limit, $offset): array
     {
         $queryBuilder = $this->createQueryBuilder('p');
+        if (isset($criteria['keyword']) && $criteria['keyword'] != '') {
+            $queryBuilder->select('p')
+                ->orWhere('p.name LIKE :key')
+                ->setParameter('key', $criteria['keyword'])
+                ->orWhere('p.description LIKE :key')
+                ->setParameter('key', $criteria['keyword'])
+                ->orWhere('c.name LIKE :key')
+                ->andWhere('p.deletedAt is NULL')
+                ->setParameter('key', $criteria['keyword'])
+                ->innerJoin('p.category', 'c');
+        }
+
         if (isset($criteria['minPrice']) && $criteria['minPrice'] != '') {
             $queryBuilder
                 ->andWhere('p.price >= :minPrice')
@@ -147,13 +159,40 @@ class ProductRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('p')
             ->select('p')
-            ->select('p.id', 'SUM(oDetail.amount) as TotalAmount')
+            ->select('p.id', 'SUM(oDetail.amount) as totalAmount')
             ->where('p.deletedAt IS NULL')
             ->innerJoin('p.productItems', 'pItems')
             ->innerJoin('pItems.orderDetails', 'oDetail')
             ->innerJoin('oDetail.purchaseOrder', 'o')
-            ->groupBy('p.id');
+            ->groupBy('p.id')
+            ->setFirstResult(0)
+            ->setMaxResults(7)
+            ->addOrderBy('totalAmount', 'DESC');
 
         return $queryBuilder->getQuery()->getResult();
+    }
+
+    public function search(string $key, $limit, $offset)
+    {
+        $queryBuilder = $this->createQueryBuilder('p')
+            ->select('p')
+            ->orWhere('p.name LIKE :key')
+            ->setParameter('key', $key)
+            ->orWhere('p.description LIKE :key')
+            ->setParameter('key', $key)
+            ->orWhere('c.name LIKE :key')
+            ->andWhere('p.deletedAt is NULL')
+            ->setParameter('key', $key)
+            ->innerJoin('p.category', 'c');
+
+        $products = $queryBuilder->getQuery()->getScalarResult();
+        $productPerPage = $queryBuilder
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->addOrderBy('p.createdAt', 'DESC')
+            ->getQuery()
+            ->execute();
+
+        return ['data' => $productPerPage, 'total' => count($products)];
     }
 }
