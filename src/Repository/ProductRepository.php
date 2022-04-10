@@ -93,12 +93,16 @@ class ProductRepository extends ServiceEntityRepository
                 ->orderBy($sort, $order);
         }
 
-        return $queryBuilder
+        $products = $queryBuilder->getQuery()->getScalarResult();
+
+        $productPerPage = $queryBuilder
             ->andWhere('p.deletedAt is NULL')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->getQuery()
             ->execute();
+
+        return ['data' => $productPerPage, 'total' => count($products)];
     }
 
     /**

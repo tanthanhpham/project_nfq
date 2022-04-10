@@ -106,7 +106,7 @@ class HomeController extends AbstractFOSRestController
         }
         $requestData['keyword'] = '%'.$requestData['keyword'].'%';
         $products = $this->productRepository->filter($requestData, [$key => $orderBy], $limit, $offset);
-        $products = array_map('self::dataTransferObject', $products);
+        $products['data'] = array_map('self::dataTransferObject', $products['data']);
 
         return $this->handleView($this->view($products, Response::HTTP_OK));
     }
