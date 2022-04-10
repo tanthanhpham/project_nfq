@@ -111,7 +111,8 @@ class OrderRepository extends ServiceEntityRepository
     public function getRevenue(?\DateTime $fromDate = null, ?\DateTime $toDate = null)
     {
         $queryBuilder = $this->createQueryBuilder('o')
-            ->select('SUM(o.totalPrice) as total');
+            ->select('SUM(o.totalPrice) as total')
+            ->where('o.status = 4');
 
         if ($fromDate != null) {
             $queryBuilder->andWhere('o.createdAt >= :fromDate')

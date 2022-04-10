@@ -108,6 +108,9 @@ class OrderController extends AbstractFOSRestController
 
         $this->purchaseOrderRepository->add($purchaseOrder);
 
+        $event = new OrderEvent($purchaseOrder);
+        $this->eventDispatcher->dispatch($event);
+
         $purchaseOrder = self::dataTransferObject($purchaseOrder);
 
         return $this->handleView($this->view($purchaseOrder, Response::HTTP_OK));
@@ -119,7 +122,7 @@ class OrderController extends AbstractFOSRestController
      * @param PdfService $pdf
      * @return void
      */
-    public function generatePdfPersonne(Order $order, PdfService $pdf)
+    public function generatePdfInvoice(Order $order, PdfService $pdf)
     {
         $html = $this->render('export/pdf.html.twig', ['order' => $order]);
         $pdf->showPdfFile($html);

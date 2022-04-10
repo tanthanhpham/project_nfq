@@ -50,7 +50,6 @@ class HomeController extends AbstractFOSRestController
 
         $offset = $limit * ($page - 1);
         $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'ASC'], $limit, $offset);
-
         $productsList = array_map('self::dataTransferObject', $products);
 
         return $this->handleView($this->view($productsList, Response::HTTP_OK));
@@ -108,23 +107,6 @@ class HomeController extends AbstractFOSRestController
         $requestData['keyword'] = '%'.$requestData['keyword'].'%';
         $products = $this->productRepository->filter($requestData, [$key => $orderBy], $limit, $offset);
         $products = array_map('self::dataTransferObject', $products);
-
-        return $this->handleView($this->view($products, Response::HTTP_OK));
-    }
-
-    /**
-     * @Rest\Post("/products/search")
-     */
-    public function search(Request $request): Response
-    {
-        $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
-        $page = $request->get('page', self::PRODUCT_PAGE_PAGE);
-        $requestData = json_decode($request->getContent(), true);
-
-        $offset = $limit * ($page - 1);
-        $keyWord = '%'.$requestData['key'].'%';
-        $products = $this->productRepository->search($keyWord, $limit,$offset);
-        $products['data'] = array_map('self::dataTransferObject', $products['data']);
 
         return $this->handleView($this->view($products, Response::HTTP_OK));
     }

@@ -156,6 +156,9 @@ class OrderController extends AbstractFOSRestController
             }
             $this->purchaseOrderRepository->add($purchaseOrder);
 
+            $event = new OrderEvent($purchaseOrder);
+            $this->eventDispatcher->dispatch($event);
+
             return $this->handleView($this->view(['message' => 'Cancel order successfully'], Response::HTTP_OK));
         }
 
