@@ -55,6 +55,18 @@ class ProductRepository extends ServiceEntityRepository
     public function filter($criteria, $orderBy, $limit, $offset): array
     {
         $queryBuilder = $this->createQueryBuilder('p');
+        if (isset($criteria['keyword']) && $criteria['keyword'] != '') {
+            $queryBuilder->select('p')
+                ->orWhere('p.name LIKE :key')
+                ->setParameter('key', $criteria['keyword'])
+                ->orWhere('p.description LIKE :key')
+                ->setParameter('key', $criteria['keyword'])
+                ->orWhere('c.name LIKE :key')
+                ->andWhere('p.deletedAt is NULL')
+                ->setParameter('key', $criteria['keyword'])
+                ->innerJoin('p.category', 'c');
+        }
+
         if (isset($criteria['minPrice']) && $criteria['minPrice'] != '') {
             $queryBuilder
                 ->andWhere('p.price >= :minPrice')
