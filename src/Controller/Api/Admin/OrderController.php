@@ -120,12 +120,14 @@ class OrderController extends AbstractFOSRestController
      * @Rest\Get("/admin/orders/{id}/export")
      * @param Order $order
      * @param PdfService $pdf
-     * @return void
+     * @return Response
      */
-    public function generatePdfInvoice(Order $order, PdfService $pdf)
+    public function generatePdfInvoice(Order $order, PdfService $pdf): Response
     {
         $html = $this->render('export/pdf.html.twig', ['order' => $order]);
-        $pdf->showPdfFile($html);
+        $filePath = 'http://127.0.0.1' . $pdf->generateBinaryPDF($html);
+
+        return $this->handleView($this->view($filePath, Response::HTTP_OK));
     }
 
     private function dataTransferObject(Order $purchaseOrder): array
