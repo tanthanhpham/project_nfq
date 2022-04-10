@@ -21,7 +21,7 @@ final class Version20220409073719 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE TABLE coupon (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(255) NOT NULL, start_date DATE NOT NULL, end_date DATE NOT NULL, rate DOUBLE PRECISION NOT NULL, alias VARCHAR(50) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('ALTER TABLE `order` CHANGE shipping_cost shipping_c�ost INT DEFAULT NULL');
+        $this->addSql('ALTER TABLE `order` CHANGE shipping_cost shipping_cost INT DEFAULT NULL');
     }
 
     public function down(Schema $schema): void
