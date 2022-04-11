@@ -4,6 +4,8 @@ namespace App\DataFixtures;
 
 use App\Entity\Category;
 use App\Entity\Product;
+use App\Entity\ProductItem;
+use App\Entity\Size;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
@@ -11,10 +13,16 @@ class ProductFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
+        $size = new Size();
+        $size->setName('S');
 
         $category = new Category();
         $category->setName('Category name');
         $category->setImage('/category_image');
+
+        $productItem = new ProductItem();
+        $productItem->setSize($size);
+        $productItem->setAmount(20);
 
         $product = new Product();
         $product->setName('Product name');
@@ -26,8 +34,8 @@ class ProductFixtures extends Fixture
         $product->setColor('Red');
         $product->setCreateAt(new \DateTime());
         $product->setUpdateAt(new \DateTime());
-        $product->setDeletedAt(new \DateTime());
         $product->setCategory($category);
+        $product->addProductItem($productItem);
         $manager->persist($product);
 
         $product2 = new Product();

@@ -92,7 +92,7 @@ class OrderController extends AbstractFOSRestController
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function updateStatusOrderAction(Order $purchaseOrder, Request $request): Response
+    public function updateStatusOrder(Order $purchaseOrder, Request $request): Response
     {
         $requestData = json_decode($request->getContent(), true);
         $status = $requestData['status'];
@@ -193,6 +193,7 @@ class OrderController extends AbstractFOSRestController
         $item['unitPrice'] = $productItem->getProduct()->getPrice();
         $item['price'] = $orderDetail->getTotal();
         $item['image'] = $orderDetail->getProductItem()->getProduct()->getImages();
+        $item['color'] = $orderDetail->getProductItem()->getProduct()->getColor();
 
         return $item;
     }

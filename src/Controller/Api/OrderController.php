@@ -165,6 +165,28 @@ class OrderController extends AbstractFOSRestController
         return $this->handleView($this->view(['message' => 'Can not cancel order'], Response::HTTP_OK));
     }
 
+    /**
+     * @Rest\Get("/user/orders/filter")
+     * @param Request $request
+     * @param Response
+     * @return void
+     */
+    public function filterOrder(Request $request): Response
+    {
+        $userId = $this->userLoginInfo->getId();
+        $limit = $request->get('limit', self::ORDER_PAGE_LIMIT);
+        $page = $request->get('page', self::ORDER_PAGE_PAGE);
+        $status = $request->get('status');
+
+        $offset = $limit * ($page - 1);
+
+        $orders = $this->purchaseOrderRepository->findByConditions(['deletedAt' => null, 'customer' => $userId, 'status' => $status]
+            , ['createdAt' => 'DESC'], $limit, $offset);
+        $orders['data'] = array_map('self::dataTransferObject', $orders['data']);
+
+        return $this->handleView($this->view($orders, Response::HTTP_OK));
+    }
+
     private function dataTransferObject(Order $purchaseOrder): array
     {
         $formattedPurchaseOrder = [];

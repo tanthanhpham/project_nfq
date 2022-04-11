@@ -8,10 +8,12 @@ use App\Form\UserUpdateType;
 use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use App\Service\GetUserInfo;
+use App\Service\HandleDataOutput;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerBuilder;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use mysql_xdevapi\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -26,10 +28,12 @@ class UserController extends AbstractFOSRestController
 {
     public const PATH = 'http://127.0.0.1/uploads/images/';
     private $userRepository;
+    private $handleDataOutput;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository, HandleDataOutput $handleDataOutput)
     {
         $this->userRepository = $userRepository;
+        $this->handleDataOutput = $handleDataOutput;
     }
 
     /**
@@ -60,12 +64,7 @@ class UserController extends AbstractFOSRestController
 
                 return $this->handleView($this->view(["message" => "Register successfully"], Response::HTTP_CREATED));
             }
-
-            $errorsMessage = [];
-            foreach ($form->getErrors(true, true) as $error) {
-                $paramError = explode('=>', $error->getMessage());
-                $errorsMessage[$paramError[0]] = $paramError[1];
-            }
+            $errorsMessage = $this->handleDataOutput->getFormErrorMessage($form);
 
             return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
         } catch (\Exception $e) {
@@ -159,11 +158,7 @@ class UserController extends AbstractFOSRestController
             return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
         }
 
-        $errorsMessage = [];
-        foreach ($form->getErrors(true, true) as $error) {
-            $paramError = explode('=>', $error->getMessage());
-            $errorsMessage[$paramError[0]] = $paramError[1];
-        }
+        $errorsMessage = $this->handleDataOutput->getFormErrorMessage($form);
 
         return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
     }
@@ -178,31 +173,37 @@ class UserController extends AbstractFOSRestController
      */
     public function updateAvatar(Request $request, User $user, FileUploader $fileUploader, ValidatorInterface $validator): Response
     {
-        $uploadFile = $request->files->get('image');
+        try {
+            $uploadFile = $request->files->get('image');
 
-        if (!$uploadFile) {
-            return $this->handleView($this->view(['error' => 'Please choose image to upload.'], Response::HTTP_BAD_REQUEST));
+            if (!$uploadFile) {
+                return $this->handleView($this->view(['error' => 'Please choose image to upload.'], Response::HTTP_BAD_REQUEST));
+            }
+
+            $errors = $validator->validate($uploadFile, new Image([
+                'maxSize' => '5M',
+                'mimeTypes' => [
+                    "image/jpeg",
+                    "image/jpg",
+                    "image/png",
+                ],
+                'maxSizeMessage' => 'File is too large.',
+                'mimeTypesMessage' => 'Please upload a valid Image file.',
+            ]));
+
+            if (count($errors)) {
+                return $this->handleView($this->view(['error' => $errors], Response::HTTP_BAD_REQUEST));
+            }
+            $saveFile = $fileUploader->upload($uploadFile);
+            $saveFile = self::PATH . $saveFile;
+            $user->setImage($saveFile);
+            $this->userRepository->add($user);
+
+            return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
+        } catch (\Exception $e){
+            dd($e->getMessage());
         }
 
-        $errors = $validator->validate($uploadFile, new Image([
-            'maxSize' => '5M',
-            'mimeTypes' => [
-                "image/jpeg",
-                "image/jpg",
-                "image/png",
-            ],
-            'maxSizeMessage' => 'File is too large.',
-            'mimeTypesMessage' => 'Please upload a valid Image file.',
-        ]));
-
-        if (count($errors)) {
-            return $this->handleView($this->view(['error' => $errors], Response::HTTP_BAD_REQUEST));
-        }
-        $saveFile = $fileUploader->upload($uploadFile);
-        $saveFile = self::PATH . $saveFile;
-        $user->setImage($saveFile);
-        $this->userRepository->add($user);
-
-        return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
+        return $this->handleView($this->view([], Response::HTTP_INTERNAL_SERVER_ERROR));
     }
 }

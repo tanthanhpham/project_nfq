@@ -45,7 +45,7 @@ class HomeControllerTest extends BaseWebTestCase
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
         $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertIsArray($data);
-        $this->assertCount(2, $data);
+        $this->assertCount(1, $data);
         $product = $data[0];
         $this->assertSame('Product name', $product['name']);
     }
@@ -77,9 +77,11 @@ class HomeControllerTest extends BaseWebTestCase
         $this->loadFixture($productFixtures);
 
         $payload = [
+            'sort' => 'price-ASC',
             'category' => 1,
             'minPrice' => 20000,
-            'maxPrice' => 50000
+            'maxPrice' => 50000,
+            'keyword' => ''
         ];
         $this->client->request(
             Request::METHOD_POST,
@@ -95,8 +97,8 @@ class HomeControllerTest extends BaseWebTestCase
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
         $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertIsArray($data);
-        $this->assertCount(1, $data);
-        $product = $data[0];
+        $this->assertCount(2, $data);
+        $product = $data['data'][0];
         $this->assertSame('Product name', $product['name']);
     }
 }

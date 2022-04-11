@@ -30,29 +30,7 @@ class CartControllerTest extends BaseWebTestCase
         $this->productItemRepository = $this->entityManager->getRepository(ProductItem::class);
     }
 
-    public function testCountCartItems(): void
-    {
-        $cartFixtures = new CartFixtures();
-        $this->loadFixture($cartFixtures);
-
-        $this->client->request(
-            Request::METHOD_GET,
-            '/api/users/carts/count',
-            [],
-            [],
-            [
-                'HTTP_ACCEPT' => self::DEFAULT_MIME_TYPE,
-                'HTTP_AUTHORIZATION' => sprintf('Bearer %s', self::$token)
-            ]
-        );
-
-        $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        $data = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertIsArray($data);
-        $this->assertEquals(1, $data['count']);
-    }
-
-    public function testGetCartItems(): void
+    public function testGetCarts(): void
     {
         $cartFixtures = new CartFixtures();
         $this->loadFixture($cartFixtures);
@@ -74,7 +52,7 @@ class CartControllerTest extends BaseWebTestCase
         $this->assertCount(1, $data);
     }
 
-    public function testInsertCartItem(): void
+    public function testInsertCart(): void
     {
         $userFixtures = new UserFixtures();
         $this->loadFixture($userFixtures);
@@ -108,7 +86,7 @@ class CartControllerTest extends BaseWebTestCase
         $this->assertEquals(1, $cartItems[0]->getAmount());
     }
 
-    public function testUpdateCartItem(): void
+    public function testUpdateCart(): void
     {
         $cartFixtures = new CartFixtures();
         $this->loadFixture($cartFixtures);
@@ -137,7 +115,7 @@ class CartControllerTest extends BaseWebTestCase
         $this->assertEquals($payload['amount'], $cartItem->getAmount());
     }
 
-    public function testRemoveCartItem(): void
+    public function testDeleteCart(): void
     {
         $cartFixtures = new CartFixtures();
         $this->loadFixture($cartFixtures);
@@ -157,5 +135,27 @@ class CartControllerTest extends BaseWebTestCase
         );
 
         $this->assertEquals(Response::HTTP_NO_CONTENT, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testCountCart(): void
+    {
+        $cartFixtures = new CartFixtures();
+        $this->loadFixture($cartFixtures);
+
+        $this->client->request(
+            Request::METHOD_GET,
+            '/api/users/carts/count',
+            [],
+            [],
+            [
+                'HTTP_ACCEPT' => self::DEFAULT_MIME_TYPE,
+                'HTTP_AUTHORIZATION' => sprintf('Bearer %s', self::$token)
+            ]
+        );
+
+        $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        $data = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertIsArray($data);
+        $this->assertEquals(1, $data['count']);
     }
 }

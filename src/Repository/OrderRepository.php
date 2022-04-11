@@ -44,40 +44,60 @@ class OrderRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
     /**
      * @param array $param
+     * @param $orderBy
      * @param $limit
      * @param $offset
-     * @param $orderBy
      * @return array
      */
     public function findByConditions(array $param, $orderBy, $limit, $offset): array
     {
-        $queryBuilder = $this->createQueryBuilder('p')
-            ->andWhere('p.deletedAt IS NULL');
-
-        if (isset($orderBy['createdAt'])) {
+        $queryBuilder = $this->createQueryBuilder('o');
+        if (isset($param['customer']) && $param['customer'] != '') {
             $queryBuilder
-                ->addOrderBy('p.createdAt', $orderBy['createdAt']);
+                ->andWhere('o.customer = :customerId')
+                ->setParameter('customerId', $param['customer']);
+        }
+
+        if (isset($param['status']) && $param['status'] != 0) {
+            $queryBuilder
+                ->andWhere('o.status = :status')
+                ->setParameter('status', $param['status']);
+        }
+
+        if (isset($param['fromDate']) && $param['fromDate'] != '') {
+            $queryBuilder
+                ->andWhere('o.createAt >= :fromDate')
+                ->setParameter('fromDate', $param['fromDate']);
+        }
+
+        if (isset($param['toDate']) && $param['toDate'] != '') {
+            $queryBuilder
+                ->andWhere('o.createAt <= :toDate')
+                ->setParameter('toDate', $param['toDate']);
         }
 
         if (!empty($orderBy)) {
             $keyOrderList = array_keys($orderBy);
-            $column = 'p.' . $keyOrderList[0];
-            $valueSort = $orderBy[$keyOrderList[0]];
-            $queryBuilder
-                ->addOrderBy($column, $valueSort);
+            foreach ($keyOrderList as $keyOrder) {
+                $column = 'o.' . $keyOrder;
+                $valueSort = $orderBy[$keyOrder];
+                $queryBuilder
+                    ->addOrderBy($column, $valueSort);
+            }
         }
 
-        $products = $queryBuilder->getQuery()->getScalarResult();
+        $purchaseOrders = $queryBuilder->getQuery()->getScalarResult();
 
-        $productPerPage = $queryBuilder
+        $purchaseOrdersPerPage = $queryBuilder
             ->setMaxResults($limit)
             ->setFirstResult($offset)
             ->getQuery()
             ->execute();
 
-        return ['data' => $productPerPage, 'total' => count($products)];
+        return ['data' => $purchaseOrdersPerPage, 'total' => count($purchaseOrders)];
     }
 
     /**

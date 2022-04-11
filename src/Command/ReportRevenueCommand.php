@@ -27,6 +27,8 @@ class ReportRevenueCommand extends Command
     /** @var LoggerInterface */
     private $logger;
 
+    private $projectDir;
+
     private const STATUS_DEFAULT = [
         1 => 'PENDING',
         2 => 'APPROVED',
@@ -36,11 +38,13 @@ class ReportRevenueCommand extends Command
 
     public function __construct(
         OrderRepository $orderRepository,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        string $projectDir
+
     ) {
         $this->orderRepository = $orderRepository;
         $this->logger = $logger;
-
+        $this->projectDir = $projectDir;
         parent::__construct();
     }
     protected function configure(): void
@@ -69,7 +73,7 @@ class ReportRevenueCommand extends Command
                     foreach ($orderItems as $item) {
                         $orderItem = [];
                         $orderItem['id'] = $order->getId();
-                        $orderItem['date_order'] = $order->getCreatedAt()->format('Y-m-d H:i:s');
+                        $orderItem['date_order'] = $order->getCreateAt()->format('Y-m-d H:i:s');
                         $orderItem['customer_name'] = $order->getRecipientName();
                         $orderItem['phone'] = $order->getRecipientPhone();
                         $orderItem['email'] = $order->getRecipientEmail();
@@ -90,7 +94,7 @@ class ReportRevenueCommand extends Command
                 }
             }
 
-            $fileName = 'Report_Order_' . date('YmdHis') . '.csv';
+            $fileName = $this->projectDir. '/reports/Report_Order_' . date('YmdHis') . '.csv';
             if ($input->getOption('name')) {
                 $fileName =  $input->getOption('name') . '.csv';
             }
@@ -118,7 +122,7 @@ class ReportRevenueCommand extends Command
             }
             fclose($outputBuffer);
 
-            $output->write('Export order data successfully!');
+            $output->writeln('Export order data successfully!');
 
             return Command::SUCCESS;
         } catch (\Exception $e) {

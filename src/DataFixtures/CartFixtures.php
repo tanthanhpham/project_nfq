@@ -22,7 +22,6 @@ class CartFixtures extends Fixture
         $user->setPassword('password');
         $user->setAddress('User address');
         $user->setPhone('0981063207');
-        $user->setCreatedAt();
         $user->setUpdatedAt(new \DateTime());
         $user->setRoles(['ROLE_USER']);
 
@@ -41,7 +40,6 @@ class CartFixtures extends Fixture
         $firstProduct->setMaterial('Product Material');
         $firstProduct->setUpdateAt(new \DateTime());
         $firstProduct->setColor('Red');
-        $firstProduct->setCreateAt();
         $firstProduct->setImages(['a:2:{i:0;s:52:"127.0.0.1/uploads/images/test-Copy-62485b4938ed5.jpg";i:1;s:47:"127.0.0.1/uploads/images/test-62485b493e505.jpg";}']);
 
         $firstProductItem = new ProductItem();
@@ -56,7 +54,6 @@ class CartFixtures extends Fixture
         $firstCartItem->setTotal($firstProduct->getPrice());
 
         $manager->persist($firstCartItem);
-
         $manager->flush();
     }
 }
