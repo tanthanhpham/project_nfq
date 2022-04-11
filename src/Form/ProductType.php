@@ -66,12 +66,12 @@ class ProductType extends AbstractType
                 'entry_type' => ProductItem::class,
                 'allow_extra_fields' => true,
             ])
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
                 $product = $this->productRepository->findOneBy([
-                    'name' => $data['name'],
-                    'color' => $data['color']
+                    'name' => $data->getName(),
+                    'color' => $data->getColor()
                 ]);
                 if ($product) {
                     $form->get('name')->addError(new FormError('Product is already existed'));

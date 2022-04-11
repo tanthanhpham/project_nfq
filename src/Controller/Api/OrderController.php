@@ -125,9 +125,6 @@ class OrderController extends AbstractFOSRestController
             $order->setUpdateAt(new \DateTime('now'));
             $this->purchaseOrderRepository->add($order);
 
-            $event = new OrderEvent($order);
-            $this->eventDispatcher->dispatch($event);
-
             return $this->handleView($this->view(['message' => 'Add order successfully'], Response::HTTP_CREATED));
         }
 
@@ -195,7 +192,7 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['recipientEmail'] = $purchaseOrder->getRecipientEmail();
         $formattedPurchaseOrder['recipientPhone'] = $purchaseOrder->getRecipientPhone();
         $formattedPurchaseOrder['addressDelivery'] = $purchaseOrder->getAddressDelivery();
-        $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt();
+        $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt()->format('Y-m-d H:i');
 
         switch (intval($purchaseOrder->getStatus())) {
             case self::STATUS_PENDING:

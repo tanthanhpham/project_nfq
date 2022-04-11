@@ -14,6 +14,7 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerBuilder;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use mysql_xdevapi\Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -29,11 +30,13 @@ class UserController extends AbstractFOSRestController
     public const PATH = 'http://127.0.0.1/uploads/images/';
     private $userRepository;
     private $handleDataOutput;
+    private $logger;
 
-    public function __construct(UserRepository $userRepository, HandleDataOutput $handleDataOutput)
+    public function __construct(UserRepository $userRepository, HandleDataOutput $handleDataOutput, LoggerInterface $logger)
     {
         $this->userRepository = $userRepository;
         $this->handleDataOutput = $handleDataOutput;
+        $this->logger = $logger;
     }
 
     /**
@@ -141,6 +144,24 @@ class UserController extends AbstractFOSRestController
     }
 
     /**
+     * @Rest\Post ("/users/phone")
+     * @param Request $request
+     * @return Response
+     */
+    public function getUserByPhone(Request $request): Response
+    {
+        $requestData = json_decode($request->getContent(), true);
+        $phone = $requestData['phone'];
+        $user = $this->userRepository->findOneBy(['phone' => $phone, 'deletedAt' => null]);
+
+        $serializer = SerializerBuilder::create()->build();
+        $convertToJson = $serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('showUser')));
+        $user = $serializer->deserialize($convertToJson, 'array', 'json');
+
+        return $this->handleView($this->view($user, Response::HTTP_OK));
+    }
+
+    /**
      * @Rest\Put ("/users/{id}")
      * @IsGranted("ROLE_USER")
      * @param Request $request
@@ -201,7 +222,7 @@ class UserController extends AbstractFOSRestController
 
             return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
         } catch (\Exception $e){
-            dd($e->getMessage());
+
         }
 
         return $this->handleView($this->view([], Response::HTTP_INTERNAL_SERVER_ERROR));

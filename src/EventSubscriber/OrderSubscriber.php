@@ -30,7 +30,7 @@ class OrderSubscriber implements EventSubscriberInterface
         if ($status == OrderEvent::STATUS_APPROVED) {
             $this->mailerService->send(
                 'Confirm order information',
-                'ttp.jp365@gmail.com',
+                'phamtanthanh.it@gmail.com',
                 $order->getRecipientEmail(),
                 OrderEvent::TEMPLATE_APPROVE,
                 $params
@@ -41,7 +41,7 @@ class OrderSubscriber implements EventSubscriberInterface
             if ($order->getSubjectCancel() == 'admin') {
                 $this->mailerService->send(
                     'Reject order',
-                    'ttp.jp365@gmail.com',
+                    'phamtanthanh.it@gmail.com',
                     $order->getRecipientEmail(),
                     OrderEvent::TEMPLATE_REJECT,
                     $params
@@ -49,7 +49,7 @@ class OrderSubscriber implements EventSubscriberInterface
             } else {
                 $this->mailerService->send(
                     'Cancel order',
-                    'ttp.jp365@gmail.com',
+                    'phamtanthanh.it@gmail.com',
                     $order->getRecipientEmail(),
                     OrderEvent::TEMPLATE_CANCEL,
                     $params

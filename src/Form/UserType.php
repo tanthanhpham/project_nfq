@@ -30,22 +30,22 @@ class UserType extends AbstractType
             ->add('name', TextType::class, [
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'name=>Full name can not be null'
+                        'message' => 'Full name can not be null'
                     ]),
                     new Length([
                         'max' => 50,
-                        'maxMessage' => 'name=>Full name cannot be longer than 50 characters',
+                        'maxMessage' => 'Full name cannot be longer than 50 characters',
                     ])
                 ]
             ])
             ->add('email', EmailType::class, [
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'email=>Email can not be null',
+                        'message' => 'Email can not be null',
                     ]),
                     new Length([
                         'max' => 150,
-                        'maxMessage' => 'email=>Email cannot be longer than 150 characters',
+                        'maxMessage' => 'Email cannot be longer than 150 characters',
                     ]),
                     new Regex([
                         'pattern' => '/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix',
@@ -56,48 +56,53 @@ class UserType extends AbstractType
             ->add('password', PasswordType::class, [
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'password=>Password can not be null',
+                        'message' => 'Password can not be null',
                     ]),
                     new Length([
                         'min' => 8,
-                        'minMessage' => 'password=>Password cannot be shorter than 8 characters',
+                        'minMessage' => 'Password cannot be shorter than 8 characters',
                         'max' => 20,
-                        'maxMessage' => 'password=>Password cannot be longer than 20 characters',
+                        'maxMessage' => 'Password cannot be longer than 20 characters',
                     ])
                 ]
             ])
             ->add('phone', TextType::class, [
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'phone=>Phone number can not be null',
+                        'message' => 'Phone number can not be null',
                     ]),
                     new Regex([
                         'pattern' => '/^[0-9]{10,20}$/',
-                        'message' => "phone=>Phone number is incorrect"
+                        'message' => "Phone number is incorrect"
                     ])
                 ]
             ])
             ->add('address', TextType::class, [
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'address=>Address can not be null',
+                        'message' => 'Address can not be null',
                     ])
                 ]
             ])
             ->add('image', FileType::class)
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
-                $data = $event->getData();
-                if (isset($data['email']) && !empty($data['email'])) {
+            ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+                $form = $event->getForm();
+                if ($form->isSubmitted() && $form->isValid()) {
+                    $data = $event->getData();
                     $user = $this->userRepository->findOneBy([
-                        'email' => $data['email'],
+                        'email' => $data->getEmail(),
                     ]);
                     if ($user) {
-                        $form = $event->getForm();
-                        $form->addError(new FormError('email=>Email is already existed'));
+                        $form->get('email')->addError(new FormError('Email is already existed'));
+                    }
+                    $user = $this->userRepository->findOneBy(([
+                        'phone' => $data->getPhone(),
+                    ]));
+                    if ($user) {
+                        $form->get('phone')->addError(new FormError('Phone is already existed'));
                     }
                 }
-            })
-        ;
+            });
     }
 
     public function configureOptions(OptionsResolver $resolver): void

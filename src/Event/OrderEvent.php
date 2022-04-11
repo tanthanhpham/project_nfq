@@ -21,6 +21,11 @@ class OrderEvent extends Event
     public const STATUS_APPROVED = 2;
     public const STATUS_CANCELED = 3;
     public const STATUS_COMPLETED = 4;
+
+    public const APPROVED = 'order.approved';
+    public const CANCELED = 'order.canceled';
+    public const COMPLETED = 'order.completed';
+
     /**
      * @var Order
      */

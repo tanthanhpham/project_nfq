@@ -19,7 +19,6 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @group functional
  * @covers
- *
  * @internal
  */
 class UserControllerTest extends BaseWebTestCase
@@ -93,6 +92,32 @@ class UserControllerTest extends BaseWebTestCase
         $this->client->request(
             Request::METHOD_POST,
             'api/users/email',
+            [],
+            [],
+            [
+                'HTTP_ACCEPT' => 'application/json',
+            ],
+            json_encode($payload)
+        );
+
+        $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        $data = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertIsArray($data);
+
+        $this->assertSame('User name', $data['name']);
+    }
+
+    public function testGetUserByPhone()
+    {
+        $user = new UserFixtures();
+        $this->loadFixture($user);
+
+        $payload = [
+            'phone' => '0888888888',
+        ];
+        $this->client->request(
+            Request::METHOD_POST,
+            'api/users/phone',
             [],
             [],
             [

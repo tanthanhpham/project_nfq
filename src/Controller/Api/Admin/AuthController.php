@@ -84,11 +84,7 @@ class AuthController extends AbstractFOSRestController
                 return $this->handleView($this->view(["message" => "Register successfully"], Response::HTTP_CREATED));
             }
 
-            $errorsMessage = [];
-            foreach ($form->getErrors(true, true) as $error) {
-                $paramError = explode('=>', $error->getMessage());
-                $errorsMessage[$paramError[0]] = $paramError[1];
-            }
+            $errorsMessage = $this->handleDataOutput->getFormErrorMessage($form);
 
             return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
         } catch (\Exception $e) {

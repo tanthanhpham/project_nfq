@@ -66,7 +66,7 @@ class OrderController extends AbstractFOSRestController
         $page = $request->get('page', self::ORDER_PAGE_PAGE);
 
         $offset = $limit * ($page - 1);
-        $orders = $this->purchaseOrderRepository->findByConditions(['deletedAt' => null], ['createdAt' => 'DESC'], $limit, $offset);
+        $orders = $this->purchaseOrderRepository->findByConditions(['deletedAt' => null], ['status' => 'ASC'], $limit, $offset);
         $orders['data'] = array_map('self::dataTransferObject', $orders['data']);
 
         return $this->handleView($this->view($orders, Response::HTTP_OK));
@@ -103,6 +103,9 @@ class OrderController extends AbstractFOSRestController
             if ($status == self::STATUS_CANCELED) {
                 $purchaseOrder->setSubjectCancel('admin');
                 $purchaseOrder->setReasonCancel($requestData['reasonCancel']);
+
+                $event = new OrderEvent($purchaseOrder);
+                $this->eventDispatcher->dispatch($event);
             }
         }
 
