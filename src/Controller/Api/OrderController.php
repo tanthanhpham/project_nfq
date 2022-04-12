@@ -23,35 +23,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 /**
  * @IsGranted("ROLE_USER")
  */
-class OrderController extends AbstractFOSRestController
+class OrderController extends BaseController
 {
-    public const STATUS_PENDING = 1;
-    public const STATUS_APPROVED = 2;
-    public const STATUS_CANCELED = 3;
-    public const STATUS_COMPLETED = 4;
-    public const ORDER_PAGE_LIMIT = 10;
-    public const ORDER_PAGE_PAGE = 1;
-
-    private $purchaseOrderRepository;
-    private $productItemRepository;
-    private $userLoginInfo;
-    private $cartRepository;
-    private $eventDispatcher;
-
-    public function __construct(
-        OrderRepository $purchaseOrderRepository,
-        GetUserInfo $userLogin,
-        ProductItemRepository $productItemRepository,
-        CartRepository $cartRepository,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->purchaseOrderRepository = $purchaseOrderRepository;
-        $this->userLoginInfo = $userLogin->getUserLoginInfo();
-        $this->productItemRepository = $productItemRepository;
-        $this->cartRepository = $cartRepository;
-        $this->eventDispatcher = $eventDispatcher;
-    }
-
     /**
      * @Rest\Get("/users/orders")
      * @return Response
@@ -59,11 +32,11 @@ class OrderController extends AbstractFOSRestController
     public function getOrders(Request $request): Response
     {
         $userId = $this->userLoginInfo->getId();
-        $limit = $request->get('limit', self::ORDER_PAGE_LIMIT);
-        $page = $request->get('page', self::ORDER_PAGE_PAGE);
+        $limit = $request->get('limit', self::ITEM_PAGE_LIMIT);
+        $page = $request->get('page', self::ITEM_PAGE_NUMBER);
 
         $offset = $limit * ($page - 1);
-        $orders = $this->purchaseOrderRepository->findByConditions(['deletedAt' => null, 'customer' => $userId], ['createdAt' => 'DESC'], $limit, $offset);
+        $orders = $this->orderRepository->findByConditions(['deletedAt' => null, 'customer' => $userId], ['createdAt' => 'DESC'], $limit, $offset);
         $orders['data'] = array_map('self::dataTransferObject', $orders['data']);
 
         return $this->handleView($this->view($orders, Response::HTTP_OK));
@@ -123,7 +96,10 @@ class OrderController extends AbstractFOSRestController
             $order->setTotalPrice($totalPrice);
             $order->setTotalQuantity($totalQuantity);
             $order->setUpdateAt(new \DateTime('now'));
-            $this->purchaseOrderRepository->add($order);
+            $this->orderRepository->add($order);
+
+            $event = new OrderEvent($order);
+            $this->eventDispatcher->dispatch($event);
 
             return $this->handleView($this->view(['message' => 'Add order successfully'], Response::HTTP_CREATED));
         }
@@ -139,19 +115,19 @@ class OrderController extends AbstractFOSRestController
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function updateStatusOrderAction(Order $purchaseOrder, Request $request): Response
+    public function updateStatusOrder(Order $purchaseOrder, Request $request): Response
     {
         $requestData = json_decode($request->getContent(), true);
         $status = $requestData['status'];
 
-        if ($purchaseOrder->getStatus() == self::STATUS_PENDING) {
+        if ($purchaseOrder->getStatus() == self::STATUS_APPROVED) {
             $purchaseOrder->setStatus($status);
             $purchaseOrder->setUpdateAt(new \DateTime('now'));
             if ($status == self::STATUS_CANCELED) {
                 $purchaseOrder->setSubjectCancel('user');
                 $purchaseOrder->setReasonCancel($requestData['reasonCancel']);
             }
-            $this->purchaseOrderRepository->add($purchaseOrder);
+            $this->orderRepository->add($purchaseOrder);
 
             $event = new OrderEvent($purchaseOrder);
             $this->eventDispatcher->dispatch($event);
@@ -171,13 +147,13 @@ class OrderController extends AbstractFOSRestController
     public function filterOrder(Request $request): Response
     {
         $userId = $this->userLoginInfo->getId();
-        $limit = $request->get('limit', self::ORDER_PAGE_LIMIT);
-        $page = $request->get('page', self::ORDER_PAGE_PAGE);
+        $limit = $request->get('limit', self::ITEM_PAGE_LIMIT);
+        $page = $request->get('page', self::ITEM_PAGE_NUMBER);
         $status = $request->get('status');
 
         $offset = $limit * ($page - 1);
 
-        $orders = $this->purchaseOrderRepository->findByConditions(['deletedAt' => null, 'customer' => $userId, 'status' => $status]
+        $orders = $this->orderRepository->findByConditions(['deletedAt' => null, 'customer' => $userId, 'status' => $status]
             , ['createdAt' => 'DESC'], $limit, $offset);
         $orders['data'] = array_map('self::dataTransferObject', $orders['data']);
 
@@ -195,11 +171,11 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt()->format('Y-m-d H:i');
 
         switch (intval($purchaseOrder->getStatus())) {
-            case self::STATUS_PENDING:
-                $formattedPurchaseOrder['status'] = 'Pending';
-                break;
             case self::STATUS_APPROVED:
                 $formattedPurchaseOrder['status'] = 'Approved';
+                break;
+            case self::STATUS_DELIVERY:
+                $formattedPurchaseOrder['status'] = 'Delivery';
                 break;
             case self::STATUS_CANCELED:
                 $formattedPurchaseOrder['status'] = 'Canceled';

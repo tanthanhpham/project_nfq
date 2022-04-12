@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Admin;
 
+use App\Controller\Api\BaseController;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Form\UserUpdateType;
@@ -21,19 +22,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 /**
  * @IsGranted("ROLE_ADMIN")
  */
-class AuthController extends AbstractFOSRestController
+class AuthController extends BaseController
 {
-    public const USER_PAGE_LIMIT = 10;
-    public const USER_PAGE_PAGE = 1;
     public const PATH = 'http://127.0.0.1/uploads/images/';
-
-    private $userRepository;
-    private $logger;
-    public function __construct(UserRepository $userRepository, LoggerInterface $logger)
-    {
-        $this->userRepository = $userRepository;
-        $this->logger = $logger;
-    }
 
     /**
      * @Rest\Get ("/admin/users")
@@ -41,15 +32,9 @@ class AuthController extends AbstractFOSRestController
      */
     public function getAllUser(Request $request): Response
     {
-        $limit = $request->get('limit', self::USER_PAGE_LIMIT);
-        $page = $request->get('page', self::USER_PAGE_PAGE);
+        $users = $this->userRepository->findByConditions(['deletedAt' => null], ['createdAt' => 'DESC']);
 
-        $offset = $limit * ($page - 1);
-        $users = $this->userRepository->findByConditions(['deletedAt' => null], ['createdAt' => 'DESC'], $limit, $offset);
-
-        $serializer = SerializerBuilder::create()->build();
-        $convertToJson = $serializer->serialize($users, 'json', SerializationContext::create()->setGroups(array('showUser')));
-        $users = $serializer->deserialize($convertToJson, 'array', 'json');
+        $users = $this->transferDataGroup($users, 'showUser');
 
         return $this->handleView($this->view($users, Response::HTTP_OK));
     }

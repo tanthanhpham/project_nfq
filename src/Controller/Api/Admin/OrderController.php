@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Admin;
 
+use App\Controller\Api\BaseController;
 use App\Entity\Order;
 use App\Entity\OrderDetail;
 use App\Entity\ProductItem;
@@ -27,46 +28,15 @@ use Symfony\Component\Validator\Constraints\Date;
 /**
  * @IsGranted("ROLE_ADMIN")
  */
-class OrderController extends AbstractFOSRestController
+class OrderController extends BaseController
 {
-    public const STATUS_PENDING = 1;
-    public const STATUS_APPROVED = 2;
-    public const STATUS_CANCELED = 3;
-    public const STATUS_COMPLETED = 4;
-    public const ORDER_PAGE_LIMIT = 10;
-    public const ORDER_PAGE_PAGE = 1;
-
-    private $purchaseOrderRepository;
-    private $productItemRepository;
-    private $userLoginInfo;
-    private $cartRepository;
-    private $eventDispatcher;
-
-    public function __construct(
-        OrderRepository $purchaseOrderRepository,
-        GetUserInfo $userLogin,
-        ProductItemRepository $productItemRepository,
-        CartRepository $cartRepository,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->purchaseOrderRepository = $purchaseOrderRepository;
-        $this->userLoginInfo = $userLogin->getUserLoginInfo();
-        $this->productItemRepository = $productItemRepository;
-        $this->cartRepository = $cartRepository;
-        $this->eventDispatcher = $eventDispatcher;
-    }
-
     /**
      * @Rest\Get("/admin/orders")
      * @return Response
      */
     public function getOrders(Request $request): Response
     {
-        $limit = $request->get('limit', self::ORDER_PAGE_LIMIT);
-        $page = $request->get('page', self::ORDER_PAGE_PAGE);
-
-        $offset = $limit * ($page - 1);
-        $orders = $this->purchaseOrderRepository->findByConditions(['deletedAt' => null], ['status' => 'ASC'], $limit, $offset);
+        $orders = $this->orderRepository->findByConditions(['deletedAt' => null], ['status' => 'ASC']);
         $orders['data'] = array_map('self::dataTransferObject', $orders['data']);
 
         return $this->handleView($this->view($orders, Response::HTTP_OK));
@@ -78,7 +48,7 @@ class OrderController extends AbstractFOSRestController
      */
     public function getOrder(int $id): Response
     {
-        $order = $this->purchaseOrderRepository->findOneBy(['deletedAt' => null, 'id' => $id]);
+        $order = $this->orderRepository->findOneBy(['deletedAt' => null, 'id' => $id]);
         $order = self::dataTransferDetailOrderObject($order);
 
         return $this->handleView($this->view($order, Response::HTTP_OK));
@@ -109,7 +79,7 @@ class OrderController extends AbstractFOSRestController
             }
         }
 
-        $this->purchaseOrderRepository->add($purchaseOrder);
+        $this->orderRepository->add($purchaseOrder);
 
         $event = new OrderEvent($purchaseOrder);
         $this->eventDispatcher->dispatch($event);
@@ -144,11 +114,11 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt()->format('Y-m-d H:i');
 
         switch (intval($purchaseOrder->getStatus())) {
-            case self::STATUS_PENDING:
-                $formattedPurchaseOrder['status'] = 'Pending';
-                break;
             case self::STATUS_APPROVED:
                 $formattedPurchaseOrder['status'] = 'Approved';
+                break;
+            case self::STATUS_DELIVERY:
+                $formattedPurchaseOrder['status'] = 'Delivery';
                 break;
             case self::STATUS_CANCELED:
                 $formattedPurchaseOrder['status'] = 'Canceled';

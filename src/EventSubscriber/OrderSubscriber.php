@@ -22,40 +22,30 @@ class OrderSubscriber implements EventSubscriberInterface
     {
         $order = $event->getOrder();
         $status = $order->getStatus();
+        $template = OrderEvent::TEMPLATE_APPROVE;
+        $subject = 'Order Confirmation #Order' .  $order->getId();
 
         $params = [
             "order" => $order
         ];
 
-        if ($status == OrderEvent::STATUS_APPROVED) {
-            $this->mailerService->send(
-                'Confirm order information',
-                'phamtanthanh.it@gmail.com',
-                $order->getRecipientEmail(),
-                OrderEvent::TEMPLATE_APPROVE,
-                $params
-            );
+        if ($status == OrderEvent::STATUS_CANCELED) {
+            $template = OrderEvent::TEMPLATE_CANCEL;
+            $subject = 'Order Cancellation Confirmation #Order' .  $order->getId();
         }
 
-        if ($status == OrderEvent::STATUS_CANCELED){
-            if ($order->getSubjectCancel() == 'admin') {
-                $this->mailerService->send(
-                    'Reject order',
-                    'phamtanthanh.it@gmail.com',
-                    $order->getRecipientEmail(),
-                    OrderEvent::TEMPLATE_REJECT,
-                    $params
-                );
-            } else {
-                $this->mailerService->send(
-                    'Cancel order',
-                    'phamtanthanh.it@gmail.com',
-                    $order->getRecipientEmail(),
-                    OrderEvent::TEMPLATE_CANCEL,
-                    $params
-                );
-            }
+        if ($status == OrderEvent::STATUS_COMPLETED){
+            $template = OrderEvent::TEMPLATE_REJECT;
+            $subject = 'Order Cancellation Notice #Order' .  $order->getId();
         }
+
+        $this->mailerService->send(
+            $subject,
+            'phamtanthanh.it@gmail.com',
+            $order->getRecipientEmail(),
+            $template,
+            $params
+        );
     }
     public static function getSubscribedEvents()
     {

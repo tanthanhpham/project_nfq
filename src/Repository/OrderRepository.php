@@ -52,7 +52,7 @@ class OrderRepository extends ServiceEntityRepository
      * @param $offset
      * @return array
      */
-    public function findByConditions(array $param, $orderBy, $limit, $offset): array
+    public function findByConditions(array $param,?array $orderBy = [], ?int $limit = null, ?int $offset = null): array
     {
         $queryBuilder = $this->createQueryBuilder('o');
         if (isset($param['customer']) && $param['customer'] != '') {
@@ -69,13 +69,13 @@ class OrderRepository extends ServiceEntityRepository
 
         if (isset($param['fromDate']) && $param['fromDate'] != '') {
             $queryBuilder
-                ->andWhere('o.createAt >= :fromDate')
+                ->andWhere('o.createdAt >= :fromDate')
                 ->setParameter('fromDate', $param['fromDate']);
         }
 
         if (isset($param['toDate']) && $param['toDate'] != '') {
             $queryBuilder
-                ->andWhere('o.createAt <= :toDate')
+                ->andWhere('o.createdAt <= :toDate')
                 ->setParameter('toDate', $param['toDate']);
         }
 
@@ -136,7 +136,7 @@ class OrderRepository extends ServiceEntityRepository
 
         if ($fromDate != null) {
             $queryBuilder->andWhere('o.createdAt >= :fromDate')
-                ->setParameter('formDate', $fromDate);
+                ->setParameter('fromDate', $fromDate);
         }
 
         if ($toDate != null) {

@@ -25,19 +25,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class UserController extends AbstractFOSRestController
+class UserController extends BaseController
 {
     public const PATH = 'http://127.0.0.1/uploads/images/';
-    private $userRepository;
-    private $handleDataOutput;
-    private $logger;
-
-    public function __construct(UserRepository $userRepository, HandleDataOutput $handleDataOutput, LoggerInterface $logger)
-    {
-        $this->userRepository = $userRepository;
-        $this->handleDataOutput = $handleDataOutput;
-        $this->logger = $logger;
-    }
 
     /**
      * @Rest\Post ("/register")
@@ -67,7 +57,7 @@ class UserController extends AbstractFOSRestController
 
                 return $this->handleView($this->view(["message" => "Register successfully"], Response::HTTP_CREATED));
             }
-            $errorsMessage = $this->handleDataOutput->getFormErrorMessage($form);
+            $errorsMessage = $this->getFormErrorMessage($form);
 
             return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
         } catch (\Exception $e) {
@@ -179,7 +169,7 @@ class UserController extends AbstractFOSRestController
             return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
         }
 
-        $errorsMessage = $this->handleDataOutput->getFormErrorMessage($form);
+        $errorsMessage = $this->getFormErrorMessage($form);
 
         return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
     }
