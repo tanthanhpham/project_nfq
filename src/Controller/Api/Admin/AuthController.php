@@ -32,7 +32,20 @@ class AuthController extends BaseController
      */
     public function getAllUser(Request $request): Response
     {
-        $users = $this->userRepository->findByConditions(['deletedAt' => null], ['createdAt' => 'DESC']);
+        $users = $this->userRepository->findByConditions(['deletedAt' => null, 'roles' => 'ROLE_USER'], ['createdAt' => 'DESC']);
+
+        $users = $this->transferDataGroup($users, 'showUser');
+
+        return $this->handleView($this->view($users, Response::HTTP_OK));
+    }
+
+    /**
+     * @Rest\Get ("/admin/accounts")
+     * @return Response
+     */
+    public function getAllAdmin(Request $request): Response
+    {
+        $users = $this->userRepository->findByConditions(['deletedAt' => null, 'roles' => 'ROLE_ADMIN'], ['createdAt' => 'DESC']);
 
         $users = $this->transferDataGroup($users, 'showUser');
 

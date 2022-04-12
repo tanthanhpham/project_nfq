@@ -79,6 +79,12 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
                 ->addOrderBy('p.createdAt', $orderBy['createdAt']);
         }
 
+        if (isset($param['roles'])) {
+            $queryBuilder
+                ->andWhere('p.roles LIKE :roles')
+                ->setParameter('roles', '%'.$param['roles'].'%');
+        }
+
         if (!empty($orderBy)) {
             $keyOrderList = array_keys($orderBy);
             $column = 'p.' . $keyOrderList[0];

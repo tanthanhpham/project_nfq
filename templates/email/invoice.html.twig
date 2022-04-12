@@ -1,1316 +1,227 @@
-{#<html>#}
-
-{#<body style="background-color:#e2e1e0;font-family: Open Sans, sans-serif;font-size:100%;font-weight:400;line-height:1.4;color:#000;">#}
-{#<table style="max-width:670px;margin:50px auto 10px;background-color:#fff;padding:50px;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24);-moz-box-shadow:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24);box-shadow:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24); border-top: solid 10px green;">#}
-{#    <thead>#}
-{#    <tr>#}
-{#        <th style="text-align:left;"></th>#}
-{#        <th style="text-align:right;font-weight:400;">{{ date().format('U') }}</th>#}
-{#    </tr>#}
-{#    </thead>#}
-{#    <tbody>#}
-{#    <tr>#}
-{#        <td style="height:35px;"></td>#}
-{#    </tr>#}
-{#    <tr>#}
-{#        <td colspan="2" style="border: solid 1px #ddd; padding:10px 20px;">#}
-{#            <p style="font-size:14px;margin:0 0 6px 0;"><span style="font-weight:bold;display:inline-block;min-width:150px">Order status</span>#}
-{#                    {% if order.getStatus() == 1 %}#}
-{#                    <b style="color:green;font-weight:normal;margin:0">Pending</b>#}
-{#                    {% elseif order.getStatus() == 2 %}#}
-{#                    <b style="color:green;font-weight:normal;margin:0">Approved</b>#}
-{#                    {% endif %}#}
-{#            </p>#}
-{#            <p style="font-size:14px;margin:0 0 6px 0;"><span style="font-weight:bold;display:inline-block;min-width:146px">Invoice ID</span> {{ order.getId() }}</p>#}
-{#        </td>#}
-{#    </tr>#}
-{#    <tr>#}
-{#        <td style="height:35px;"></td>#}
-{#    </tr>#}
-{#    <tr>#}
-{#        <td style="width:50%;padding:20px;vertical-align:top">#}
-{#            <p style="margin:0 0 10px 0;padding:0;font-size:14px;"><span style="display:block;font-weight:bold;font-size:13px">Name</span> {{ order.getRecipientName() }}</p>#}
-{#            <p style="margin:0 0 10px 0;padding:0;font-size:14px;"><span style="display:block;font-weight:bold;font-size:13px;">Email</span> {{ order.getRecipientEmail() }}</p>#}
-{#            <p style="margin:0 0 10px 0;padding:0;font-size:14px;"><span style="display:block;font-weight:bold;font-size:13px;">Phone</span> {{ order.getRecipientPhone() }}</p>#}
-{#        </td>#}
-{#        <td style="width:50%;padding:20px;vertical-align:top">#}
-{#            <p style="margin:0 0 10px 0;padding:0;font-size:14px;"><span style="display:block;font-weight:bold;font-size:13px;">Address</span>{{ order.getAddressDelivery() }}</p>#}
-{#        </td>#}
-{#    </tr>#}
-{#    <tr>#}
-{#        <td colspan="2" style="font-size:20px;padding:30px 15px 0 15px;">Items</td>#}
-{#    </tr>#}
-{#    <tr>#}
-{#        <td colspan="2" style="padding:15px;">#}
-{#            {% for orderDetail in order.getOrderItems() %}#}
-{#                <p style="font-size:14px;margin:0;padding:10px;border:solid 1px #ddd;font-weight:bold;"><span style="display:block;font-size:13px;font-weight:normal;">#}
-{#                        {{ orderDetail.getProductItem().getProduct().getName() }}</span>#}
-{#                    <b style="font-size:12px;font-weight:300;">Quantity {{ orderDetail.getAmount() }} - </b>#}
-{#                    <b style="font-size:12px;font-weight:300;"> ${{ orderDetail.getTotal() }}</b></p>#}
-{#            {% endfor %}#}
-
-{#        </td>#}
-{#    </tr>#}
-{#    </tbody>#}
-{#    <tfooter>#}
-{#        <tr>#}
-{#            <td colspan="2" style="font-size:14px;padding:50px 15px 0 15px;">#}
-{#                <strong style="display:block;margin:0 0 10px 0;">Regards</strong> ANT Store<br> Cai Khe, Ninh Kieu, Can Tho<br><br>#}
-{#                <b>Phone:</b> 03552-222011<br>#}
-{#                <b>Email:</b> contact@bachanatours.in#}
-{#            </td>#}
-{#        </tr>#}
-{#    </tfooter>#}
-{#</table>#}
-{#</body>#}
-
-{#</html>#}
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
 <head>
+    <style>
+        ::selection{background:#f31544;color:#fff}
+        ::moz-selection{background:#f31544;color:#fff}
+        .clearfix::after{content:"";clear:both;display:table}
+        .effect2:before{z-index:-1;position:absolute;content:"";bottom:15px;left:10px;width:50%;top:80%;max-width:300px;background:#777;-webkit-box-shadow:0 15px 10px #777;-moz-box-shadow:0 15px 10px #777;box-shadow:0 15px 10px #777;-webkit-transform:rotate(-3deg);-moz-transform:rotate(-3deg);-o-transform:rotate(-3deg);-ms-transform:rotate(-3deg);transform:rotate(-3deg)}
+        .effect2:after{z-index:-1;position:absolute;content:"";bottom:15px;left:10px;width:50%;top:80%;max-width:300px;background:#777;-webkit-box-shadow:0 15px 10px #777;-moz-box-shadow:0 15px 10px #777;box-shadow:0 15px 10px #777;-webkit-transform:rotate(-3deg);-moz-transform:rotate(-3deg);-o-transform:rotate(-3deg);-ms-transform:rotate(-3deg);transform:rotate(-3deg)}
+        .effect2:after{-webkit-transform:rotate(3deg);-moz-transform:rotate(3deg);-o-transform:rotate(3deg);-ms-transform:rotate(3deg);transform:rotate(3deg);right:10px;left:auto}
+    </style>
     <style type="text/css">
-        @charset "UTF-8";
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: sans-serif;
-        }
-
-        .demo {
-            margin: 0 auto;
-            max-width: 960px;
-            font-family: sans-serif;
-        }
-        .demo-inner {
-            position: relative;
-            padding: 50px;
-        }
-        .demo-body {
-            position: relative;
-            border: 1px solid #009688;
-            border-top: none;
-            padding: 30px;
-        }
-        .demo-body:first-child {
-            border-top: 1px solid #009688;
-        }
-        .demo-header {
-            position: absolute;
-            top: -10px;
-            left: 30px;
-            background: #fff;
-            padding: 0 3px;
-            display: inline-block;
-            font-weight: bold;
-            color: #009688;
-            text-transform: uppercase;
-        }
-        .demo-row {
-            display: flex;
-            margin-left: -20px;
-            margin-right: -20px;
-            margin-bottom: 40px;
-            justify-content: space-between;
-        }
-        .demo-col {
-            padding-left: 20px;
-            padding-right: 20px;
-            flex-grow: 1;
-            max-width: 40%;
-        }
-
-        :root {
-            --color-primary: #00A5B4;
-            --color-primary-darker: #0f7d87;
-            --color-secondary: #C9DC08;
-            --color-secondary-darker: #acbc04;
-            --color-primary-text: #3f465e;
-            --color-border: #e1e3ea;
-            --color-border-input: #e5e5e5;
-            --color-red: #e41919;
-            --color-black: #000;
-            --color-orange: #f47631;
-            --color-yellow: #ffce02;
-            --color-cyan: #27c5c3;
-            --color-blue: #43a5de;
-            --color-green: #65B044;
-            --color-facebook: #3F5C99;
-            --color-twitter: #1DA0F2;
-            --color-google: #DC4A38;
-            --color-instagram: #A4785B;
-            /** GRAY */
-            --color-gray-100: #F7FAFC;
-            --color-gray-200: #EDF2F7;
-            --color-gray-300: #E2E8F0;
-            --color-gray-400: #CBD5E0;
-            --color-gray-500: #A0AEC0;
-            --color-gray-600: #718096;
-            --color-gray-700: #4A5568;
-            --color-gray-800: #2D3748;
-            --color-gray-900: #1A202C;
-        }
-
-        .demo {
-            margin: 0 auto;
-            max-width: 960px;
-            font-family: sans-serif;
-        }
-        .demo-inner {
-            position: relative;
-            padding: 50px;
-        }
-        .demo-body {
-            position: relative;
-            border: 1px solid #009688;
-            border-top: none;
-            padding: 30px;
-        }
-        .demo-body:first-child {
-            border-top: 1px solid #009688;
-        }
-        .demo-header {
-            position: absolute;
-            top: -10px;
-            left: 30px;
-            background: #fff;
-            padding: 0 3px;
-            display: inline-block;
-        }
-        .demo-row {
-            display: flex;
-            margin-left: -20px;
-            margin-right: -20px;
-            margin-bottom: 40px;
-            justify-content: space-between;
-        }
-        .demo-col {
-            padding-left: 20px;
-            padding-right: 20px;
-            flex-grow: 1;
-            max-width: 40%;
-        }
-
-        /*
-        1. BREAKPOINTS: https://codepen.io/luckyluu/pen/ZEzxLxR
-        2. COLORS: https://codepen.io/luckyluu/pen/bGbLzXe
-        */
-        html {
-            font-size: 1rem;
-        }
-
-        body {
-            color: var(--color-primary-text);
-            text-rendering: optimizelegibility;
-            -webkit-font-smoothing: antialiased;
-            -webkit-text-size-adjust: none;
-            font-family: Arial, sans-serif;
-        }
-
-        img {
-            max-width: 100%;
-        }
-
-        a {
-            color: var(--color-link);
-            text-decoration: none;
-            outline: none;
-            cursor: pointer;
-        }
-        a:hover, a:focus {
-            color: var(--color-link-hover);
-            -webkit-transition: all 0.2s ease-in-out;
-            -moz-transition: all 0.2s ease-in-out;
-            -ms-transition: all 0.2s ease-in-out;
-            -o-transition: all 0.2s ease-in-out;
-            transition: all 0.2s ease-in-out;
-        }
-
-        h1,
-        .heading1 {
-            font-size: 3rem;
-            line-height: 1.1;
-            margin-bottom: 1rem;
-            font-weight: bold;
-        }
-        @media (max-width: 768px) {
-            h1,
-            .heading1 {
-                font-size: 2.2rem;
-            }
-        }
-        @media (max-width: 600px) {
-            h1,
-            .heading1 {
-                font-size: 2rem;
-            }
-        }
-
-        h2,
-        .heading2 {
-            font-size: 2.5rem;
-            line-height: 1.1;
-            margin-bottom: 1rem;
-            font-weight: bold;
-        }
-        @media (max-width: 768px) {
-            h2,
-            .heading2 {
-                font-size: 2rem;
-            }
-        }
-        @media (max-width: 600px) {
-            h2,
-            .heading2 {
-                font-size: 1.8rem;
-            }
-        }
-
-        h3,
-        .heading3 {
-            font-size: 2.2rem;
-            line-height: 1.1;
-            margin-bottom: 1rem;
-            font-weight: bold;
-        }
-        @media (max-width: 768px) {
-            h3,
-            .heading3 {
-                font-size: 1.8rem;
-            }
-        }
-        @media (max-width: 600px) {
-            h3,
-            .heading3 {
-                font-size: 1.6rem;
-            }
-        }
-
-        h4,
-        .heading4 {
-            font-size: 1.8rem;
-            line-height: 1.2;
-            margin-bottom: 1rem;
-            font-weight: bold;
-        }
-        @media (max-width: 768px) {
-            h4,
-            .heading4 {
-                font-size: 1.6rem;
-            }
-        }
-        @media (max-width: 600px) {
-            h4,
-            .heading4 {
-                font-size: 1.4rem;
-            }
-        }
-
-        h5,
-        .heading5 {
-            font-size: 1.4rem;
-            line-height: 1.2;
-            margin-bottom: 1rem;
-            font-weight: bold;
-        }
-        @media (max-width: 768px) {
-            h5,
-            .heading5 {
-                font-size: 1.1rem;
-            }
-        }
-
-        h6,
-        .heading6 {
-            font-size: 1rem;
-            text-transform: uppercase;
-            line-height: 1.2;
-            margin-bottom: 1rem;
-            color: rgba(0, 0, 0, 0.7);
-            font-weight: bold;
-        }
-
-        .font-size-xs {
-            font-size: 0.9rem;
-        }
-        .font-size-s {
-            font-size: 1rem;
-        }
-        .font-size-m {
-            font-size: 1.2rem;
-        }
-        .font-size-l {
-            font-size: 1.6rem;
-        }
-        .font-size-xl {
-            font-size: 2.2rem;
-        }
-        .font-size-xxl {
-            font-size: 3rem;
-        }
-
-        @media (min-width: 600px) {
-            .xs_font-size-xs {
-                font-size: 0.9rem;
-            }
-            .xs_font-size-s {
-                font-size: 1rem;
-            }
-            .xs_font-size-m {
-                font-size: 1.2rem;
-            }
-            .xs_font-size-l {
-                font-size: 1.6rem;
-            }
-            .xs_font-size-xl {
-                font-size: 2.2rem;
-            }
-            .xs_font-size-xxl {
-                font-size: 3rem;
-            }
-        }
-        @media (min-width: 768px) {
-            .s_font-size-xs {
-                font-size: 0.9rem;
-            }
-            .s_font-size-s {
-                font-size: 1rem;
-            }
-            .s_font-size-m {
-                font-size: 1.2rem;
-            }
-            .s_font-size-l {
-                font-size: 1.6rem;
-            }
-            .s_font-size-xl {
-                font-size: 2.2rem;
-            }
-            .s_font-size-xxl {
-                font-size: 3rem;
-            }
-        }
-        @media (min-width: 1024px) {
-            .m_font-size-xs {
-                font-size: 0.9rem;
-            }
-            .m_font-size-s {
-                font-size: 1rem;
-            }
-            .m_font-size-m {
-                font-size: 1.2rem;
-            }
-            .m_font-size-l {
-                font-size: 1.6rem;
-            }
-            .m_font-size-xl {
-                font-size: 2.2rem;
-            }
-            .m_font-size-xxl {
-                font-size: 3rem;
-            }
-        }
-        @media (min-width: 1280px) {
-            .l_font-size-xs {
-                font-size: 0.9rem;
-            }
-            .l_font-size-s {
-                font-size: 1rem;
-            }
-            .l_font-size-m {
-                font-size: 1.2rem;
-            }
-            .l_font-size-l {
-                font-size: 1.6rem;
-            }
-            .l_font-size-xl {
-                font-size: 2.2rem;
-            }
-            .l_font-size-xxl {
-                font-size: 3rem;
-            }
-        }
-        @media (min-width: 1366px) {
-            .xl_font-size-xs {
-                font-size: 0.9rem;
-            }
-            .xl_font-size-s {
-                font-size: 1rem;
-            }
-            .xl_font-size-m {
-                font-size: 1.2rem;
-            }
-            .xl_font-size-l {
-                font-size: 1.6rem;
-            }
-            .xl_font-size-xl {
-                font-size: 2.2rem;
-            }
-            .xl_font-size-xxl {
-                font-size: 3rem;
-            }
-        }
-        @media (min-width: 1440px) {
-            .xxl_font-size-xs {
-                font-size: 0.9rem;
-            }
-            .xxl_font-size-s {
-                font-size: 1rem;
-            }
-            .xxl_font-size-m {
-                font-size: 1.2rem;
-            }
-            .xxl_font-size-l {
-                font-size: 1.6rem;
-            }
-            .xxl_font-size-xl {
-                font-size: 2.2rem;
-            }
-            .xxl_font-size-xxl {
-                font-size: 3rem;
-            }
-        }
-        .demo {
-            margin: 0 auto;
-            max-width: 960px;
-            font-family: sans-serif;
-        }
-        .demo-inner {
-            position: relative;
-            padding: 50px;
-        }
-        .demo-body {
-            position: relative;
-            border: 1px solid #009688;
-            border-top: none;
-            padding: 30px;
-        }
-        .demo-body:first-child {
-            border-top: 1px solid #009688;
-        }
-        .demo-header {
-            position: absolute;
-            top: -10px;
-            left: 30px;
-            background: #fff;
-            padding: 0 3px;
-            display: inline-block;
-        }
-        .demo-row {
-            display: flex;
-            margin-left: -20px;
-            margin-right: -20px;
-            margin-bottom: 40px;
-            justify-content: space-between;
-        }
-        .demo-col {
-            padding-left: 20px;
-            padding-right: 20px;
-            flex-grow: 1;
-            max-width: 40%;
-        }
-
-        /*-----------------------------
-          # [MIXINS]
-          ----------------------------- */
-        /*-----------------------------
-          # DEMO
-          ----------------------------- */
-        .link {
-            color: var(--color-link);
-            text-decoration: none;
-            outline: none;
-            cursor: pointer;
-        }
-        .link:hover, .link:focus, .link:active {
-            color: var(--color-primary);
-        }
-
-        .paragraph {
-            line-height: 1.6;
-        }
-
-        .defaultSubmit {
-            display: inline-block;
-            font-weight: 400;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            border: 1px solid transparent;
-            padding: 0.5rem 1.25rem;
-            font-size: 1rem;
-            line-height: 1.25;
-            border-radius: 0.25rem;
-            transition: all 0.15s ease-in-out;
-            background-color: var(--color-primary);
-            border-color: var(--color-primary);
-            color: #fff;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .defaultSubmit:hover, .defaultSubmit:focus, .defaultSubmit:active {
-            background-color: var(--color-primary-darker);
-            border-color: var(--color-primary-darker);
-        }
-
-        .heading1 {
-            margin-top: 48px;
-            color: rgba(0, 0, 0, 0.8);
-            font-size: 2.2rem;
-            font-weight: bold;
-        }
-        @media (max-width: 600px) {
-            .heading1 {
-                font-size: 2rem;
-            }
-        }
-
-        .heading2 {
-            margin-top: 40px;
-            margin-bottom: 20px;
-            color: rgba(0, 0, 0, 0.8);
-            font-size: 2rem;
-            font-weight: bold;
-        }
-        @media (max-width: 600px) {
-            .heading2 {
-                font-size: 1.8rem;
-            }
-        }
-
-        .heading3 {
-            color: rgba(0, 0, 0, 0.85);
-            font-size: 1.8rem;
-            font-weight: bold;
-        }
-        @media (max-width: 600px) {
-            .heading3 {
-                font-size: 1.6rem;
-            }
-        }
-
-        .heading4 {
-            color: rgba(0, 0, 0, 0.85);
-            letter-spacing: 0.05px;
-            font-size: 1.6rem;
-            font-weight: bold;
-        }
-        @media (max-width: 600px) {
-            .heading4 {
-                font-size: 1.4rem;
-            }
-        }
-
-        .heading5 {
-            color: rgba(0, 0, 0, 0.87);
-            letter-spacing: 0.1px;
-            font-size: 1.4rem;
-            font-weight: bold;
-        }
-        @media (max-width: 600px) {
-            .heading5 {
-                font-size: 1.1rem;
-            }
-        }
-
-        .heading6 {
-            letter-spacing: 0.2px;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .defaultInput {
-            border: 1px solid var(--color-border-input);
-            background: #fff;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            display: block;
-            width: 100%;
-            padding: 0.5rem 0.75rem;
-            font-size: 1rem;
-            line-height: 1.25;
-            border-radius: 0.25rem;
-            transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
-        }
-        .defaultInput:focus, .defaultInput:active {
-            border-color: var(--color-primary);
-            outline: 0;
-        }
-
-        .defaultButton {
-            display: inline-block;
-            font-weight: 400;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            border: 1px solid transparent;
-            padding: 0.375rem 0.75rem;
-            font-size: 1rem;
-            line-height: 1.5;
-            border-radius: 0.25rem;
-            transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-            background-color: #f8f9fa;
-            border-color: #f8f9fa;
-            cursor: pointer;
-        }
-        .defaultButton:hover, .defaultButton:focus, .defaultButton:active {
-            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .defaultSelect {
-            display: inline-block;
-            max-width: 100%;
-            height: calc(2.25rem + 2px);
-            padding: 0.375rem 1.75rem 0.375rem 0.75rem;
-            line-height: 1.25;
-            color: #495057;
-            vertical-align: middle;
-            background: #fff url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGhlaWdodD0iNTEycHgiIGlkPSJMYXllcl8xIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1MTIgNTEyOyIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgd2lkdGg9IjUxMnB4IiB4bWw6c3BhY2U9InByZXNlcnZlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48cGF0aCBkPSJNMjU2LDI5OC4zTDI1NiwyOTguM0wyNTYsMjk4LjNsMTc0LjItMTY3LjJjNC4zLTQuMiwxMS40LTQuMSwxNS44LDAuMmwzMC42LDI5LjljNC40LDQuMyw0LjUsMTEuMywwLjIsMTUuNUwyNjQuMSwzODAuOSAgYy0yLjIsMi4yLTUuMiwzLjItOC4xLDNjLTMsMC4xLTUuOS0wLjktOC4xLTNMMzUuMiwxNzYuN2MtNC4zLTQuMi00LjItMTEuMiwwLjItMTUuNUw2NiwxMzEuM2M0LjQtNC4zLDExLjUtNC40LDE1LjgtMC4yTDI1NiwyOTguMyAgeiIvPjwvc3ZnPg==") no-repeat right 0.75rem center;
-            background-size: 8px 10px;
-            border: 1px solid rgba(0, 0, 0, 0.15);
-            border-radius: 0.25rem;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-        }
-
-        .defaultBoxShadow {
-            box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.05);
-        }
-
-        .gradient {
-            background-image: linear-gradient(45deg, #ccc 0%, #000 100%);
-        }
-
-        /* IMPORT
-        - MIXINS: https://codepen.io/luckyluu/pen/jOOVgbE
-        */
-        .demo {
-            margin: 0 auto;
-            max-width: 960px;
-            font-family: sans-serif;
-        }
-        .demo-inner {
-            position: relative;
-            padding: 50px;
-        }
-        .demo-body {
-            position: relative;
-            border: 1px solid #009688;
-            border-top: none;
-            padding: 30px;
-        }
-        .demo-body:first-child {
-            border-top: 1px solid #009688;
-        }
-        .demo-header {
-            position: absolute;
-            top: -10px;
-            left: 30px;
-            background: #fff;
-            padding: 0 3px;
-            display: inline-block;
-        }
-        .demo-row {
-            display: flex;
-            margin-left: -20px;
-            margin-right: -20px;
-            margin-bottom: 40px;
-            justify-content: space-between;
-        }
-        .demo-col {
-            padding-left: 20px;
-            padding-right: 20px;
-            flex-grow: 1;
-            max-width: 40%;
-        }
-
-        :root {
-            --color-primary: #00A5B4;
-            --color-secondary: #C9DC08;
-            --color-gray-100: #F7FAFC;
-            --color-primary-text: #333;
-            --color-gray-400: #CBD5E0;
-            --color-red: #e41919;
-            --color-border: #e1e3ea;
-            /** Breakpoint **/
-            --breakpoint-xs: 600px;
-        }
-
-        /* PRICE */
-        .price {
-            color: var(--color-secondary);
-        }
-        .price .amount {
-            font-size: 27px;
-        }
-        .price .woocommerce-Price-currencySymbol {
-            padding-right: 3px;
-        }
-
-        /* INFO */
-        .woocommerce-info {
-            background: rgba(0, 0, 0, 0.05);
-            padding: 15px;
-            margin-top: 10px;
-            border: none;
-        }
-        .woocommerce-info:before {
-            display: none;
-        }
-        .woocommerce-info a {
-            font-weight: bold;
-            text-decoration: underline;
-        }
-
-        /* SUCCESS */
-        .woocommerce-notice--success {
-            background: #e6f7e4;
-            margin-top: 10px;
-            padding: 15px;
-            color: #39b44a;
-            font-weight: bold;
-            text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.7);
-        }
-
-        /* TABLE */
-        .shop_table {
-            width: 100%;
-            margin-bottom: 2rem;
-            max-width: 100%;
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-collapse: collapse;
-            border-spacing: 0;
-        }
-        @media (max-width: var(--breakpoint-xs)) {
-            .shop_table [data-label] {
-                position: relative;
-                padding-left: 30%;
-            }
-            .shop_table [data-label]:before {
-                position: absolute;
-                top: 0;
-                left: 0;
-                padding: 8px;
-                content: attr(data-label);
-                font-weight: bold;
-            }
-        }
-        .shop_table thead {
-            background: #f2f2f2;
-        }
-        @media (max-width: var(--breakpoint-xs)) {
-            .shop_table thead {
-                display: none;
-            }
-        }
-        .shop_table thead th {
-            border-bottom: 1px solid #e0e0e0;
-            padding: 0.7rem;
-        }
-        .shop_table thead th:last-child {
-            text-align: right;
-        }
-        @media (max-width: var(--breakpoint-xs)) {
-            .shop_table tbody {
-                display: block;
-            }
-        }
-        .shop_table tbody td {
-            padding: 0.7rem;
-            border-color: #f0f2f7;
-        }
-        @media (max-width: var(--breakpoint-xs)) {
-            .shop_table tbody tr {
-                border-bottom: 1px dotted rgba(0, 0, 0, 0.1);
-                display: block;
-            }
-        }
-        .shop_table tbody tr th {
-            text-align: left;
-        }
-        @media (max-width: var(--breakpoint-xs)) {
-            .shop_table tbody tr th {
-                display: block;
-                padding: 0.7rem;
-                padding-bottom: 0;
-                text-align: left;
-            }
-        }
-        @media (max-width: var(--breakpoint-xs)) {
-            .shop_table tbody tr td {
-                display: block;
-                padding-top: 0.5rem;
-                padding-bottom: 0.5rem;
-            }
-        }
-        .shop_table tbody tr td:last-child {
-            text-align: right;
-        }
-        @media (max-width: var(--breakpoint-xs)) {
-            .shop_table tbody tr td:last-child {
-                text-align: left;
-            }
-        }
-        .shop_table tfoot {
-            border-top: 1px solid #f0f2f7;
-            background: #fafafa;
-        }
-        @media (max-width: var(--breakpoint-xs)) {
-            .shop_table tfoot {
-                display: block;
-            }
-        }
-        @media (max-width: var(--breakpoint-xs)) {
-            .shop_table tfoot tr {
-                display: flex;
-            }
-        }
-        .shop_table tfoot th {
-            padding: 0.7rem;
-            text-align: right;
-        }
-        @media (max-width: var(--breakpoint-xs)) {
-            .shop_table tfoot th {
-                width: 30%;
-                padding-top: 0.2rem;
-                padding-bottom: 0.2rem;
-                text-align: left;
-            }
-        }
-        .shop_table tfoot td {
-            padding: 0.7rem;
-            text-align: right;
-            width: 10%;
-        }
-        @media (max-width: var(--breakpoint-xs)) {
-            .shop_table tfoot td {
-                width: 70%;
-                padding-top: 0.2rem;
-                padding-bottom: 0.2rem;
-                text-align: left;
-                padding-left: 0;
-            }
-        }
-
-        /* WIDGET CART */
-        .woocommerce-checkout-review-order-table {
-            border: 1px solid var(--color-border);
-        }
-        @media (max-width: var(--breakpoint-xs)) {
-            .woocommerce-checkout-review-order-table [data-label] {
-                padding-left: 10px;
-            }
-            .woocommerce-checkout-review-order-table [data-label]:before {
-                display: none;
-            }
-        }
-        .woocommerce-checkout-review-order-table thead {
-            display: none;
-        }
-        @media (max-width: var(--breakpoint-xs)) {
-            .woocommerce-checkout-review-order-table tbody tr {
-                display: flex;
-            }
-        }
-        .woocommerce-checkout-review-order-table tbody tr td {
-            border-top: none;
-        }
-        @media (max-width: var(--breakpoint-xs)) {
-            .woocommerce-checkout-review-order-table tbody tr td:first-child {
-                flex-grow: 1;
-            }
-        }
-        .woocommerce-checkout-review-order-table tbody tr:nth-child(2n) td {
-            background: var(--color-gray-100);
-        }
-        .woocommerce-checkout-review-order-table tfoot {
-            border-top: none;
-            background: #fff;
-        }
-        .woocommerce-checkout-review-order-table tfoot td {
-            border-top: 1px dotted #eee !important;
-        }
-        @media (max-width: var(--breakpoint-xs)) {
-            .woocommerce-checkout-review-order-table tfoot td {
-                text-align: right;
-            }
-        }
-        .woocommerce-checkout-review-order-table tfoot th {
-            border-top: 1px dotted #eee !important;
-        }
-        .woocommerce-checkout-review-order-table tfoot .order-total td {
-            font-size: 1.5rem;
-        }
-
-        /* WOO TABS */
-        .wc-tabs-wrapper {
-            background: #fff;
-            margin-bottom: 20px;
-        }
-        .wc-tabs-wrapper .wc-tabs {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            border-bottom: 1px solid #eee;
-        }
-        .wc-tabs-wrapper .wc-tabs li {
-            background: #ccc;
-        }
-        .wc-tabs-wrapper .wc-tabs li.active {
-            background: #fff;
-            color: var(--color-primary);
-            border-top: 2px solid var(--color-primary);
-            margin-bottom: -2px;
-        }
-        .wc-tabs-wrapper .wc-tabs li a {
-            display: block;
-            padding: 15px 25px;
-            margin-right: 4px;
-            text-decoration: none;
-            color: var(--color-primary-text);
-            font-weight: bold;
-        }
-        .wc-tabs-wrapper .woocommerce-Tabs-panel {
-            padding: 30px;
-            line-height: 1.7;
-            color: var(--color-primary-text);
-        }
-
-        /* START */
-        .star-rating {
-            overflow: hidden;
-            position: relative;
-            width: 100px;
-        }
-        .star-rating:before {
-            content: "★★★★★";
-            font-size: 20px;
-            color: var(--color-gray-400);
-            display: block;
-        }
-        .star-rating > span {
-            display: block;
-            overflow: hidden;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        .star-rating > span:before {
-            content: "★★★★★";
-            font-size: 20px;
-            color: #fed700;
-            display: block;
-        }
-        .star-rating > span .rating {
-            display: none;
-        }
-        .star-rating > span span {
-            display: none;
-        }
-
-        /* LABEL CHECKBOX */
-        .woocommerce-form__label-for-checkbox {
-            position: relative;
-            display: -ms-inline-flexbox;
-            display: inline-flex;
-            min-height: 1.5rem;
-            padding-left: 1.5rem;
-            margin-right: 1rem;
-        }
-        .woocommerce-form__label-for-checkbox span:after {
-            display: block;
-            content: "";
-            position: absolute;
-            top: 0.25rem;
-            left: 0;
-            display: block;
-            width: 1rem;
-            height: 1rem;
-            pointer-events: none;
-            user-select: none;
-            background-color: #ddd;
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: 50% 50%;
-            border-radius: 0.25rem;
-        }
-        .woocommerce-form__label-for-checkbox .input-checkbox,
-        .woocommerce-form__label-for-checkbox input[type=checkbox] {
-            position: relative;
-            position: absolute;
-            z-index: -1;
-            opacity: 0;
-        }
-        .woocommerce-form__label-for-checkbox .input-checkbox:focus:checked ~ span:after,
-        .woocommerce-form__label-for-checkbox input[type=checkbox]:focus:checked ~ span:after {
-            box-shadow: 0 0 0 1px #fff, 0 0 0 3px #007bff;
-        }
-        .woocommerce-form__label-for-checkbox .input-checkbox:checked ~ span:after,
-        .woocommerce-form__label-for-checkbox input[type=checkbox]:checked ~ span:after {
-            color: #fff;
-            background-color: #007bff;
-            background-image: url("data:image/svg+xml;charset=utf8,<svg xmlns=!string!viewBox=!string!><path fill=!string!d=!string!/></svg>");
-        }
-
-        /* FORM ROW */
-        .form-row {
-            margin-bottom: 20px;
-            margin-left: 0;
-            margin-right: 0;
-        }
-        .form-row .required {
-            color: var(--color-red);
-            border-bottom: none;
-        }
-        .form-row .button[type="%23fff"] {
-            display: inline-block;
-            font-weight: 400;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            border: 1px solid transparent;
-            padding: 0.5rem 1.25rem;
-            font-size: 1rem;
-            line-height: 1.25;
-            border-radius: 0.25rem;
-            transition: all 0.15s ease-in-out;
-            background-color: var(--color-primary);
-            border-color: var(--color-primary);
-            color: #fff;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .form-row .button[type="%23fff"]:hover, .form-row .button[type="%23fff"]:focus, .form-row .button[type="%23fff"]:active {
-            background-color: var(--color-primary-darker);
-            border-color: var(--color-primary-darker);
-        }
-
-        /* INPUT TEXT */
-        .input-text {
-            border: 1px solid var(--color-border-input);
-            background: #fff;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            display: block;
-            width: 100%;
-            padding: 0.5rem 0.75rem;
-            font-size: 1rem;
-            line-height: 1.25;
-            border-radius: 0.25rem;
-            transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
-        }
-        .input-text:focus, .input-text:active {
-            border-color: var(--color-primary);
-            outline: 0;
-        }
-
-        /*-----------------------------
-        # IMPORTS
-        - COLORS: https://codepen.io/luckyluu/pen/bGbLzXe
-        - BREAKPOINTS: https://codepen.io/luckyluu/pen/ZEzxLxR
-        - TYPO: https://codepen.io/luckyluu/pen/eYOMgXQ
-        - MIXIN: https://codepen.io/luckyluu/pen/jOOVgbE
-        - WOO: default components https://codepen.io/luckyluu/pen/GMpPgN
-        ----------------------------- */
-        .woocommerce-order-overview {
-            background: #f8f8f8;
-            list-style: none;
-            margin: 2rem 0;
-            padding: 0;
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        @media (max-width: 600px) {
-            .woocommerce-order-overview {
-                display: block;
-            }
-        }
-        .woocommerce-order-overview:before, .woocommerce-order-overview:after {
-            background: -webkit-linear-gradient(transparent 0, transparent 0), -webkit-linear-gradient(135deg, #f8f8f8 33.33%, transparent 33.33%), -webkit-linear-gradient(45deg, #f8f8f8 33.33%, transparent 33.33%);
-            content: "";
-            display: block;
-            position: absolute;
-            top: -16px;
-            left: 0;
-            width: 100%;
-            height: 16px;
-            background-size: 0 100%, 16px 16px, 16px 16px;
-        }
-        .woocommerce-order-overview:after {
-            top: auto;
-            bottom: -16px;
-            -webkit-transform: rotate(180deg);
-            -ms-transform: rotate(180deg);
-            transform: rotate(180deg);
-        }
-        .woocommerce-order-overview li {
-            padding: 1em 1.618em;
-            font-size: 0.8em;
-            width: 25%;
-            text-transform: uppercase;
-            border-right: 1px dotted #e3e3e3;
-            text-align: center;
-        }
-        @media (max-width: 600px) {
-            .woocommerce-order-overview li {
-                width: auto;
-                text-align: left;
-                padding: 10px 0;
-                margin: 0 15px;
-                border-right: none;
-                border-bottom: 1px dotted #e3e3e3;
-            }
-            .woocommerce-order-overview li:last-child {
-                border-bottom: none;
-            }
-        }
-        .woocommerce-order-overview li:last-child {
-            border-right: none;
-        }
-
-        .woocommerce-table--customer-details {
-            border: none;
-        }
-        .woocommerce-table--customer-details tbody th {
-            background: #f8f8f8;
-            padding-left: 25px;
-        }
-        @media (max-width: 600px) {
-            .woocommerce-table--customer-details tbody th {
+        @import url(https://fonts.googleapis.com/css?family=Roboto:100,300,400,900,700,500,300,100);
+        @media screen and (max-width: 767px) {
+            h1 {
+                font-size: 0.9em;
+            }
+            #invoice {
                 width: 100%;
-                display: block;
-                text-align: left;
-                padding-top: 5px;
-                padding-bottom: 5px;
             }
-        }
-        .woocommerce-table--customer-details tbody td {
-            background: #fdfdfd;
-            padding-left: 25px;
-            text-align: left !important;
-        }
-
-        /* TABLE ORDER DETAIL */
-        .shop_table.woocommerce-table--order-details {
-            box-shadow: 0 0 5px rgba(57, 180, 74, 0.1);
-        }
-        .shop_table.woocommerce-table--order-details thead {
-            background: #000;
-            color: #fff;
-        }
-        .shop_table.woocommerce-table--order-details thead th {
-            border-bottom: none;
-            font-weight: normal;
-            font-size: 0.9rem;
-        }
-        .shop_table.woocommerce-table--order-details thead th.product-name {
-            text-align: left;
-        }
-        .shop_table.woocommerce-table--order-details tbody td {
-            border-color: #f0f2f7;
+            #message {
+                margin-bottom: 20px;
+            }
+            [id*="invoice-"] {
+                padding: 20px 10px;
+            }
+            .logo {
+                width: 140px;
+            }
+            .title {
+                float: none;
+                display: inline-block;
+                vertical-align: middle;
+                margin-left: 40px;
+            }
+            .title p {
+                text-align: left;
+            }
+            .col-left,
+            .col-right {
+                width: 100%;
+            }
+            .table {
+                margin-top: 20px;
+            }
+            #table {
+                white-space: nowrap;
+                overflow: auto;
+            }
+            td {
+                white-space: normal;
+            }
+            .cta-group {
+                text-align: center;
+            }
+            .cta-group.mobile-btn-group {
+                display: block;
+                margin-bottom: 20px;
+            }
+            /*==================== Table ====================*/
+            .table-main {
+                border: 0 none;
+            }
+            .table-main thead {
+                border: none;
+                clip: rect(0 0 0 0);
+                height: 1px;
+                margin: -1px;
+                overflow: hidden;
+                padding: 0;
+                position: absolute;
+                width: 1px;
+            }
+            .table-main tr {
+                border-bottom: 2px solid #eee;
+                display: block;
+                margin-bottom: 20px;
+            }
+            .table-main td {
+                font-weight: 700;
+                display: block;
+                padding-left: 40%;
+                max-width: none;
+                position: relative;
+                border: 1px solid #cccaca;
+                text-align: left;
+            }
+            .table-main td:before {
+                /*
+                    * aria-label has no advantage, it won't be read inside a table
+                    content: attr(aria-label);
+                    */
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                font-weight: normal;
+                text-transform: uppercase;
+            }
+            .total-row th {
+                display: none;
+            }
+            .total-row td {
+                text-align: left;
+            }
+            footer {
+                text-align: center;
+            }
         }
     </style>
 </head>
+<body style='margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;background:#e0e0e0;font-family:"Roboto", sans-serif;'>
+<div id="invoiceholder" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;width:100%;height:100%;padding:50px 0;">
+    <div id="invoice" class="effect2" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;position:relative;margin:0 auto;width:700px;background:#fff;">
+        <div id="invoice-top" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:20px;border-bottom:2px solid #00a63f;">
+            <div class="logo" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;display:inline-block;vertical-align:middle;width:110px;overflow:hidden;">
+                <img style="height:40px;margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;width:100%;"/></div>
+            <div class="title" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;float:right;">
+                <h1 style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:1.5em;color:#444;">Invoice #<span class="invoiceVal invoice_num" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">{{ order.getId() }}</span>
+                </h1>
+                <p style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.75em;color:#666;line-height:1.2em;text-align:right;">Invoice Date: <span id="invoice_date" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">{{ order.getCreateAt().format('Y-m-d H:i') }}</span><br style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                </p>
+            </div>
+            <!--End Title-->
+        </div>
+        <!--End InvoiceTop-->
+        <div id="invoice-mid" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:20px;min-height:110px;">
+            <div id="message" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;margin-bottom:30px;display:block;">
+                <h2 style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.9em;margin-bottom:5px;color:#444;">Hello {{ order.getRecipientName() }},</h2>
+                <p style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.75em;color:#666;line-height:1.2em;">Order with invoice number #<span id="invoice_num" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">{{ order.getId() }}</span> is created<span id="supplier_name" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;"></span>, which is waiting for delivery. <a href="http://localhost:3000/pages/authentication/sign-in" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;text-decoration:none;color:#00a63f;">Click here</a> to login to view the invoice.</p>
+            </div>
+            <div class="cta-group mobile-btn-group" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;display:none;">
+                <a href="javascript:void(0);" class="btn-primary" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;text-decoration:none;color:#00a63f;display:inline-block;padding:7px;border-radius:4px;background:rgb(196, 57, 10);margin-right:10px;min-width:100px;text-align:center;color:#fff;font-size:0.75em;background:#00a63f;">Approve</a>
+                <a href="javascript:void(0);" class="btn-default" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;text-decoration:none;color:#00a63f;display:inline-block;padding:7px;border-radius:4px;background:rgb(196, 57, 10);margin-right:10px;min-width:100px;text-align:center;color:#fff;font-size:0.75em;">Reject</a>
+            </div>
+            <div class="clearfix" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                <div class="col-left" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;float:left;">
+                    <div class="clientlogo" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;display:inline-block;vertical-align:middle;width:50px;">
+                        <img src="https://cdn3.iconfinder.com/data/icons/daily-sales/512/Sale-card-address-512.png" alt="Sup" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;width:100%;"/></div>
+                    <div class="clientinfo" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;display:inline-block;vertical-align:middle;margin-left:20px;">
+                        <h2 id="supplier" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.9em;margin-bottom:5px;color:#444;">Ant store</h2>
+                        <p style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.75em;color:#666;line-height:1.2em;"><span id="address" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Resort Vitoria</span><br style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <span id="city" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Cai Khe, Ninh Kieu</span><br style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <span id="country" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Can Tho</span><br style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <span id="tax_num" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">088-888-8888</span><br style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                        </p>
+                    </div>
+                </div>
+                <div class="col-right" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;float:right;">
+                    <table class="table" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;width:100%;border-collapse:collapse;">
+                        <tbody style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                        <tr style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <td colspan="2" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;color:#666;padding:5px 8px;border:0;font-size:0.75em;border-bottom:1px solid #eeeeee;">
+                                <span style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Customer name: </span><label id="invoice_total" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;margin-left:5px;font-weight:600;color:#444;"> {{ order.getRecipientName() }}</label>
+                            </td>
+                        </tr>
+                        <tr style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <td colspan="2" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;color:#666;padding:5px 8px;border:0;font-size:0.75em;border-bottom:1px solid #eeeeee;">
+                                <span style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Phone:</span><label id="payment_term" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;margin-left:5px;font-weight:600;color:#444;">{{ order.getRecipientPhone() }}</label>
+                        </tr>
+                        <tr style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <td colspan="2" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;color:#666;padding:5px 8px;border:0;font-size:0.75em;border-bottom:1px solid #eeeeee;">
+                                <span style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Email:</span><label id="note" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;margin-left:5px;font-weight:600;color:#444;">{{ order.getRecipientEmail() }}</label>
+                            </td>
+                        </tr>
+                        <tr style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <td colspan="2" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;color:#666;padding:5px 8px;border:0;font-size:0.75em;border-bottom:1px solid #eeeeee;">
+                                <span style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Address:</span><label id="note" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;margin-left:5px;font-weight:600;color:#444;">{{ order.getAddressDelivery() }}</label>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!--End Invoice Mid-->
+        <div id="invoice-bot" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:20px;min-height:240px;">
+            <div id="table" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                <table class="table-main" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;width:100%;border-collapse:collapse;">
+                    <thead style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                    <tr class="tabletitle" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                        <th style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:5px 10px;border-bottom:2px solid #ddd;text-align:right;">No.</th>
+                        <th  colspan="6" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;padding:5px 10px;border-bottom:2px solid #ddd;text-align:right;text-align:left;">Name</th>
+                        <th style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:5px 10px;border-bottom:2px solid #ddd;text-align:right;">Quantity</th>
+                        <th style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:5px 10px;border-bottom:2px solid #ddd;text-align:right;">Unit Price</th>
+                        <th style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:5px 20px;border-bottom:2px solid #ddd;text-align:right;">Total Price</th>
+                    </tr>
+                    </thead>
+                    {% for orderDetail in order.getOrderItems() %}
+                        <tr class="list-item" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <td data-label="Type" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">ITEM</td>
+                            <td data-label="Description" colspan="6" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;text-align:left;">Servizio EDI + Traffico mese di novembre 2017</td>
+                            <td data-label="Quantity" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">46.6</td>
+                            <td data-label="Unit Price" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">1</td>
+                            <td data-label="Taxable Amount" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">46.6</td>
 
-<div style="margin: 0 auto; max-width: 900px; padding: 50px">
-    <div class="woocommerce-order">
-        <p class="woocommerce-notice woocommerce-notice--success woocommerce-thankyou-order-received">Thank you. Your order has been received.</p>
-        <ul class="woocommerce-order-overview woocommerce-thankyou-order-details order_details">
-            <li class="woocommerce-order-overview__order order">
-                Order number: <strong>10950</strong>
-            </li>
-            <li class="woocommerce-order-overview__date date">
-                Date: <strong>September 18, 2017</strong>
-            </li>
-            <li class="woocommerce-order-overview__total total">
-                Total: <strong><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">£</span>229.00</span></strong>
-            </li>
-            <li class="woocommerce-order-overview__payment-method method">
-                Payment method: <strong>Check payments</strong>
-            </li>
-        </ul>
-        <section class="woocommerce-order-details">
-            <h2 class="woocommerce-order-details__title">Order details</h2>
-            <table class="woocommerce-table woocommerce-table--order-details shop_table order_details">
-                <thead>
-                <tr>
-                    <th class="woocommerce-table__product-name product-name">Product</th>
-                    <th class="woocommerce-table__product-table product-total">Total</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr class="woocommerce-table__line-item order_item">
-                    <td class="woocommerce-table__product-name product-name">
-                        <a href="https://demo.woothemes.com/storefront/product/standard-colander/">Standard Colander</a> <strong class="product-quantity">×
-                            1</strong> </td>
-                    <td class="woocommerce-table__product-total product-total">
-                        <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">£</span>19.99</span>
-                    </td>
-                </tr>
-                <tr class="woocommerce-table__line-item order_item">
-                    <td class="woocommerce-table__product-name product-name">
-                        <a href="https://demo.woothemes.com/storefront/product/scubapro-10-litre-232-bar-cylinder-single-valve/">Scubapro
-                            10 litre 232 bar cylinder – single valve</a> <strong class="product-quantity">× 1</strong> </td>
-                    <td class="woocommerce-table__product-total product-total">
-                        <span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">£</span>229.00</span>
-                    </td>
-                </tr>
-                </tbody>
-                <tfoot>
-                <tr>
-                    <th scope="row">Subtotal:</th>
-                    <td><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">£</span>248.99</span>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">Payment method:</th>
-                    <td>Check payments</td>
-                </tr>
-                <tr>
-                    <th scope="row">Total:</th>
-                    <td><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">£</span>229.00</span>
-                    </td>
-                </tr>
-                </tfoot>
-            </table>
-            <section class="woocommerce-customer-details">
-                <h2>Customer details</h2>
-                <table class="woocommerce-table woocommerce-table--customer-details shop_table customer_details">
-                    <tbody>
-                    <tr>
-                        <th>Email:</th>
-                        <td>luubinhan1989@gmail.com</td>
+                        </tr>
+                    {% endfor %}
+                    <tr class="list-item total-row" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                        <th colspan="9" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:3px 10px;text-align:right;font-weight:700;font-size:0.75em;border:0 none;">Sub Total</th>
+                        <td colspan="2" data-label="Grand Total" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:0px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;font-weight:700;font-size:0.75em;border:0 none;text-align:right;">{{ order.getTotalPrice() }}</td>
                     </tr>
-                    <tr>
-                        <th>Phone:</th>
-                        <td>09438703156</td>
+                    <tr class="list-item total-row" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                        <th colspan="9" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:3px 10px;text-align:right;font-weight:700;font-size:0.75em;border:0 none;">Shipping</th>
+                        <td colspan="2" data-label="Grand Total" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:0px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;font-weight:700;font-size:0.75em;border:0 none;text-align:right;">{{ order.getShippingCost() }}</td>
                     </tr>
-                    </tbody>
+                    <tr class="list-item total-row" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                        <th colspan="9" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:3px 10px;text-align:right;font-weight:700;font-size:0.75em;border:0 none;">Grand Total</th>
+                        <td colspan="2" data-label="Grand Total" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:0px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;font-weight:700;font-size:0.75em;border:0 none;text-align:right;">{{ order.getTotalPrice() + order.getShippingCost() }}</td>
+                    </tr>
                 </table>
-                <h3 class="woocommerce-column__title">Billing address</h3>
-                <address>
-                    An Luu
-                    <br>An
-                    <br>123 Luu Binh An
-                    <br>Viet Nam
-                    <br>Vietnam </address>
-            </section>
-        </section>
-    </div> <!-- woocommerce-order -->
+            </div>
+            <!--End Table-->
+        </div>
+        <!--End InvoiceBot-->
+        <footer style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;border-top:1px solid #eeeeee;padding:15px 20px;">
+            <div id="legalcopy" class="clearfix" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                <p class="col-right" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.75em;color:#666;line-height:1.2em;float:right;">Our mailing address is:
+                    <span class="email" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;"><a href="mailto:supplier.portal@almonature.com" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;text-decoration:none;color:#00a63f;">supplier.portal@almonature.com</a></span>
+                </p>
+            </div>
+        </footer>
+    </div>
+    <!--End Invoice-->
 </div>
+<!-- End Invoice Holder-->
+</body>
+</html>
