@@ -54,7 +54,9 @@ class OrderRepository extends ServiceEntityRepository
      */
     public function findByConditions(array $param,?array $orderBy = [], ?int $limit = null, ?int $offset = null): array
     {
-        $queryBuilder = $this->createQueryBuilder('o');
+        $queryBuilder = $this->createQueryBuilder('o')
+            ->andWhere('o.deletedAt IS NULL');
+
         if (isset($param['customer']) && $param['customer'] != '') {
             $queryBuilder
                 ->andWhere('o.customer = :customerId')
@@ -78,7 +80,6 @@ class OrderRepository extends ServiceEntityRepository
                 ->andWhere('o.createdAt <= :toDate')
                 ->setParameter('toDate', $param['toDate']);
         }
-
         if (!empty($orderBy)) {
             $keyOrderList = array_keys($orderBy);
             foreach ($keyOrderList as $keyOrder) {
@@ -88,7 +89,6 @@ class OrderRepository extends ServiceEntityRepository
                     ->addOrderBy($column, $valueSort);
             }
         }
-
         $purchaseOrders = $queryBuilder->getQuery()->getScalarResult();
 
         $purchaseOrdersPerPage = $queryBuilder
@@ -132,7 +132,8 @@ class OrderRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('o')
             ->select('SUM(o.totalPrice) as total')
-            ->where('o.status = 4');
+            ->andWhere('o.status = 4')
+            ->andWhere('o.deletedAt is NULL');
 
         if ($fromDate != null) {
             $queryBuilder->andWhere('o.createdAt >= :fromDate')

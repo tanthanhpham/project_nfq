@@ -1,110 +1,325 @@
-<!doctype html>
+{#<html lang="en">#}
+{#<head>#}
+{#    <style type="text/css">#}
+{#        * {#}
+{#            font-family: Verdana, Arial, sans-serif;#}
+{#        }#}
+{#        table{#}
+{#            font-size: x-small;#}
+{#        }#}
+{#        tfoot tr td{#}
+{#            font-weight: bold;#}
+{#            font-size: x-small;#}
+{#        }#}
+{#        .gray {#}
+{#            background-color: lightgray#}
+{#        }#}
+{#        .footer-page {#}
+{#            width: 100%;#}
+{#            border-top: black 2px solid;#}
+{#            position: absolute;#}
+{#            bottom: 0;#}
+{#            left: 0;#}
+{#            text-align: center;#}
+{#        }#}
+{#        body {#}
+{#            position: relative;#}
+{#            margin: 0;#}
+{#            height: 100%;#}
+{#        }#}
+
+{#    </style>#}
+{#</head>#}
+{#<body>#}
+{#<div>#}
+{#    <h4 style="text-align: center; margin-bottom: 0" >Invoice</h4>#}
+{#    <table width="100%">#}
+{#        <tr>#}
+{#            <td style="display: block">#}
+{#                {{ order.getRecipientName() }}#}
+{#            </td>#}
+{#            <td style="display: block">#}
+{#                {{ order.getRecipientEmail() }}#}
+{#            </td>#}
+{#            <td style="display: block">#}
+{#                {{ order.getRecipientPhone() }}#}
+{#            </td>#}
+{#            <td style="display: block">#}
+{#                {{ order.getAddressDelivery() }}#}
+{#            </td>#}
+{#            </pre>#}
+{#        </tr>#}
+
+{#    </table>#}
+
+{#    <br/>#}
+
+{#    <table width="100%">#}
+{#        <thead style="background-color: lightgray;">#}
+{#        <tr>#}
+{#            <th>#</th>#}
+{#            <th>Name</th>#}
+{#            <th>Quantity</th>#}
+{#            <th>Unit Price $</th>#}
+{#            <th>Total $</th>#}
+{#        </tr>#}
+{#        </thead>#}
+{#        <tbody>#}
+{#        {% for orderDetail in order.getOrderItems() %}#}
+{#        <tr>#}
+{#            <th scope="row">{{ loop.index }}</th>#}
+{#            <td style="padding-left: 10px">{{ orderDetail.getProductItem().getProduct().getName() }}</td>#}
+{#            <td style="text-align: center">{{ orderDetail.getAmount() }}</td>#}
+{#            <td style="text-align: center">{{ orderDetail.getProductItem().getProduct().getPrice() }}</td>#}
+{#            <td align="right">{{ orderDetail.getTotal() }}</td>#}
+{#            {% endfor %}#}
+{#        </tr>#}
+{#        </tbody>#}
+
+{#        <tfoot>#}
+{#        <tr>#}
+{#            <td colspan="3"></td>#}
+{#            <td align="right">Subtotal $</td>#}
+{#            <td align="right">{{ order.totalPrice() }}</td>#}
+{#        </tr>#}
+{#        <tr>#}
+{#            <td colspan="3"></td>#}
+{#            <td align="right">Ship $</td>#}
+{#            <td align="right">{{ order.getShippingCost() }}</td>#}
+{#        </tr>#}
+{#        <tr>#}
+{#            <td colspan="3"></td>#}
+{#            <td align="right">Total $</td>#}
+{#            <td align="right" class="gray">{{ order.totalPrice() + order.getShippingCost() }}</td>#}
+{#        </tr>#}
+{#        </tfoot>#}
+{#    </table>#}
+{#</div>#}
+
+{#<div class="footer-page">#}
+{#    <h5 style="margin: 5px 0">ANT Store</h5>#}
+{#    <h6 style="margin: 0">Cai Khe, Ninh Kieu, Can Tho</h6>#}
+{#</div>#}
+
+{#</body>#}
+{#</html>#}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Aloha!</title>
+    <meta charset="utf-8">
+    <title>Example 1</title>
+{#    <link rel="stylesheet" href="style.css" media="all" />#}
+    <style>
+        .clearfix:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
 
-    <style type="text/css">
-        * {
-            font-family: Verdana, Arial, sans-serif;
+        a {
+            color: #5D6975;
+            text-decoration: underline;
         }
-        table{
-            font-size: x-small;
-        }
-        tfoot tr td{
-            font-weight: bold;
-            font-size: x-small;
-        }
-        .gray {
-            background-color: lightgray
-        }
-        .footer-page {
-            width: 100%;
-            border-top: black 2px solid;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            text-align: center;
-        }
+
         body {
             position: relative;
-            margin: 0;
-            height: 100%;
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            color: #001028;
+            background: #FFFFFF;
+            font-family:"Roboto", sans-serif;
+            font-size: 12px;
+            font-family: Arial;
         }
 
-    </style>
+        header {
+            padding: 10px 0;
+            margin-bottom: 30px;
+        }
 
+        #logo img {
+            width: 90px;
+        }
+
+        h1 {
+            border-top: 1px solid  #5D6975;
+            border-bottom: 1px solid  #5D6975;
+            color: #5D6975;
+            font-size: 2.4em;
+            line-height: 1.4em;
+            font-weight: normal;
+            text-align: center;
+            margin: 0 0 20px 0;
+        }
+
+        #project {
+            float: left;
+        }
+
+        #project span {
+            color: #5D6975;
+            text-align: right;
+            width: 52px;
+            margin-right: 10px;
+            display: inline-block;
+            font-size: 0.8em;
+        }
+
+        #company {
+            float: right;
+            text-align: right;
+        }
+
+        #project div,
+        #company div {
+            white-space: nowrap;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            margin-bottom: 20px;
+        }
+
+        table tr:nth-child(2n-1) td {
+            background: #F5F5F5;
+        }
+
+        table th,
+        table td {
+            text-align: center;
+        }
+
+        table th {
+            padding: 5px 20px;
+            color: #5D6975;
+            border-bottom: 1px solid #C1CED9;
+            white-space: nowrap;
+            font-weight: normal;
+        }
+
+        table .service,
+        table .desc {
+            text-align: left;
+        }
+
+        table td {
+            padding: 20px;
+            text-align: right;
+        }
+
+        table td.service,
+        table td.desc {
+            vertical-align: top;
+        }
+
+        table td.unit,
+        table td.qty,
+        table td.total {
+            font-size: 1.2em;
+        }
+
+        table td.grand {
+            border-top: 1px solid #5D6975;;
+        }
+
+        #notices .notice {
+            color: #5D6975;
+            font-size: 1.2em;
+        }
+
+        footer {
+            color: #5D6975;
+            width: 100%;
+            height: 30px;
+            position: absolute;
+            bottom: 0;
+            border-top: 1px solid #C1CED9;
+            padding: 8px 0;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-<div>
-    <h4 style="text-align: center; margin-bottom: 0" >Invoice</h4>
-    <table width="100%">
+<header class="clearfix">
+    <h1>INVOICE #{{ order.getId() }}</h1>
+    <div id="company" class="clearfix">
+        <div>Ant store</div>
+        <div>Resort Vitoria,<br /> Cai Khe, Can Tho</div>
+        <div>088-888-8888</div>
+        <div><a href="mailto:ant.store@gmail.com">ant.store@gmail.com</a></div>
+    </div>
+    <div id="project">
+        <div><span>Name: </span> {{ order.getRecipientName() }}</div>
+        <div><span>Phone: </span> {{ order.getRecipientPhone() }}</div>
+        <div><span>Email</span>{{ order.getRecipientEmail() }}</div>
+        <div><span>Address</span>{{ order.getAddressDelivery() }}</div>
+    </div>
+</header>
+<main>
+    <table>
+        <thead>
         <tr>
-            <td style="display: block">
-                {{ order.getRecipientName() }}
-            </td>
-            <td style="display: block">
-                {{ order.getRecipientEmail() }}
-            </td>
-            <td style="display: block">
-                {{ order.getRecipientPhone() }}
-            </td>
-            <td style="display: block">
-                {{ order.getAddressDelivery() }}
-            </td>
-            </pre>
-        </tr>
-
-    </table>
-
-    <br/>
-
-    <table width="100%">
-        <thead style="background-color: lightgray;">
-        <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Quantity</th>
-            <th>Unit Price $</th>
-            <th>Total $</th>
+            <th class="service">No.</th>
+            <th class="desc">Name</th>
+            <th>PRICE</th>
+            <th>QTY</th>
+            <th>TOTAL</th>
         </tr>
         </thead>
         <tbody>
-        {% for orderDetail in order.getOrderItems() %}
         <tr>
-            <th scope="row">1</th>
-            <td style="padding-left: 10px">{{ orderDetail.getProductItem().getProduct().getName() }}</td>
-            <td style="text-align: center">{{ orderDetail.getAmount() }}</td>
-            <td style="text-align: center">{{ orderDetail.getProductItem().getProduct().getPrice() }}</td>
-            <td align="right">{{ orderDetail.getTotal() }}</td>
-            {% endfor %}
+            <td class="service">Design</td>
+            <td class="desc">Creating a recognizable design solution based on the company's existing visual identity</td>
+            <td class="unit">$40.00</td>
+            <td class="qty">26</td>
+            <td class="total">$1,040.00</td>
+        </tr>
+        <tr>
+            <td class="service">Development</td>
+            <td class="desc">Developing a Content Management System-based Website</td>
+            <td class="unit">$40.00</td>
+            <td class="qty">80</td>
+            <td class="total">$3,200.00</td>
+        </tr>
+        <tr>
+            <td class="service">SEO</td>
+            <td class="desc">Optimize the site for search engines (SEO)</td>
+            <td class="unit">$40.00</td>
+            <td class="qty">20</td>
+            <td class="total">$800.00</td>
+        </tr>
+        <tr>
+            <td class="service">Training</td>
+            <td class="desc">Initial training sessions for staff responsible for uploading web content</td>
+            <td class="unit">$40.00</td>
+            <td class="qty">4</td>
+            <td class="total">$160.00</td>
+        </tr>
+        <tr>
+            <td colspan="4">SUBTOTAL</td>
+            <td class="total">$5,200.00</td>
+        </tr>
+        <tr>
+            <td colspan="4">TAX 25%</td>
+            <td class="total">$1,300.00</td>
+        </tr>
+        <tr>
+            <td colspan="4" class="grand total">GRAND TOTAL</td>
+            <td class="grand total">$6,500.00</td>
         </tr>
         </tbody>
-
-        <tfoot>
-        <tr>
-            <td colspan="3"></td>
-            <td align="right">Subtotal $</td>
-            <td align="right">{{ order.totalPrice() }}</td>
-        </tr>
-        <tr>
-            <td colspan="3"></td>
-            <td align="right">Ship $</td>
-            <td align="right">{{ order.getShippingCost() }}</td>
-        </tr>
-        <tr>
-            <td colspan="3"></td>
-            <td align="right">Total $</td>
-            <td align="right" class="gray">{{ order.totalPrice() + order.getShippingCost() }}</td>
-        </tr>
-        </tfoot>
     </table>
-</div>
-
-<div class="footer-page">
-    <h5 style="margin: 5px 0">ANT Store</h5>
-    <h6 style="margin: 0">Cai Khe, Ninh Kieu, Can Tho</h6>
-</div>
-
+    <div id="notices">
+        <div>NOTICE:</div>
+        <div class="notice">A finance charge of 1.5% will be made on unpaid balances after 30 days.</div>
+    </div>
+</main>
+<footer>
+    Invoice was created on a computer and is valid without the signature and seal.
+</footer>
 </body>
 </html>

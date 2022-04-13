@@ -142,6 +142,7 @@
                             <span id="city" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Cai Khe, Ninh Kieu</span><br style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
                             <span id="country" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Can Tho</span><br style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
                             <span id="tax_num" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">088-888-8888</span><br style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <span id="tax_num" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">ant.store@gmail.com</span><br style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
                         </p>
                     </div>
                 </div>
@@ -187,11 +188,11 @@
                     </thead>
                     {% for orderDetail in order.getOrderItems() %}
                         <tr class="list-item" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
-                            <td data-label="Type" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">ITEM</td>
-                            <td data-label="Description" colspan="6" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;text-align:left;">Servizio EDI + Traffico mese di novembre 2017</td>
-                            <td data-label="Quantity" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">46.6</td>
-                            <td data-label="Unit Price" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">1</td>
-                            <td data-label="Taxable Amount" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">46.6</td>
+                            <td data-label="Type" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">{{ loop.index }}</td>
+                            <td data-label="Description" colspan="6" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;text-align:left;">{{ orderDetail.getProductItem().getProduct().getName() }}</td>
+                            <td data-label="Quantity" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">{{ orderDetail.getAmount() }}</td>
+                            <td data-label="Unit Price" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">{{ orderDetail.getProductItem().getProduct().getPrice() }}</td>
+                            <td data-label="Taxable Amount" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">{{ orderDetail.getTotal() }}</td>
 
                         </tr>
                     {% endfor %}
@@ -215,7 +216,7 @@
         <footer style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;border-top:1px solid #eeeeee;padding:15px 20px;">
             <div id="legalcopy" class="clearfix" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
                 <p class="col-right" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.75em;color:#666;line-height:1.2em;float:right;">Our mailing address is:
-                    <span class="email" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;"><a href="mailto:supplier.portal@almonature.com" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;text-decoration:none;color:#00a63f;">supplier.portal@almonature.com</a></span>
+                    <span class="email" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;"><a href="mailto:ant.store@gmail.com" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;text-decoration:none;color:#00a63f;">ant.store@gmail.com</a></span>
                 </p>
             </div>
         </footer>

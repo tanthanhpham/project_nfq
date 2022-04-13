@@ -2,14 +2,17 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\Cart;
 use App\Entity\Order;
 use App\Entity\OrderDetail;
 use App\Entity\ProductItem;
 use App\Event\OrderEvent;
+use App\Form\CartItemType;
 use App\Form\OrderType;
 use App\Repository\CartRepository;
 use App\Repository\OrderRepository;
 use App\Repository\ProductItemRepository;
+use App\Service\AddCart;
 use App\Service\GetUserInfo;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializationContext;
@@ -91,7 +94,7 @@ class OrderController extends BaseController
                 $this->productItemRepository->add($productItem);
                 $orderDetail->setProductItem($productItem);
                 $order->addOrderItem($orderDetail);
-//                $this->cartRepository->remove($cartItemData);
+                $this->cartRepository->remove($cartItemData);
             }
             $order->setTotalPrice($totalPrice);
             $order->setTotalQuantity($totalQuantity);
@@ -108,7 +111,7 @@ class OrderController extends BaseController
     }
 
     /**
-     * @Rest\Put("/user/orders/{id}")
+     * @Rest\Put("/users/orders/{id}")
      * @param Order $purchaseOrder
      * @param Request $request
      * @return Response
@@ -139,7 +142,44 @@ class OrderController extends BaseController
     }
 
     /**
-     * @Rest\Get("/user/orders/filter")
+     * @Rest\get("/users/orders/{id}/buyAgain")
+     * @return Response
+     */
+    public function buyAgain(int $id): Response
+    {
+        try {
+            $user = $this->userLoginInfo;
+            $order = $this->orderRepository->findBy(['id' => $id, 'customer' => $this->userLoginInfo->getId()]);
+            $orderDetail = $order[0]->getOrderItems();
+            $countItemsAddCart = 0;
+            foreach ($orderDetail as $item) {
+                $recordCart = [
+                    'productItem' => $item->getProductItem()->getId(),
+                    'amount' => $item->getAmount(),
+                    'total' => $item->getTotal(),
+                ];
+
+                $check = $this->cartService->addCart($recordCart);
+                if ($check)
+                    $countItemsAddCart += 1;
+            }
+            if ($countItemsAddCart == 0) {
+                return $this->handleView($this->view(['error' => 'Can not add product to cart'], Response::HTTP_BAD_REQUEST));
+            }
+
+            return $this->handleView($this->view(['message' => 'Add ' . $countItemsAddCart . ' items to cart'], Response::HTTP_OK));
+
+        } catch (\Exception $e) {
+        }
+
+        return $this->handleView($this->view(
+            ['error' => 'Something went wrong! Please contact support.'],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        ));
+    }
+
+    /**
+     * @Rest\Get("/userd/orders/filter")
      * @param Request $request
      * @param Response
      * @return void

@@ -24,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use function PHPUnit\Framework\isNull;
 
 /**
  * @IsGranted("ROLE_ADMIN")
@@ -42,10 +43,16 @@ class ReportController extends BaseController
         $toDate = $requestData['toDate'] . ' 23:59:59.999999';
         $toDate = new \DateTime($toDate) ;
 
+        if ($fromDate > $toDate) {
+            return $this->handleView($this->view(['error' => 'Date is invalid'], Response::HTTP_BAD_REQUEST));
+        }
         $report = [];
         $report['totalProduct'] = count($this->productRepository->findBy(['deletedAt' => null]));
         $report['totalRevenue'] = $this->orderRepository->getRevenue($fromDate, $toDate);
+        $report['totalRevenue'] = (isNull($report['totalRevenue']))? 0 : $report['totalRevenue'];
         $report['totalOrder'] = count($this->orderRepository->findBy(['deletedAt' => null]));
+        $users = $this->userRepository->findByConditions(['deletedAt' => null, 'roles' => 'ROLE_USER']);
+        $report['totalUser'] = $users['total'];
 
         $approvedOrder = $this->orderRepository->findByConditions(['deletedAt' => null,
             'status' => self::STATUS_APPROVED, 'fromDate' => $fromDate, 'toDate' => $toDate]);
