@@ -128,19 +128,19 @@ class OrderRepository extends ServiceEntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function getRevenue(?\DateTime $fromDate = null, ?\DateTime $toDate = null)
+    public function getRevenue(?\DateTime $fromDate, ?\DateTime $toDate)
     {
         $queryBuilder = $this->createQueryBuilder('o')
             ->select('SUM(o.totalPrice) as total')
             ->andWhere('o.status = 4')
             ->andWhere('o.deletedAt is NULL');
 
-        if ($fromDate != null) {
+        if ($fromDate != '') {
             $queryBuilder->andWhere('o.createdAt >= :fromDate')
                 ->setParameter('fromDate', $fromDate);
         }
 
-        if ($toDate != null) {
+        if ($toDate != '') {
             $queryBuilder->andWhere('o.createdAt <= :toDate')
                 ->setParameter('toDate', $toDate);
         }

@@ -39,13 +39,22 @@ class ReportController extends BaseController
     {
         $requestData = json_decode($request->getContent(), true);
 
-        $fromDate = new \DateTime($requestData['fromDate']);
-        $toDate = $requestData['toDate'] . ' 23:59:59.999999';
-        $toDate = new \DateTime($toDate) ;
+        $fromDate = $requestData['fromDate'];
+        $toDate = $requestData['toDate'];
+
+        if ($requestData['fromDate'] != '') {
+            $fromDate = new \DateTime($requestData['fromDate']);
+        }
+
+        if ($requestData['toDate'] != '') {
+            $toDate = $requestData['toDate'] . ' 23:59:59.999999';
+            $toDate = new \DateTime($toDate) ;
+        }
 
         if ($fromDate > $toDate) {
             return $this->handleView($this->view(['error' => 'Date is invalid'], Response::HTTP_BAD_REQUEST));
         }
+
         $report = [];
         $report['totalProduct'] = count($this->productRepository->findBy(['deletedAt' => null]));
         $report['totalRevenue'] = $this->orderRepository->getRevenue($fromDate, $toDate);
