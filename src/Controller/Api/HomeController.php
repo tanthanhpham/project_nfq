@@ -168,7 +168,6 @@ class HomeController extends BaseController
         foreach ($items as $item) {
             $formattedProduct['items'][] =  $this->dataTransferItemObject($item);
         }
-
         return $formattedProduct;
     }
 

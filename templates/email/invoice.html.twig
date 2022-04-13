@@ -191,22 +191,21 @@
                             <td data-label="Type" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">{{ loop.index }}</td>
                             <td data-label="Description" colspan="6" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;text-align:left;">{{ orderDetail.getProductItem().getProduct().getName() }}</td>
                             <td data-label="Quantity" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">{{ orderDetail.getAmount() }}</td>
-                            <td data-label="Unit Price" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">{{ orderDetail.getProductItem().getProduct().getPrice() }}</td>
-                            <td data-label="Taxable Amount" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">{{ orderDetail.getTotal() }}</td>
-
+                            <td data-label="Unit Price" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">${{ orderDetail.getProductItem().getProduct().getPrice() }}</td>
+                            <td data-label="Taxable Amount" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">${{ orderDetail.getTotal() }}</td>
                         </tr>
                     {% endfor %}
                     <tr class="list-item total-row" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
                         <th colspan="9" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:3px 10px;text-align:right;font-weight:700;font-size:0.75em;border:0 none;">Sub Total</th>
-                        <td colspan="2" data-label="Grand Total" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:0px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;font-weight:700;font-size:0.75em;border:0 none;text-align:right;">{{ order.getTotalPrice() }}</td>
+                        <td colspan="2" data-label="Grand Total" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:0px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;font-weight:700;font-size:0.75em;border:0 none;text-align:right;">${{ order.getTotalPrice() }}</td>
                     </tr>
                     <tr class="list-item total-row" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
                         <th colspan="9" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:3px 10px;text-align:right;font-weight:700;font-size:0.75em;border:0 none;">Shipping</th>
-                        <td colspan="2" data-label="Grand Total" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:0px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;font-weight:700;font-size:0.75em;border:0 none;text-align:right;">{{ order.getShippingCost() }}</td>
+                        <td colspan="2" data-label="Grand Total" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:0px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;font-weight:700;font-size:0.75em;border:0 none;text-align:right;">${{ order.getShippingCost() }}</td>
                     </tr>
                     <tr class="list-item total-row" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
                         <th colspan="9" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:3px 10px;text-align:right;font-weight:700;font-size:0.75em;border:0 none;">Grand Total</th>
-                        <td colspan="2" data-label="Grand Total" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:0px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;font-weight:700;font-size:0.75em;border:0 none;text-align:right;">{{ order.getTotalPrice() + order.getShippingCost() }}</td>
+                        <td colspan="2" data-label="Grand Total" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:0px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;font-weight:700;font-size:0.75em;border:0 none;text-align:right;">${{ order.getTotalPrice() + order.getShippingCost() }}</td>
                     </tr>
                 </table>
             </div>

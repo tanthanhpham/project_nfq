@@ -148,9 +148,8 @@ class OrderController extends BaseController
     public function buyAgain(int $id): Response
     {
         try {
-            $user = $this->userLoginInfo;
-            $order = $this->orderRepository->findBy(['id' => $id, 'customer' => $this->userLoginInfo->getId()]);
-            $orderDetail = $order[0]->getOrderItems();
+            $order = $this->orderRepository->findOneBy(['id' => $id, 'customer' => $this->userLoginInfo->getId()]);
+            $orderDetail = $order->getOrderItems();
             $countItemsAddCart = 0;
             foreach ($orderDetail as $item) {
                 $recordCart = [
@@ -163,6 +162,7 @@ class OrderController extends BaseController
                 if ($check)
                     $countItemsAddCart += 1;
             }
+
             if ($countItemsAddCart == 0) {
                 return $this->handleView($this->view(['error' => 'Can not add product to cart'], Response::HTTP_BAD_REQUEST));
             }

@@ -74,10 +74,8 @@ class CartController extends BaseController
                 $amount = $cartItem->getAmount() + $payload['amount'];
                 $total = $cartItem->getTotal() + $payload['total'];
                 if ($amount > $cartItem->getProductItem()->getAmount()) {
-                    return $this->handleView($this->view(
-                        ['error' => 'The product is quantity for this order has been exceeded'],
-                        Response::HTTP_BAD_REQUEST
-                    ));
+                    $amount = $cartItem->getProductItem()->getAmount();
+                    $total = $cartItem->getProductItem()->getAmount() * $cartItem->getProductItem()->getProduct()->getPrice();
                 }
                 $payload['amount'] = $amount;
                 $payload['total'] = $total;

@@ -54,7 +54,7 @@ class CartItemType extends AbstractType
                 if ($form->isSubmitted() && $form->isValid()) {
                     $data = $event->getData();
                     if ($data->getProductItem()->getAmount() < $data->getAmount()) {
-                        $form->get('amount')->addError(new FormError('Exceeding the number of existences.'));
+                        $data->setAmount($data->getProductItem()->getAmount());
                     }
                 }
             });

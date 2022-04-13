@@ -49,7 +49,7 @@ class ReportController extends BaseController
         $report = [];
         $report['totalProduct'] = count($this->productRepository->findBy(['deletedAt' => null]));
         $report['totalRevenue'] = $this->orderRepository->getRevenue($fromDate, $toDate);
-        $report['totalRevenue'] = (isNull($report['totalRevenue']))? 0 : $report['totalRevenue'];
+        $report['totalRevenue'] = (empty($report['totalRevenue'])) ? 0 : $report['totalRevenue'];
         $report['totalOrder'] = count($this->orderRepository->findBy(['deletedAt' => null]));
         $users = $this->userRepository->findByConditions(['deletedAt' => null, 'roles' => 'ROLE_USER']);
         $report['totalUser'] = $users['total'];

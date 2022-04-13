@@ -24,30 +24,30 @@ class CartService extends AbstractController
 
     public function addCart(array $payload)
     {
-        $cartItem = $this->cartRepository->findOneBy([
-            'productItem' => $payload['productItem'],
-            'user' => $this->userLoginInfo->getId()
-        ]);
+        try {
+            $cartItem = $this->cartRepository->findOneBy([
+                'productItem' => $payload['productItem'],
+                'user' => $this->userLoginInfo->getId()
+            ]);
 
-        if (!$cartItem) {
-            $cartItem = new Cart();
-            $cartItem->setUser($this->userLoginInfo);
-        } else {
-            $amount = $cartItem->getAmount() + $payload['amount'];
-            $total = $cartItem->getTotal() + $payload['total'];
-            if ($amount > $cartItem->getProductItem()->getAmount()) {
-                return false;
+            if (!$cartItem) {
+                $cartItem = new Cart();
+                $cartItem->setUser($this->userLoginInfo);
+            } else {
+                $amount = $cartItem->getAmount() + $payload['amount'];
+                $total = $cartItem->getTotal() + $payload['total'];
+                $payload['amount'] = $amount;
+                $payload['total'] = $total;
             }
-            $payload['amount'] = $amount;
-            $payload['total'] = $total;
-        }
+            $form = $this->createForm(CartItemType::class, $cartItem);
+            $form->submit($payload);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $this->cartRepository->add($cartItem);
 
-        $form = $this->createForm(CartItemType::class, $cartItem);
-        $form->submit($payload);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->cartRepository->add($cartItem);
-
-            return true;
+                return true;
+            }
+        } catch (\Exception $e) {
+            return false;
         }
     }
 }
