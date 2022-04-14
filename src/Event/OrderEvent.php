@@ -17,10 +17,11 @@ class OrderEvent extends Event
     const TEMPLATE_REJECT = "email/reject.html.twig";
     const TEMPLATE_CANCEL = "email/cancel.html.twig";
 
-    public const STATUS_PENDING = 1;
-    public const STATUS_APPROVED = 2;
+    public const STATUS_APPROVED = 1;
+    public const STATUS_DELIVERY = 2;
     public const STATUS_CANCELED = 3;
     public const STATUS_COMPLETED = 4;
+
     /**
      * @var Order
      */

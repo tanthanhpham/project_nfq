@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Controller\Api\BaseController;
 use App\Entity\Order;
 use App\Entity\Product;
 use App\Entity\ProductItem;
@@ -25,31 +26,18 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mime\Email;
 
-class HomeController extends AbstractFOSRestController
+class HomeController extends BaseController
 {
-    public const PRODUCT_PAGE_LIMIT = 10;
-    public const PRODUCT_PAGE_PAGE = 1;
-    private $productRepository;
-    private $categoryRepository;
-    private $eventDispatcher;
-
-    public function __construct(ProductRepository $productRepository, CategoryRepository $categoryRepository, EventDispatcherInterface $eventDispatcher)
-    {
-        $this->productRepository = $productRepository;
-        $this->categoryRepository = $categoryRepository;
-        $this->eventDispatcher = $eventDispatcher;
-    }
-
     /**
      * @Rest\Get("/products")
      */
     public function getProducts(Request $request): Response
     {
-        $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
-        $page = $request->get('page', self::PRODUCT_PAGE_PAGE);
+        $limit = $request->get('limit', self::ITEM_PAGE_LIMIT);
+        $page = $request->get('page', self::ITEM_PAGE_NUMBER);
 
         $offset = $limit * ($page - 1);
-        $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'ASC'], $limit, $offset);
+        $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'DESC'], $limit, $offset);
         $productsList = array_map('self::dataTransferObject', $products);
 
         return $this->handleView($this->view($productsList, Response::HTTP_OK));
@@ -92,8 +80,8 @@ class HomeController extends AbstractFOSRestController
      */
     public function filter(Request $request): Response
     {
-        $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
-        $page = $request->get('page', self::PRODUCT_PAGE_PAGE);
+        $limit = $request->get('limit', self::ITEM_PAGE_LIMIT);
+        $page = $request->get('page', self::ITEM_PAGE_NUMBER);
         $requestData = json_decode($request->getContent(), true);
 
         $offset = $limit * ($page - 1);
@@ -106,7 +94,7 @@ class HomeController extends AbstractFOSRestController
         }
         $requestData['keyword'] = '%'.$requestData['keyword'].'%';
         $products = $this->productRepository->filter($requestData, [$key => $orderBy], $limit, $offset);
-        $products = array_map('self::dataTransferObject', $products);
+        $products['data'] = array_map('self::dataTransferObject', $products['data']);
 
         return $this->handleView($this->view($products, Response::HTTP_OK));
     }
@@ -164,7 +152,6 @@ class HomeController extends AbstractFOSRestController
         foreach ($items as $item) {
             $formattedProduct['items'][] =  $this->dataTransferItemObject($item);
         }
-
         return $formattedProduct;
     }
 

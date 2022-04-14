@@ -19,8 +19,19 @@ class UserFixtures extends Fixture
         $user->setCreatedAt(new \DateTime());
         $user->setUpdatedAt(new \DateTime());
         $user->setPassword('password');
-
         $manager->persist($user);
+
+        $user1 = new User();
+        $user1->setName('User name');
+        $user1->setEmail('user1@gmail.com');
+        $user1->setPhone('0888888888');
+        $user1->setAddress('Address user');
+        $user1->setRoles(['ROLE_USER']);
+        $user1->setCreatedAt(new \DateTime());
+        $user1->setUpdatedAt(new \DateTime());
+        $user1->setPassword('password');
+        $manager->persist($user1);
+
         $manager->flush();
     }
 }

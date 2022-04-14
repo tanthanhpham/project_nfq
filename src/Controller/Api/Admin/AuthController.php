@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Admin;
 
+use App\Controller\Api\BaseController;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Form\UserUpdateType;
@@ -21,19 +22,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 /**
  * @IsGranted("ROLE_ADMIN")
  */
-class AuthController extends AbstractFOSRestController
+class AuthController extends BaseController
 {
-    public const USER_PAGE_LIMIT = 10;
-    public const USER_PAGE_PAGE = 1;
     public const PATH = 'http://127.0.0.1/uploads/images/';
-
-    private $userRepository;
-    private $logger;
-    public function __construct(UserRepository $userRepository, LoggerInterface $logger)
-    {
-        $this->userRepository = $userRepository;
-        $this->logger = $logger;
-    }
 
     /**
      * @Rest\Get ("/admin/users")
@@ -41,15 +32,22 @@ class AuthController extends AbstractFOSRestController
      */
     public function getAllUser(Request $request): Response
     {
-        $limit = $request->get('limit', self::USER_PAGE_LIMIT);
-        $page = $request->get('page', self::USER_PAGE_PAGE);
+        $users = $this->userRepository->findByConditions(['deletedAt' => null, 'roles' => 'ROLE_USER'], ['createdAt' => 'DESC']);
 
-        $offset = $limit * ($page - 1);
-        $users = $this->userRepository->findByConditions(['deletedAt' => null], ['createdAt' => 'DESC'], $limit, $offset);
+        $users = $this->transferDataGroup($users, 'showUser');
 
-        $serializer = SerializerBuilder::create()->build();
-        $convertToJson = $serializer->serialize($users, 'json', SerializationContext::create()->setGroups(array('showUser')));
-        $users = $serializer->deserialize($convertToJson, 'array', 'json');
+        return $this->handleView($this->view($users, Response::HTTP_OK));
+    }
+
+    /**
+     * @Rest\Get ("/admin/accounts")
+     * @return Response
+     */
+    public function getAllAdmin(Request $request): Response
+    {
+        $users = $this->userRepository->findByConditions(['deletedAt' => null, 'roles' => 'ROLE_ADMIN'], ['createdAt' => 'DESC']);
+
+        $users = $this->transferDataGroup($users, 'showUser');
 
         return $this->handleView($this->view($users, Response::HTTP_OK));
     }
@@ -84,11 +82,7 @@ class AuthController extends AbstractFOSRestController
                 return $this->handleView($this->view(["message" => "Register successfully"], Response::HTTP_CREATED));
             }
 
-            $errorsMessage = [];
-            foreach ($form->getErrors(true, true) as $error) {
-                $paramError = explode('=>', $error->getMessage());
-                $errorsMessage[$paramError[0]] = $paramError[1];
-            }
+            $errorsMessage = $this->getFormErrorMessage($form);
 
             return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
         } catch (\Exception $e) {

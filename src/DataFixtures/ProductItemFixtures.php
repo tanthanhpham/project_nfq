@@ -20,7 +20,7 @@ class ProductItemFixtures extends Fixture
         $category->setImage('/image');
 
         $size = new Size();
-        $size->setName('35');
+        $size->setName('S');
 
         $firstProduct = new Product();
         $firstProduct->setCategory($category);
@@ -30,7 +30,6 @@ class ProductItemFixtures extends Fixture
         $firstProduct->setMaterial('Product Material');
         $firstProduct->setUpdateAt(new \DateTime());
         $firstProduct->setColor('Red');
-        $firstProduct->setCreateAt();
         $firstProduct->setImages(['a:2:{i:0;s:52:"127.0.0.1/uploads/images/test-Copy-62485b4938ed5.jpg";i:1;s:47:"127.0.0.1/uploads/images/test-62485b493e505.jpg";}']);
 
         $firstProductItem = new ProductItem();

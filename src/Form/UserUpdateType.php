@@ -31,7 +31,7 @@ class UserUpdateType extends AbstractType
                 'constraints' => [
                     new Regex([
                         'pattern' => '/^[0-9]{10,20}$/',
-                        'message' => "phone=>Phone number is incorrect"
+                        'message' => "Phone number is incorrect"
                     ])
                 ]
             ])

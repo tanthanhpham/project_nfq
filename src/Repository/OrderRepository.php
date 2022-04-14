@@ -44,40 +44,60 @@ class OrderRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
     /**
      * @param array $param
+     * @param $orderBy
      * @param $limit
      * @param $offset
-     * @param $orderBy
      * @return array
      */
-    public function findByConditions(array $param, $orderBy, $limit, $offset): array
+    public function findByConditions(array $param,?array $orderBy = [], ?int $limit = null, ?int $offset = null): array
     {
-        $queryBuilder = $this->createQueryBuilder('p')
-            ->andWhere('p.deletedAt IS NULL');
+        $queryBuilder = $this->createQueryBuilder('o')
+            ->andWhere('o.deletedAt IS NULL');
 
-        if (isset($orderBy['createdAt'])) {
+        if (isset($param['customer']) && $param['customer'] != '') {
             $queryBuilder
-                ->addOrderBy('p.createdAt', $orderBy['createdAt']);
+                ->andWhere('o.customer = :customerId')
+                ->setParameter('customerId', $param['customer']);
         }
 
+        if (isset($param['status']) && $param['status'] != 0) {
+            $queryBuilder
+                ->andWhere('o.status = :status')
+                ->setParameter('status', $param['status']);
+        }
+
+        if (isset($param['fromDate']) && $param['fromDate'] != '') {
+            $queryBuilder
+                ->andWhere('o.createdAt >= :fromDate')
+                ->setParameter('fromDate', $param['fromDate']);
+        }
+
+        if (isset($param['toDate']) && $param['toDate'] != '') {
+            $queryBuilder
+                ->andWhere('o.createdAt <= :toDate')
+                ->setParameter('toDate', $param['toDate']);
+        }
         if (!empty($orderBy)) {
             $keyOrderList = array_keys($orderBy);
-            $column = 'p.' . $keyOrderList[0];
-            $valueSort = $orderBy[$keyOrderList[0]];
-            $queryBuilder
-                ->addOrderBy($column, $valueSort);
+            foreach ($keyOrderList as $keyOrder) {
+                $column = 'o.' . $keyOrder;
+                $valueSort = $orderBy[$keyOrder];
+                $queryBuilder
+                    ->addOrderBy($column, $valueSort);
+            }
         }
+        $purchaseOrders = $queryBuilder->getQuery()->getScalarResult();
 
-        $products = $queryBuilder->getQuery()->getScalarResult();
-
-        $productPerPage = $queryBuilder
+        $purchaseOrdersPerPage = $queryBuilder
             ->setMaxResults($limit)
             ->setFirstResult($offset)
             ->getQuery()
             ->execute();
 
-        return ['data' => $productPerPage, 'total' => count($products)];
+        return ['data' => $purchaseOrdersPerPage, 'total' => count($purchaseOrders)];
     }
 
     /**
@@ -108,18 +128,19 @@ class OrderRepository extends ServiceEntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function getRevenue(?\DateTime $fromDate = null, ?\DateTime $toDate = null)
+    public function getRevenue(?\DateTime $fromDate, ?\DateTime $toDate)
     {
         $queryBuilder = $this->createQueryBuilder('o')
             ->select('SUM(o.totalPrice) as total')
-            ->where('o.status = 4');
+            ->andWhere('o.status = 4')
+            ->andWhere('o.deletedAt is NULL');
 
-        if ($fromDate != null) {
+        if ($fromDate != '') {
             $queryBuilder->andWhere('o.createdAt >= :fromDate')
-                ->setParameter('formDate', $fromDate);
+                ->setParameter('fromDate', $fromDate);
         }
 
-        if ($toDate != null) {
+        if ($toDate != '') {
             $queryBuilder->andWhere('o.createdAt <= :toDate')
                 ->setParameter('toDate', $toDate);
         }

@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Admin;
 
+use App\Controller\Api\BaseController;
 use App\Repository\CategoryRepository;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -11,15 +12,8 @@ use JMS\Serializer\SerializerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class CategoryController extends AbstractFOSRestController
+class CategoryController extends BaseController
 {
-    private $categoryRepository;
-
-    public function __construct(CategoryRepository $categoryRepository)
-    {
-        $this->categoryRepository = $categoryRepository;
-    }
-
     /**
      * @Rest\Get("/categories")
      */

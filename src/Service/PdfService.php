@@ -23,8 +23,8 @@ class PdfService
 
     public function showPdfFile($html)
     {
-        $this->domPdf->loadHtml($html);
-        $this->domPdf->setPaper('A5', 'landscape');
+        $this->domPdf->loadHtml($html->getContent());
+        $this->domPdf->setPaper('A4', 'landscape');
         $this->domPdf->render();
         $this->domPdf->stream("details.pdf", [
             'Attachement' => true
@@ -37,8 +37,8 @@ class PdfService
      */
     public function generateBinaryPDF($html): string
     {
-        $this->domPdf->loadHtml($html);
-        $this->domPdf->setPaper('A5', 'landscape');
+        $this->domPdf->loadHtml($html->getContent());
+        $this->domPdf->setPaper('A4', 'landscape');
         $this->domPdf->render();
         $output = $this->domPdf->output();
 

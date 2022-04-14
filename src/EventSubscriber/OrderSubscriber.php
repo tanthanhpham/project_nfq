@@ -22,40 +22,34 @@ class OrderSubscriber implements EventSubscriberInterface
     {
         $order = $event->getOrder();
         $status = $order->getStatus();
+        $template = OrderEvent::TEMPLATE_APPROVE;
+        $subject = 'Confirmation #Order' .  $order->getId();
 
         $params = [
             "order" => $order
         ];
 
-        if ($status == OrderEvent::STATUS_APPROVED) {
-            $this->mailerService->send(
-                'Confirm order information',
-                'ttp.jp365@gmail.com',
-                $order->getRecipientEmail(),
-                OrderEvent::TEMPLATE_APPROVE,
-                $params
-            );
-        }
-
-        if ($status == OrderEvent::STATUS_CANCELED){
-            if ($order->getSubjectCancel() == 'admin') {
-                $this->mailerService->send(
-                    'Reject order',
-                    'ttp.jp365@gmail.com',
-                    $order->getRecipientEmail(),
-                    OrderEvent::TEMPLATE_REJECT,
-                    $params
-                );
-            } else {
-                $this->mailerService->send(
-                    'Cancel order',
-                    'ttp.jp365@gmail.com',
-                    $order->getRecipientEmail(),
-                    OrderEvent::TEMPLATE_CANCEL,
-                    $params
-                );
+        if ($status == OrderEvent::STATUS_CANCELED) {
+            if ($order->getSubjectCancel() == 'user') {
+                $template = OrderEvent::TEMPLATE_CANCEL;
+                $subject = 'Cancellation Confirmation #Order' .  $order->getId();
             }
         }
+
+        if ($status == OrderEvent::STATUS_CANCELED) {
+            if ($order->getSubjectCancel() == 'admin') {
+                $template = OrderEvent::TEMPLATE_REJECT;
+                $subject = 'Rejection Confirmation #Order' .  $order->getId();
+            }
+        }
+
+        $this->mailerService->send(
+            $subject,
+            'phamtanthanh.it@gmail.com',
+            $order->getRecipientEmail(),
+            $template,
+            $params
+        );
     }
     public static function getSubscribedEvents()
     {

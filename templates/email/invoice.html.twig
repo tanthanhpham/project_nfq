@@ -1,67 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
 <html>
-
-<body style="background-color:#e2e1e0;font-family: Open Sans, sans-serif;font-size:100%;font-weight:400;line-height:1.4;color:#000;">
-<table style="max-width:670px;margin:50px auto 10px;background-color:#fff;padding:50px;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24);-moz-box-shadow:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24);box-shadow:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24); border-top: solid 10px green;">
-    <thead>
-    <tr>
-        <th style="text-align:left;"></th>
-        <th style="text-align:right;font-weight:400;">{{ date().format('U') }}</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td style="height:35px;"></td>
-    </tr>
-    <tr>
-        <td colspan="2" style="border: solid 1px #ddd; padding:10px 20px;">
-            <p style="font-size:14px;margin:0 0 6px 0;"><span style="font-weight:bold;display:inline-block;min-width:150px">Order status</span>
-                    {% if order.getStatus() == 1 %}
-                    <b style="color:green;font-weight:normal;margin:0">Pending</b>
-                    {% elseif order.getStatus() == 2 %}
-                    <b style="color:green;font-weight:normal;margin:0">Approved</b>
-                    {% endif %}
-            </p>
-            <p style="font-size:14px;margin:0 0 6px 0;"><span style="font-weight:bold;display:inline-block;min-width:146px">Invoice ID</span> {{ order.getId() }}</p>
-        </td>
-    </tr>
-    <tr>
-        <td style="height:35px;"></td>
-    </tr>
-    <tr>
-        <td style="width:50%;padding:20px;vertical-align:top">
-            <p style="margin:0 0 10px 0;padding:0;font-size:14px;"><span style="display:block;font-weight:bold;font-size:13px">Name</span> {{ order.getRecipientName() }}</p>
-            <p style="margin:0 0 10px 0;padding:0;font-size:14px;"><span style="display:block;font-weight:bold;font-size:13px;">Email</span> {{ order.getRecipientEmail() }}</p>
-            <p style="margin:0 0 10px 0;padding:0;font-size:14px;"><span style="display:block;font-weight:bold;font-size:13px;">Phone</span> {{ order.getRecipientPhone() }}</p>
-        </td>
-        <td style="width:50%;padding:20px;vertical-align:top">
-            <p style="margin:0 0 10px 0;padding:0;font-size:14px;"><span style="display:block;font-weight:bold;font-size:13px;">Address</span>{{ order.getAddressDelivery() }}</p>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2" style="font-size:20px;padding:30px 15px 0 15px;">Items</td>
-    </tr>
-    <tr>
-        <td colspan="2" style="padding:15px;">
-            {% for orderDetail in order.getOrderItems() %}
-                <p style="font-size:14px;margin:0;padding:10px;border:solid 1px #ddd;font-weight:bold;"><span style="display:block;font-size:13px;font-weight:normal;">
-                        {{ orderDetail.getProductItem().getProduct().getName() }}</span>
-                    <b style="font-size:12px;font-weight:300;">Quantity {{ orderDetail.getAmount() }} - </b>
-                    <b style="font-size:12px;font-weight:300;"> ${{ orderDetail.getTotal() }}</b></p>
-            {% endfor %}
-
-        </td>
-    </tr>
-    </tbody>
-    <tfooter>
-        <tr>
-            <td colspan="2" style="font-size:14px;padding:50px 15px 0 15px;">
-                <strong style="display:block;margin:0 0 10px 0;">Regards</strong> ANT Store<br> Cai Khe, Ninh Kieu, Can Tho<br><br>
-                <b>Phone:</b> 03552-222011<br>
-                <b>Email:</b> contact@bachanatours.in
-            </td>
-        </tr>
-    </tfooter>
-</table>
+<head>
+    <style>
+        ::selection{background:#f31544;color:#fff}
+        ::moz-selection{background:#f31544;color:#fff}
+        .clearfix::after{content:"";clear:both;display:table}
+        .effect2:before{z-index:-1;position:absolute;content:"";bottom:15px;left:10px;width:50%;top:80%;max-width:300px;background:#777;-webkit-box-shadow:0 15px 10px #777;-moz-box-shadow:0 15px 10px #777;box-shadow:0 15px 10px #777;-webkit-transform:rotate(-3deg);-moz-transform:rotate(-3deg);-o-transform:rotate(-3deg);-ms-transform:rotate(-3deg);transform:rotate(-3deg)}
+        .effect2:after{z-index:-1;position:absolute;content:"";bottom:15px;left:10px;width:50%;top:80%;max-width:300px;background:#777;-webkit-box-shadow:0 15px 10px #777;-moz-box-shadow:0 15px 10px #777;box-shadow:0 15px 10px #777;-webkit-transform:rotate(-3deg);-moz-transform:rotate(-3deg);-o-transform:rotate(-3deg);-ms-transform:rotate(-3deg);transform:rotate(-3deg)}
+        .effect2:after{-webkit-transform:rotate(3deg);-moz-transform:rotate(3deg);-o-transform:rotate(3deg);-ms-transform:rotate(3deg);transform:rotate(3deg);right:10px;left:auto}
+    </style>
+    <style type="text/css">
+        @import url(https://fonts.googleapis.com/css?family=Roboto:100,300,400,900,700,500,300,100);
+        @media screen and (max-width: 767px) {
+            h1 {
+                font-size: 0.9em;
+            }
+            #invoice {
+                width: 100%;
+            }
+            #message {
+                margin-bottom: 20px;
+            }
+            [id*="invoice-"] {
+                padding: 20px 10px;
+            }
+            .logo {
+                width: 140px;
+            }
+            .title {
+                float: none;
+                display: inline-block;
+                vertical-align: middle;
+                margin-left: 40px;
+            }
+            .title p {
+                text-align: left;
+            }
+            .col-left,
+            .col-right {
+                width: 100%;
+            }
+            .table {
+                margin-top: 20px;
+            }
+            #table {
+                white-space: nowrap;
+                overflow: auto;
+            }
+            td {
+                white-space: normal;
+            }
+            .cta-group {
+                text-align: center;
+            }
+            .cta-group.mobile-btn-group {
+                display: block;
+                margin-bottom: 20px;
+            }
+            /*==================== Table ====================*/
+            .table-main {
+                border: 0 none;
+            }
+            .table-main thead {
+                border: none;
+                clip: rect(0 0 0 0);
+                height: 1px;
+                margin: -1px;
+                overflow: hidden;
+                padding: 0;
+                position: absolute;
+                width: 1px;
+            }
+            .table-main tr {
+                border-bottom: 2px solid #eee;
+                display: block;
+                margin-bottom: 20px;
+            }
+            .table-main td {
+                font-weight: 700;
+                display: block;
+                padding-left: 40%;
+                max-width: none;
+                position: relative;
+                border: 1px solid #cccaca;
+                text-align: left;
+            }
+            .table-main td:before {
+                /*
+                    * aria-label has no advantage, it won't be read inside a table
+                    content: attr(aria-label);
+                    */
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                font-weight: normal;
+                text-transform: uppercase;
+            }
+            .total-row th {
+                display: none;
+            }
+            .total-row td {
+                text-align: left;
+            }
+            footer {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body style='margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;background:#e0e0e0;font-family:"Roboto", sans-serif;'>
+<div id="invoiceholder" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;width:100%;height:100%;padding:50px 0;">
+    <div id="invoice" class="effect2" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;position:relative;margin:0 auto;width:700px;background:#fff;">
+        <div id="invoice-top" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:20px;border-bottom:2px solid #00a63f;">
+            <div class="logo" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;display:inline-block;vertical-align:middle;width:110px;overflow:hidden;">
+                <img style="height:40px;margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;width:100%;"/></div>
+            <div class="title" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;float:right;">
+                <h1 style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:1.5em;color:#444;">Invoice #<span class="invoiceVal invoice_num" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">{{ order.getId() }}</span>
+                </h1>
+                <p style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.75em;color:#666;line-height:1.2em;text-align:right;">Invoice Date: <span id="invoice_date" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">{{ order.getCreateAt().format('Y-m-d H:i') }}</span><br style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                </p>
+            </div>
+            <!--End Title-->
+        </div>
+        <!--End InvoiceTop-->
+        <div id="invoice-mid" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:20px;min-height:110px;">
+            <div id="message" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;margin-bottom:30px;display:block;">
+                <h2 style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.9em;margin-bottom:5px;color:#444;">Hello {{ order.getRecipientName() }},</h2>
+                <p style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.75em;color:#666;line-height:1.2em;">Order with invoice number #<span id="invoice_num" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">{{ order.getId() }}</span> is created<span id="supplier_name" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;"></span>, which is waiting for delivery. <a href="http://localhost:3000/pages/authentication/sign-in" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;text-decoration:none;color:#00a63f;">Click here</a> to login to view the invoice.</p>
+            </div>
+            <div class="cta-group mobile-btn-group" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;display:none;">
+                <a href="javascript:void(0);" class="btn-primary" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;text-decoration:none;color:#00a63f;display:inline-block;padding:7px;border-radius:4px;background:rgb(196, 57, 10);margin-right:10px;min-width:100px;text-align:center;color:#fff;font-size:0.75em;background:#00a63f;">Approve</a>
+                <a href="javascript:void(0);" class="btn-default" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;text-decoration:none;color:#00a63f;display:inline-block;padding:7px;border-radius:4px;background:rgb(196, 57, 10);margin-right:10px;min-width:100px;text-align:center;color:#fff;font-size:0.75em;">Reject</a>
+            </div>
+            <div class="clearfix" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                <div class="col-left" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;float:left;">
+                    <div class="clientlogo" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;display:inline-block;vertical-align:middle;width:50px;">
+                        <img src="https://cdn3.iconfinder.com/data/icons/daily-sales/512/Sale-card-address-512.png" alt="Sup" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;width:100%;"/></div>
+                    <div class="clientinfo" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;display:inline-block;vertical-align:middle;margin-left:20px;">
+                        <h2 id="supplier" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.9em;margin-bottom:5px;color:#444;">Ant store</h2>
+                        <p style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.75em;color:#666;line-height:1.2em;"><span id="address" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Resort Vitoria</span><br style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <span id="city" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Cai Khe, Ninh Kieu</span><br style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <span id="country" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Can Tho</span><br style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <span id="tax_num" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">088-888-8888</span><br style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <span id="tax_num" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">ant.store@gmail.com</span><br style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                        </p>
+                    </div>
+                </div>
+                <div class="col-right" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;float:right;">
+                    <table class="table" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;width:100%;border-collapse:collapse;">
+                        <tbody style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                        <tr style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <td colspan="2" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;color:#666;padding:5px 8px;border:0;font-size:0.75em;border-bottom:1px solid #eeeeee;">
+                                <span style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Customer name: </span><label id="invoice_total" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;margin-left:5px;font-weight:600;color:#444;"> {{ order.getRecipientName() }}</label>
+                            </td>
+                        </tr>
+                        <tr style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <td colspan="2" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;color:#666;padding:5px 8px;border:0;font-size:0.75em;border-bottom:1px solid #eeeeee;">
+                                <span style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Phone:</span><label id="payment_term" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;margin-left:5px;font-weight:600;color:#444;">{{ order.getRecipientPhone() }}</label>
+                        </tr>
+                        <tr style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <td colspan="2" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;color:#666;padding:5px 8px;border:0;font-size:0.75em;border-bottom:1px solid #eeeeee;">
+                                <span style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Email:</span><label id="note" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;margin-left:5px;font-weight:600;color:#444;">{{ order.getRecipientEmail() }}</label>
+                            </td>
+                        </tr>
+                        <tr style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <td colspan="2" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;color:#666;padding:5px 8px;border:0;font-size:0.75em;border-bottom:1px solid #eeeeee;">
+                                <span style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">Address:</span><label id="note" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;margin-left:5px;font-weight:600;color:#444;">{{ order.getAddressDelivery() }}</label>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!--End Invoice Mid-->
+        <div id="invoice-bot" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:20px;min-height:240px;">
+            <div id="table" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                <table class="table-main" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;width:100%;border-collapse:collapse;">
+                    <thead style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                    <tr class="tabletitle" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                        <th style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:5px 10px;border-bottom:2px solid #ddd;text-align:right;">No.</th>
+                        <th  colspan="6" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;padding:5px 10px;border-bottom:2px solid #ddd;text-align:right;text-align:left;">Name</th>
+                        <th style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:5px 10px;border-bottom:2px solid #ddd;text-align:right;">Quantity</th>
+                        <th style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:5px 10px;border-bottom:2px solid #ddd;text-align:right;">Unit Price</th>
+                        <th style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:5px 20px;border-bottom:2px solid #ddd;text-align:right;">Total Price</th>
+                    </tr>
+                    </thead>
+                    {% for orderDetail in order.getOrderItems() %}
+                        <tr class="list-item" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                            <td data-label="Type" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">{{ loop.index }}</td>
+                            <td data-label="Description" colspan="6" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;text-align:left;">{{ orderDetail.getProductItem().getProduct().getName() }}</td>
+                            <td data-label="Quantity" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">{{ orderDetail.getAmount() }}</td>
+                            <td data-label="Unit Price" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">${{ orderDetail.getProductItem().getProduct().getPrice() }}</td>
+                            <td data-label="Taxable Amount" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:10px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:left;text-align:right;">${{ orderDetail.getTotal() }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr class="list-item total-row" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                        <th colspan="9" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:3px 10px;text-align:right;font-weight:700;font-size:0.75em;border:0 none;">Sub Total</th>
+                        <td colspan="2" data-label="Grand Total" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:0px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;font-weight:700;font-size:0.75em;border:0 none;text-align:right;">${{ order.getTotalPrice() }}</td>
+                    </tr>
+                    <tr class="list-item total-row" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                        <th colspan="9" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:3px 10px;text-align:right;font-weight:700;font-size:0.75em;border:0 none;">Shipping</th>
+                        <td colspan="2" data-label="Grand Total" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:0px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;font-weight:700;font-size:0.75em;border:0 none;text-align:right;">${{ order.getShippingCost() }}</td>
+                    </tr>
+                    <tr class="list-item total-row" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                        <th colspan="9" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.7em;text-align:left;padding:3px 10px;text-align:right;font-weight:700;font-size:0.75em;border:0 none;">Grand Total</th>
+                        <td colspan="2" data-label="Grand Total" class="tableitem" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;padding:0px;border-bottom:1px solid #cccaca;font-size:0.7em;text-align:right;font-weight:700;font-size:0.75em;border:0 none;text-align:right;">${{ order.getTotalPrice() + order.getShippingCost() }}</td>
+                    </tr>
+                </table>
+            </div>
+            <!--End Table-->
+        </div>
+        <!--End InvoiceBot-->
+        <footer style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;border-top:1px solid #eeeeee;padding:15px 20px;">
+            <div id="legalcopy" class="clearfix" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;">
+                <p class="col-right" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;font-size:0.75em;color:#666;line-height:1.2em;float:right;">Our mailing address is:
+                    <span class="email" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;"><a href="mailto:ant.store@gmail.com" style="margin:0;box-sizing:border-box;-webkit-print-color-adjust:exact;text-decoration:none;color:#00a63f;">ant.store@gmail.com</a></span>
+                </p>
+            </div>
+        </footer>
+    </div>
+    <!--End Invoice-->
+</div>
+<!-- End Invoice Holder-->
 </body>
-
 </html>

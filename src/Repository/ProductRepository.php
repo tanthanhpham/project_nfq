@@ -93,12 +93,16 @@ class ProductRepository extends ServiceEntityRepository
                 ->orderBy($sort, $order);
         }
 
-        return $queryBuilder
+        $products = $queryBuilder->getQuery()->getScalarResult();
+
+        $productPerPage = $queryBuilder
             ->andWhere('p.deletedAt is NULL')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->getQuery()
             ->execute();
+
+        return ['data' => $productPerPage, 'total' => count($products)];
     }
 
     /**
@@ -108,7 +112,7 @@ class ProductRepository extends ServiceEntityRepository
      * @param $orderBy
      * @return array
      */
-    public function findByConditions(array $param, $orderBy, $limit, $offset): array
+    public function findByConditions(array $param, $orderBy, ?int $limit = null, ?int $offset = null): array
     {
         $queryBuilder = $this->createQueryBuilder('p')
             ->andWhere('p.deletedAt IS NULL');

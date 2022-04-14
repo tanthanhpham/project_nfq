@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Admin;
 
+use App\Controller\Api\BaseController;
 use App\Entity\Gallery;
 use App\Entity\Product;
 use App\Entity\ProductItem;
@@ -27,35 +28,16 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @IsGranted("ROLE_ADMIN")
  */
-class ProductController extends AbstractFOSRestController
+class ProductController extends BaseController
 {
-    public const PRODUCT_PAGE_LIMIT = 10;
-    public const PRODUCT_PAGE_PAGE = 1;
     public const PATH = 'http://127.0.0.1/uploads/images/';
-
-    private $productRepository;
-    private $sizeRepository;
-    private $productItemRepository;
-    private $handleDataOutput;
-
-    public function __construct(ProductRepository $productRepository, SizeRepository $sizeRepository, ProductItemRepository $productItemRepository, HandleDataOutput $handleDataOutput)
-    {
-        $this->productRepository = $productRepository;
-        $this->sizeRepository = $sizeRepository;
-        $this->productItemRepository = $productItemRepository;
-        $this->handleDataOutput = $handleDataOutput;
-    }
 
     /**
      * @Rest\Get("/admin/products")
      */
     public function getProducts(Request $request): Response
     {
-        $limit = $request->get('limit', self::PRODUCT_PAGE_LIMIT);
-        $page = $request->get('page', self::PRODUCT_PAGE_PAGE);
-
-        $offset = $limit * ($page - 1);
-        $products = $this->productRepository->findByConditions(['deletedAt' => null], ['createdAt' => 'DESC'], $limit, $offset);
+        $products = $this->productRepository->findByConditions(['deletedAt' => null], ['createdAt' => 'DESC']);
 
         $products['data'] = array_map('self::dataTransferProductObject', $products['data']);
 
@@ -110,7 +92,7 @@ class ProductController extends AbstractFOSRestController
 
             return $this->handleView($this->view(['message' => 'Add product successfully'], Response::HTTP_CREATED));
         }
-        $errorsMessage = $this->handleDataOutput->getFormErrorMessage($form);
+        $errorsMessage = $this->getFormErrorMessage($form);
 
         return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
     }
@@ -144,7 +126,7 @@ class ProductController extends AbstractFOSRestController
 
             return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
         }
-        $errorsMessage = $this->handleDataOutput->getFormErrorMessage($form);
+        $errorsMessage = $this->getFormErrorMessage($form);
 
         return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
     }
@@ -206,7 +188,7 @@ class ProductController extends AbstractFOSRestController
 
             return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
         } catch (\Exception $e) {
-            //Need to add log the error message
+            $this->logger->error($e->getMessage());
         }
 
         return $this->handleView($this->view(
@@ -224,7 +206,7 @@ class ProductController extends AbstractFOSRestController
 
         $formattedProduct['id'] = $product->getId();
         $formattedProduct['name'] = $product->getName();
-        $formattedProduct['category'] = $product->getCategory()->getId();
+        $formattedProduct['category'] = $product->getCategory()->getName();
         $formattedProduct['description'] = $product->getDescription();
         $formattedProduct['price'] = $product->getPrice();
         $formattedProduct['color'] = $product->getColor();

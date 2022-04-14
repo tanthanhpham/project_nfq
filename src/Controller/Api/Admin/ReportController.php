@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Admin;
 
+use App\Controller\Api\BaseController;
 use App\Entity\Order;
 use App\Entity\OrderDetail;
 use App\Entity\ProductItem;
@@ -23,40 +24,58 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use function PHPUnit\Framework\isNull;
 
 /**
  * @IsGranted("ROLE_ADMIN")
  */
-class ReportController extends AbstractFOSRestController
+class ReportController extends BaseController
 {
-    public const STATUS_PENDING = 1;
-    public const STATUS_APPROVED = 2;
-    public const STATUS_CANCELED = 3;
-    public const STATUS_COMPLETED = 4;
-
-    private $purchaseOrderRepository;
-    private $productRepository;
-
-    public function __construct(OrderRepository $purchaseOrderRepository, ProductRepository $productRepository)
-    {
-        $this->productRepository = $productRepository;
-        $this->purchaseOrderRepository = $purchaseOrderRepository;
-    }
-
     /**
-     * @Rest\Get("/admin/reports")
+     * @Rest\Post("/admin/reports")
      * @return Response
      */
-    public function getReport(): Response
+    public function getReport(Request $request): Response
     {
+        $requestData = json_decode($request->getContent(), true);
+
+        $fromDate = $requestData['fromDate'];
+        $toDate = $requestData['toDate'];
+
+        if ($requestData['fromDate'] != '') {
+            $fromDate = new \DateTime($requestData['fromDate']);
+        }
+
+        if ($requestData['toDate'] != '') {
+            $toDate = $requestData['toDate'] . ' 23:59:59.999999';
+            $toDate = new \DateTime($toDate) ;
+        }
+
+        if ($fromDate > $toDate) {
+            return $this->handleView($this->view(['error' => 'Date is invalid'], Response::HTTP_BAD_REQUEST));
+        }
+
         $report = [];
         $report['totalProduct'] = count($this->productRepository->findBy(['deletedAt' => null]));
-        $report['totalRevenue'] = $this->purchaseOrderRepository->getRevenue();
-        $report['totalOrder'] = count($this->purchaseOrderRepository->findBy(['deletedAt' => null]));
-        $pendingOrder = $this->purchaseOrderRepository->findBy(['deletedAt' => null, 'status' => self::STATUS_PENDING]);
-        $approvedOrder = $this->purchaseOrderRepository->findBy(['deletedAt' => null, 'status' => self::STATUS_APPROVED]);
-        $report['order']['pending'] = count($pendingOrder);
-        $report['order']['approved'] = count($approvedOrder);
+        $report['totalRevenue'] = $this->orderRepository->getRevenue($fromDate, $toDate);
+        $report['totalRevenue'] = (empty($report['totalRevenue'])) ? 0 : $report['totalRevenue'];
+        $report['totalOrder'] = count($this->orderRepository->findBy(['deletedAt' => null]));
+        $users = $this->userRepository->findByConditions(['deletedAt' => null, 'roles' => 'ROLE_USER']);
+        $report['totalUser'] = $users['total'];
+
+        $approvedOrder = $this->orderRepository->findByConditions(['deletedAt' => null,
+            'status' => self::STATUS_APPROVED, 'fromDate' => $fromDate, 'toDate' => $toDate]);
+        $deliveryOrder = $this->orderRepository->findByConditions(['deletedAt' => null,
+            'status' => self::STATUS_DELIVERY, 'fromDate' => $fromDate, 'toDate' => $toDate]);
+        $cancelOrder = $this->orderRepository->findByConditions(['deletedAt' => null,
+            'status' => self::STATUS_CANCELED, 'fromDate' => $fromDate, 'toDate' => $toDate]);
+        $completedOrder = $this->orderRepository->findByConditions(['deletedAt' => null,
+            'status' => self::STATUS_COMPLETED, 'fromDate' => $fromDate, 'toDate' => $toDate]);
+
+        $report['order']['approved'] = $approvedOrder['total'];
+        $report['order']['delivery'] = $deliveryOrder['total'];
+        $report['order']['cancel'] = $cancelOrder['total'];
+        $report['order']['completed'] = $completedOrder['total'];
 
         return $this->handleView($this->view($report, Response::HTTP_OK));
     }
@@ -67,7 +86,7 @@ class ReportController extends AbstractFOSRestController
      */
     public function getDataForChart(): Response
     {
-        $data = $this->purchaseOrderRepository->getChart();
+        $data = $this->orderRepository->getChart();
 
         return $this->handleView($this->view($data, Response::HTTP_OK));
     }

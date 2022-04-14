@@ -2,14 +2,17 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\Cart;
 use App\Entity\Order;
 use App\Entity\OrderDetail;
 use App\Entity\ProductItem;
 use App\Event\OrderEvent;
+use App\Form\CartItemType;
 use App\Form\OrderType;
 use App\Repository\CartRepository;
 use App\Repository\OrderRepository;
 use App\Repository\ProductItemRepository;
+use App\Service\AddCart;
 use App\Service\GetUserInfo;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializationContext;
@@ -19,39 +22,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use function Symfony\Component\String\s;
 
 /**
  * @IsGranted("ROLE_USER")
  */
-class OrderController extends AbstractFOSRestController
+class OrderController extends BaseController
 {
-    public const STATUS_PENDING = 1;
-    public const STATUS_APPROVED = 2;
-    public const STATUS_CANCELED = 3;
-    public const STATUS_COMPLETED = 4;
-    public const ORDER_PAGE_LIMIT = 10;
-    public const ORDER_PAGE_PAGE = 1;
-
-    private $purchaseOrderRepository;
-    private $productItemRepository;
-    private $userLoginInfo;
-    private $cartRepository;
-    private $eventDispatcher;
-
-    public function __construct(
-        OrderRepository $purchaseOrderRepository,
-        GetUserInfo $userLogin,
-        ProductItemRepository $productItemRepository,
-        CartRepository $cartRepository,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->purchaseOrderRepository = $purchaseOrderRepository;
-        $this->userLoginInfo = $userLogin->getUserLoginInfo();
-        $this->productItemRepository = $productItemRepository;
-        $this->cartRepository = $cartRepository;
-        $this->eventDispatcher = $eventDispatcher;
-    }
-
     /**
      * @Rest\Get("/users/orders")
      * @return Response
@@ -59,15 +36,38 @@ class OrderController extends AbstractFOSRestController
     public function getOrders(Request $request): Response
     {
         $userId = $this->userLoginInfo->getId();
-        $limit = $request->get('limit', self::ORDER_PAGE_LIMIT);
-        $page = $request->get('page', self::ORDER_PAGE_PAGE);
+        $limit = $request->get('limit', self::ITEM_PAGE_LIMIT);
+        $page = $request->get('page', self::ITEM_PAGE_NUMBER);
 
         $offset = $limit * ($page - 1);
-        $orders = $this->purchaseOrderRepository->findByConditions(['deletedAt' => null, 'customer' => $userId], ['createdAt' => 'DESC'], $limit, $offset);
+        $orders = $this->orderRepository->findByConditions(['deletedAt' => null, 'customer' => $userId], ['createdAt' => 'DESC'], $limit, $offset);
         $orders['data'] = array_map('self::dataTransferObject', $orders['data']);
 
         return $this->handleView($this->view($orders, Response::HTTP_OK));
     }
+
+    /**
+     * @Rest\Get("/users/orders/filter")
+     * @param Request $request
+     * @param Response
+     * @return void
+     */
+    public function filterOrder(Request $request): Response
+    {
+        $userId = $this->userLoginInfo->getId();
+        $limit = $request->get('limit', self::ITEM_PAGE_LIMIT);
+        $page = $request->get('page', self::ITEM_PAGE_NUMBER);
+        $status = $request->get('status');
+
+        $offset = $limit * ($page - 1);
+
+        $orders = $this->orderRepository->findByConditions(['deletedAt' => null, 'customer' => $userId, 'status' => $status]
+            , ['createdAt' => 'DESC'], $limit, $offset);
+        $orders['data'] = array_map('self::dataTransferObject', $orders['data']);
+
+        return $this->handleView($this->view($orders, Response::HTTP_OK));
+    }
+
 
     /**
      * @Rest\Get("/users/orders/{id}")
@@ -123,7 +123,7 @@ class OrderController extends AbstractFOSRestController
             $order->setTotalPrice($totalPrice);
             $order->setTotalQuantity($totalQuantity);
             $order->setUpdateAt(new \DateTime('now'));
-            $this->purchaseOrderRepository->add($order);
+            $this->orderRepository->add($order);
 
             $event = new OrderEvent($order);
             $this->eventDispatcher->dispatch($event);
@@ -135,26 +135,26 @@ class OrderController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Put("/user/orders/{id}")
+     * @Rest\Put("/users/orders/{id}")
      * @param Order $purchaseOrder
      * @param Request $request
      * @return Response
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function updateStatusOrderAction(Order $purchaseOrder, Request $request): Response
+    public function updateStatusOrder(Order $purchaseOrder, Request $request): Response
     {
         $requestData = json_decode($request->getContent(), true);
         $status = $requestData['status'];
 
-        if ($purchaseOrder->getStatus() == self::STATUS_PENDING) {
+        if ($purchaseOrder->getStatus() == self::STATUS_APPROVED) {
             $purchaseOrder->setStatus($status);
             $purchaseOrder->setUpdateAt(new \DateTime('now'));
             if ($status == self::STATUS_CANCELED) {
                 $purchaseOrder->setSubjectCancel('user');
                 $purchaseOrder->setReasonCancel($requestData['reasonCancel']);
             }
-            $this->purchaseOrderRepository->add($purchaseOrder);
+            $this->orderRepository->add($purchaseOrder);
 
             $event = new OrderEvent($purchaseOrder);
             $this->eventDispatcher->dispatch($event);
@@ -165,6 +165,42 @@ class OrderController extends AbstractFOSRestController
         return $this->handleView($this->view(['message' => 'Can not cancel order'], Response::HTTP_OK));
     }
 
+    /**
+     * @Rest\get("/users/orders/{id}/buyAgain")
+     * @return Response
+     */
+    public function buyAgain(int $id): Response
+    {
+        try {
+            $order = $this->orderRepository->findOneBy(['id' => $id, 'customer' => $this->userLoginInfo->getId()]);
+            $orderDetail = $order->getOrderItems();
+            $countItemsAddCart = 0;
+            foreach ($orderDetail as $item) {
+                $recordCart = [
+                    'productItem' => $item->getProductItem()->getId(),
+                    'amount' => $item->getAmount(),
+                    'total' => $item->getTotal(),
+                ];
+                $check = $this->cartService->addCart($recordCart);
+                if ($check)
+                    $countItemsAddCart += 1;
+            }
+
+            if ($countItemsAddCart == 0) {
+                return $this->handleView($this->view(['error' => 'Can not add product to cart'], Response::HTTP_BAD_REQUEST));
+            }
+
+            return $this->handleView($this->view(['message' => 'Add ' . $countItemsAddCart . ' items to cart'], Response::HTTP_OK));
+
+        } catch (\Exception $e) {
+        }
+
+        return $this->handleView($this->view(
+            ['error' => 'Something went wrong! Please contact support.'],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        ));
+    }
+
     private function dataTransferObject(Order $purchaseOrder): array
     {
         $formattedPurchaseOrder = [];
@@ -173,14 +209,14 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['recipientEmail'] = $purchaseOrder->getRecipientEmail();
         $formattedPurchaseOrder['recipientPhone'] = $purchaseOrder->getRecipientPhone();
         $formattedPurchaseOrder['addressDelivery'] = $purchaseOrder->getAddressDelivery();
-        $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt();
+        $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt()->format('Y-m-d H:i');
 
         switch (intval($purchaseOrder->getStatus())) {
-            case self::STATUS_PENDING:
-                $formattedPurchaseOrder['status'] = 'Pending';
-                break;
             case self::STATUS_APPROVED:
                 $formattedPurchaseOrder['status'] = 'Approved';
+                break;
+            case self::STATUS_DELIVERY:
+                $formattedPurchaseOrder['status'] = 'Delivery';
                 break;
             case self::STATUS_CANCELED:
                 $formattedPurchaseOrder['status'] = 'Canceled';
@@ -190,7 +226,7 @@ class OrderController extends AbstractFOSRestController
                 break;
         }
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
-        $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
+        $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice() + $purchaseOrder->getShippingCost();
         $cartItems = $purchaseOrder->getOrderItems();
 
         foreach ($cartItems as $cartItem) {
@@ -211,7 +247,7 @@ class OrderController extends AbstractFOSRestController
         $formattedPurchaseOrder['addressDelivery'] = $purchaseOrder->getAddressDelivery();
         $formattedPurchaseOrder['status'] = $purchaseOrder->getStatus();
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
-        $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
+        $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice() + $purchaseOrder->getShippingCost();
         $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt()->format('Y-m-d H:i:s');
         $formattedPurchaseOrder['shippingCost'] = $purchaseOrder->getShippingCost();
 
@@ -227,6 +263,7 @@ class OrderController extends AbstractFOSRestController
     {
         $item = [];
         $productItem = $orderDetail->getProductItem();
+        $item['idProduct'] = $orderDetail->getProductItem()->getProduct()->getId();
         $item['id'] = $orderDetail->getId();
         $item['name'] = $productItem->getProduct()->getName();
         $item['size'] = $productItem->getSize()->getName();

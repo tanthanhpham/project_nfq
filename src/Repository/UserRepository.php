@@ -69,7 +69,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * @param $orderBy
      * @return array
      */
-    public function findByConditions(array $param, $orderBy, $limit, $offset): array
+    public function findByConditions(array $param,?array $orderBy = [],?int $limit = null, ?int $offset = null): array
     {
         $queryBuilder = $this->createQueryBuilder('p')
             ->andWhere('p.deletedAt IS NULL');
@@ -77,6 +77,12 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         if (isset($orderBy['createdAt'])) {
             $queryBuilder
                 ->addOrderBy('p.createdAt', $orderBy['createdAt']);
+        }
+
+        if (isset($param['roles'])) {
+            $queryBuilder
+                ->andWhere('p.roles LIKE :roles')
+                ->setParameter('roles', '%'.$param['roles'].'%');
         }
 
         if (!empty($orderBy)) {

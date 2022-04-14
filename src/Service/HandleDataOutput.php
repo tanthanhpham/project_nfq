@@ -6,6 +6,7 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerBuilder;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormInterface;
 
 class HandleDataOutput
 {
@@ -27,10 +28,10 @@ class HandleDataOutput
     }
 
     /**
-     * @param Form $form
+     * @param FormInterface $form
      * @return array
      */
-    public function getFormErrorMessage(Form $form): array
+    public function getFormErrorMessage(FormInterface $form): array
     {
         $errorMessage = [];
 

@@ -19,24 +19,8 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
-class CartController extends AbstractFOSRestController
+class CartController extends BaseController
 {
-    public const CART_ITEMS_PER_PAGE = 10;
-    public const CART_ITEMS_PAGE_NUMBER = 1;
-    private $cartRepository;
-    private $userLoginInfo;
-    private $handleDataOutput;
-
-    public function __construct(
-        CartRepository $cartRepository,
-        GetUserInfo $userLogin,
-        HandleDataOutput $handleDataOutput
-    ) {
-        $this->cartRepository = $cartRepository;
-        $this->userLoginInfo = $userLogin->getUserLoginInfo();
-        $this->handleDataOutput = $handleDataOutput;
-    }
-
     /**
      * @Rest\Get("/users/carts")
      * @IsGranted("ROLE_USER")
@@ -44,9 +28,10 @@ class CartController extends AbstractFOSRestController
     public function getCarts(Request $request): Response
     {
         try {
-            $limit = intval($request->get('limit', self::CART_ITEMS_PER_PAGE));
-            $page = intval($request->get('page', self::CART_ITEMS_PAGE_NUMBER));
+            $limit = $request->get('limit', self::ITEM_PAGE_LIMIT);
+            $page = $request->get('page', self::ITEM_PAGE_NUMBER);
             $offset = $limit * ($page - 1);
+
             $carts = $this->cartRepository->findBy(
                 ['user' => $this->userLoginInfo->getId()],
                 [],
@@ -55,7 +40,7 @@ class CartController extends AbstractFOSRestController
             );
 
             $transferData = array_map('self::dataTransferCartItemObject', $carts);
-            $carts = $this->handleDataOutput->transferDataGroup($transferData, 'getCartItems');
+            $carts = $this->transferDataGroup($transferData, 'getCartItems');
 
             return $this->handleView($this->view($carts, Response::HTTP_OK));
         } catch (\Exception $e) {
@@ -89,10 +74,8 @@ class CartController extends AbstractFOSRestController
                 $amount = $cartItem->getAmount() + $payload['amount'];
                 $total = $cartItem->getTotal() + $payload['total'];
                 if ($amount > $cartItem->getProductItem()->getAmount()) {
-                    return $this->handleView($this->view(
-                        ['error' => 'The product is quantity for this order has been exceeded'],
-                        Response::HTTP_BAD_REQUEST
-                    ));
+                    $amount = $cartItem->getProductItem()->getAmount();
+                    $total = $cartItem->getProductItem()->getAmount() * $cartItem->getProductItem()->getProduct()->getPrice();
                 }
                 $payload['amount'] = $amount;
                 $payload['total'] = $total;
@@ -109,11 +92,11 @@ class CartController extends AbstractFOSRestController
                 ));
             }
 
-            $errorsMessage = $this->handleDataOutput->getFormErrorMessage($form);
+            $errorsMessage = $this->getFormErrorMessage($form);
 
             return $this->handleView($this->view(['error' => $errorsMessage], Response::HTTP_BAD_REQUEST));
         } catch (\Exception $e) {
-            //Need to add log the error message
+            $this->logger->error($e->getMessage());
         }
 
         return $this->handleView($this->view([
@@ -146,14 +129,14 @@ class CartController extends AbstractFOSRestController
                     ));
                 }
 
-                $errorsMessage = $this->handleDataOutput->getFormErrorMessage($form);
+                $errorsMessage = $this->getFormErrorMessage($form);
             } else {
                 $errorsMessage = ['id' => 'No item in cart was found with this id.'];
             }
 
             return $this->handleView($this->view(['error' => $errorsMessage], Response::HTTP_BAD_REQUEST));
         } catch (\Exception $e) {
-            //Need to add log the error message
+            $this->logger->error($e->getMessage());
         }
 
         return $this->handleView($this->view([
@@ -182,7 +165,7 @@ class CartController extends AbstractFOSRestController
                 Response::HTTP_NOT_FOUND
             ));
         } catch (\Exception $e) {
-            //Need to add log the error message
+            $this->logger->error($e->getMessage());
         }
 
         return $this->handleView($this->view([
@@ -201,7 +184,7 @@ class CartController extends AbstractFOSRestController
 
             return $this->handleView($this->view($countCartItems[0], Response::HTTP_OK));
         } catch (\Exception $e) {
-            //Need to add log the error message
+            $this->logger->error($e->getMessage());
         }
 
         return $this->handleView($this->view(
