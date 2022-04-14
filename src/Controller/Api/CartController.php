@@ -96,7 +96,7 @@ class CartController extends BaseController
 
             return $this->handleView($this->view(['error' => $errorsMessage], Response::HTTP_BAD_REQUEST));
         } catch (\Exception $e) {
-            //Need to add log the error message
+            $this->logger->error($e->getMessage());
         }
 
         return $this->handleView($this->view([
@@ -136,7 +136,7 @@ class CartController extends BaseController
 
             return $this->handleView($this->view(['error' => $errorsMessage], Response::HTTP_BAD_REQUEST));
         } catch (\Exception $e) {
-            //Need to add log the error message
+            $this->logger->error($e->getMessage());
         }
 
         return $this->handleView($this->view([
@@ -165,7 +165,7 @@ class CartController extends BaseController
                 Response::HTTP_NOT_FOUND
             ));
         } catch (\Exception $e) {
-            //Need to add log the error message
+            $this->logger->error($e->getMessage());
         }
 
         return $this->handleView($this->view([
@@ -184,7 +184,7 @@ class CartController extends BaseController
 
             return $this->handleView($this->view($countCartItems[0], Response::HTTP_OK));
         } catch (\Exception $e) {
-            //Need to add log the error message
+            $this->logger->error($e->getMessage());
         }
 
         return $this->handleView($this->view(

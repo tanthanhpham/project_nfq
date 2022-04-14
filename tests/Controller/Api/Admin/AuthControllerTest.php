@@ -105,6 +105,30 @@ class AuthControllerTest extends BaseWebTestCase
         $this->assertSame('User name', $user['name']);
     }
 
+    public function testGetAllAdmin()
+    {
+        $user = new UserFixtures();
+        $this->loadFixture($user);
+
+        $this->client->request(
+            Request::METHOD_GET,
+            'api/admin/accounts',
+            [],
+            [],
+            [
+                'HTTP_ACCEPT' => 'application/json',
+                'HTTP_AUTHORIZATION' => sprintf('Bearer %s', self::$token),
+            ]
+        );
+
+        $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        $data = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertIsArray($data);
+        $this->assertCount(1, $data['data']);
+        $user = $data['data'][0];
+        $this->assertSame('User name', $user['name']);
+    }
+
 //    public function testAddAdmin()
 //    {
 //        $user = new UserFixtures();

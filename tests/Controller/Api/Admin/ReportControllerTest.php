@@ -14,20 +14,27 @@ class ReportControllerTest extends BaseWebTestCase
 {
     use ReloadDatabaseTrait;
 
-    public function testGetProducts()
+
+    public function testGetReport()
     {
         $order = new OrderFixtures();
         $this->loadFixture($order);
 
+        $payload = [
+            'fromDate' => null,
+            'toDate' => null
+        ];
+
         $this->client->request(
-            Request::METHOD_GET,
+            Request::METHOD_POST,
             '/api/admin/reports',
             [],
             [],
             [
                 'HTTP_ACCEPT' => 'application/json',
                 'HTTP_AUTHORIZATION' => sprintf('Bearer %s', self::$token)
-            ]
+            ],
+            json_encode($payload)
         );
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
@@ -35,7 +42,7 @@ class ReportControllerTest extends BaseWebTestCase
         $this->assertSame(1, $data['totalProduct']);
         $this->assertSame('600000', $data['totalRevenue']);
         $this->assertSame(1, $data['totalOrder']);
-        $this->assertCount(2, $data['order']);
+        $this->assertCount(4, $data['order']);
     }
 
     public function testGetDataForChart()

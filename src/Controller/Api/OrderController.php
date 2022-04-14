@@ -22,6 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use function Symfony\Component\String\s;
 
 /**
  * @IsGranted("ROLE_USER")
@@ -44,6 +45,29 @@ class OrderController extends BaseController
 
         return $this->handleView($this->view($orders, Response::HTTP_OK));
     }
+
+    /**
+     * @Rest\Get("/users/orders/filter")
+     * @param Request $request
+     * @param Response
+     * @return void
+     */
+    public function filterOrder(Request $request): Response
+    {
+        $userId = $this->userLoginInfo->getId();
+        $limit = $request->get('limit', self::ITEM_PAGE_LIMIT);
+        $page = $request->get('page', self::ITEM_PAGE_NUMBER);
+        $status = $request->get('status');
+
+        $offset = $limit * ($page - 1);
+
+        $orders = $this->orderRepository->findByConditions(['deletedAt' => null, 'customer' => $userId, 'status' => $status]
+            , ['createdAt' => 'DESC'], $limit, $offset);
+        $orders['data'] = array_map('self::dataTransferObject', $orders['data']);
+
+        return $this->handleView($this->view($orders, Response::HTTP_OK));
+    }
+
 
     /**
      * @Rest\Get("/users/orders/{id}")
@@ -157,7 +181,6 @@ class OrderController extends BaseController
                     'amount' => $item->getAmount(),
                     'total' => $item->getTotal(),
                 ];
-
                 $check = $this->cartService->addCart($recordCart);
                 if ($check)
                     $countItemsAddCart += 1;
@@ -176,28 +199,6 @@ class OrderController extends BaseController
             ['error' => 'Something went wrong! Please contact support.'],
             Response::HTTP_INTERNAL_SERVER_ERROR
         ));
-    }
-
-    /**
-     * @Rest\Get("/userd/orders/filter")
-     * @param Request $request
-     * @param Response
-     * @return void
-     */
-    public function filterOrder(Request $request): Response
-    {
-        $userId = $this->userLoginInfo->getId();
-        $limit = $request->get('limit', self::ITEM_PAGE_LIMIT);
-        $page = $request->get('page', self::ITEM_PAGE_NUMBER);
-        $status = $request->get('status');
-
-        $offset = $limit * ($page - 1);
-
-        $orders = $this->orderRepository->findByConditions(['deletedAt' => null, 'customer' => $userId, 'status' => $status]
-            , ['createdAt' => 'DESC'], $limit, $offset);
-        $orders['data'] = array_map('self::dataTransferObject', $orders['data']);
-
-        return $this->handleView($this->view($orders, Response::HTTP_OK));
     }
 
     private function dataTransferObject(Order $purchaseOrder): array
@@ -225,7 +226,7 @@ class OrderController extends BaseController
                 break;
         }
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
-        $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
+        $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice() + $purchaseOrder->getShippingCost();
         $cartItems = $purchaseOrder->getOrderItems();
 
         foreach ($cartItems as $cartItem) {
@@ -246,7 +247,7 @@ class OrderController extends BaseController
         $formattedPurchaseOrder['addressDelivery'] = $purchaseOrder->getAddressDelivery();
         $formattedPurchaseOrder['status'] = $purchaseOrder->getStatus();
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
-        $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
+        $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice() + $purchaseOrder->getShippingCost();
         $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt()->format('Y-m-d H:i:s');
         $formattedPurchaseOrder['shippingCost'] = $purchaseOrder->getShippingCost();
 
@@ -262,6 +263,7 @@ class OrderController extends BaseController
     {
         $item = [];
         $productItem = $orderDetail->getProductItem();
+        $item['idProduct'] = $orderDetail->getProductItem()->getProduct()->getId();
         $item['id'] = $orderDetail->getId();
         $item['name'] = $productItem->getProduct()->getName();
         $item['size'] = $productItem->getSize()->getName();

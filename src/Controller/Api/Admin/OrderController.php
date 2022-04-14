@@ -73,9 +73,6 @@ class OrderController extends BaseController
             if ($status == self::STATUS_CANCELED) {
                 $purchaseOrder->setSubjectCancel('admin');
                 $purchaseOrder->setReasonCancel($requestData['reasonCancel']);
-
-                $event = new OrderEvent($purchaseOrder);
-                $this->eventDispatcher->dispatch($event);
             }
         }
 
@@ -98,7 +95,7 @@ class OrderController extends BaseController
     public function generatePdfInvoice(Order $order, PdfService $pdf): Response
     {
         $html = $this->render('export/pdf.html.twig', ['order' => $order]);
-//        $pdf->showPdfFile($html);
+
         $filePath = 'http://127.0.0.1' . $pdf->generateBinaryPDF($html);
 
         return $this->handleView($this->view($filePath, Response::HTTP_OK));
@@ -114,7 +111,7 @@ class OrderController extends BaseController
         $formattedPurchaseOrder['addressDelivery'] = $purchaseOrder->getAddressDelivery();
         $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt()->format('Y-m-d H:i');
 
-        switch (intval($purchaseOrder->getStatus())) {
+        switch ($purchaseOrder->getStatus()) {
             case self::STATUS_APPROVED:
                 $formattedPurchaseOrder['status'] = 'Approved';
                 break;

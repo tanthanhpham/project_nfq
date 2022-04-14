@@ -23,20 +23,24 @@ class OrderSubscriber implements EventSubscriberInterface
         $order = $event->getOrder();
         $status = $order->getStatus();
         $template = OrderEvent::TEMPLATE_APPROVE;
-        $subject = 'Order Confirmation #Order' .  $order->getId();
+        $subject = 'Confirmation #Order' .  $order->getId();
 
         $params = [
             "order" => $order
         ];
 
         if ($status == OrderEvent::STATUS_CANCELED) {
-            $template = OrderEvent::TEMPLATE_CANCEL;
-            $subject = 'Order Cancellation Confirmation #Order' .  $order->getId();
+            if ($order->getSubjectCancel() == 'user') {
+                $template = OrderEvent::TEMPLATE_CANCEL;
+                $subject = 'Cancellation Confirmation #Order' .  $order->getId();
+            }
         }
 
-        if ($status == OrderEvent::STATUS_COMPLETED){
-            $template = OrderEvent::TEMPLATE_REJECT;
-            $subject = 'Order Cancellation Notice #Order' .  $order->getId();
+        if ($status == OrderEvent::STATUS_CANCELED) {
+            if ($order->getSubjectCancel() == 'admin') {
+                $template = OrderEvent::TEMPLATE_REJECT;
+                $subject = 'Rejection Confirmation #Order' .  $order->getId();
+            }
         }
 
         $this->mailerService->send(

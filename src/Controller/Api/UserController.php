@@ -13,7 +13,6 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerBuilder;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use mysql_xdevapi\Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -159,19 +158,28 @@ class UserController extends BaseController
      */
     public function updateUser(User $user, Request $request): Response
     {
-        $form = $this->createForm(UserUpdateType::class, $user);
-        $requestData = json_decode($request->getContent(), true);
-        $form->submit($requestData);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $user->setUpdatedAt(new \DateTime());
-            $this->userRepository->add($user);
+        try {
+            $form = $this->createForm(UserUpdateType::class, $user);
+            $requestData = json_decode($request->getContent(), true);
+            $form->submit($requestData);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $user->setUpdatedAt(new \DateTime());
+                $this->userRepository->add($user);
 
-            return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
+                return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
+            }
+
+            $errorsMessage = $this->getFormErrorMessage($form);
+
+            return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
         }
 
-        $errorsMessage = $this->getFormErrorMessage($form);
-
-        return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
+        return $this->handleView($this->view(
+            ['error' => 'Something went wrong! Please contact support.'],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        ));
     }
 
     /**
@@ -212,7 +220,7 @@ class UserController extends BaseController
 
             return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
         } catch (\Exception $e){
-
+            $this->logger->error($e->getMessage());
         }
 
         return $this->handleView($this->view([], Response::HTTP_INTERNAL_SERVER_ERROR));

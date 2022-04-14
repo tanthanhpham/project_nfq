@@ -188,7 +188,7 @@ class ProductController extends BaseController
 
             return $this->handleView($this->view([], Response::HTTP_NO_CONTENT));
         } catch (\Exception $e) {
-            //Need to add log the error message
+            $this->logger->error($e->getMessage());
         }
 
         return $this->handleView($this->view(
@@ -206,7 +206,7 @@ class ProductController extends BaseController
 
         $formattedProduct['id'] = $product->getId();
         $formattedProduct['name'] = $product->getName();
-        $formattedProduct['category'] = $product->getCategory()->getId();
+        $formattedProduct['category'] = $product->getCategory()->getName();
         $formattedProduct['description'] = $product->getDescription();
         $formattedProduct['price'] = $product->getPrice();
         $formattedProduct['color'] = $product->getColor();

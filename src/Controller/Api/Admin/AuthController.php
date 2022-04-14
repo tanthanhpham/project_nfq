@@ -82,7 +82,7 @@ class AuthController extends BaseController
                 return $this->handleView($this->view(["message" => "Register successfully"], Response::HTTP_CREATED));
             }
 
-            $errorsMessage = $this->handleDataOutput->getFormErrorMessage($form);
+            $errorsMessage = $this->getFormErrorMessage($form);
 
             return $this->handleView($this->view($errorsMessage, Response::HTTP_BAD_REQUEST));
         } catch (\Exception $e) {

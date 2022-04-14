@@ -114,22 +114,6 @@ class HomeController extends BaseController
     }
 
     /**
-     * @Rest\Get("/orders/{id}/export")
-     * @param Order $order
-     * @param PdfService $pdf
-     * @return Response
-     */
-    public function generatePdfInvoice(Order $order, PdfService $pdf): Response
-    {
-        $html = $this->render('export/pdf.html.twig', ['order' => $order]);
-        $pdf->showPdfFile($html);
-//        $filePath = 'http://127.0.0.1' . $pdf->generateBinaryPDF($html);
-
-//        return $this->handleView($this->view($filePath, Response::HTTP_OK));
-        return $this->handleView($this->view('a', Response::HTTP_OK));
-
-    }
-    /**
      * @param Product $product
      * @return array
      */
