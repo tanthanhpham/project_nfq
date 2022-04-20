@@ -156,7 +156,7 @@ class OrderRepository extends ServiceEntityRepository
                 FROM `order`
                 WHERE deleted_at IS NULL
                 GROUP BY MONTH(created_at), YEAR(created_at)
-                ORDER BY YEAR(created_at) DESC, MONTH(created_at) DESC
+                ORDER BY YEAR(created_at) ASC, MONTH(created_at) ASC
                 LIMIT 12;";
         $stmt = $conn->prepare($sql);
 

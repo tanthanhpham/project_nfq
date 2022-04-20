@@ -53,6 +53,19 @@ class OrderType extends AbstractType
                     ])
                 ]
             ])
+            ->add('paymentMethod', TextType::class, [
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'The recipient phone can not be null',
+                    ]),
+                    new Length([
+                        'max' => 11,
+                        'maxMessage' => 'The recipient phone cannot be longer than 11 characters',
+                        'min' => 10,
+                        'minMessage' => 'The recipient phone cannot be short than 10 characters',
+                    ])
+                ]
+            ])
             ->add('addressDelivery', TextareaType::class)
             ->add('shippingCost', NumberType::class, [
                 'constraints' => [

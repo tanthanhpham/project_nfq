@@ -100,6 +100,16 @@ class Order
      */
     private $subjectCancel;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Payment::class, mappedBy="�order")
+     */
+    private $paymentToken;
+
+    /**
+     * @ORM\Column(type="string", length=10)
+     */
+    private $paymentMethod;
+
     public function __construct(User $user)
     {
         $this->createdAt = new \DateTime('now');
@@ -107,6 +117,7 @@ class Order
         $this->setCustomer($user);
         $this->setStatus('1');
         $this->orderItems = new ArrayCollection();
+        $this->paymentToken = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -321,6 +332,60 @@ class Order
     public function setShippingCost(?int $shippingCost): self
     {
         $this->shippingCost = $shippingCost;
+
+        return $this;
+    }
+
+    public function getToken(): ?Payment
+    {
+        return $this->token;
+    }
+
+    public function setToken(Payment $token): self
+    {
+        $this->token = $token;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Payment>
+     */
+    public function getPaymentToken(): Collection
+    {
+        return $this->paymentToken;
+    }
+
+    public function addPaymentToken(Payment $paymentToken): self
+    {
+        if (!$this->paymentToken->contains($paymentToken)) {
+            $this->paymentToken[] = $paymentToken;
+            $paymentToken->setorder($this);
+        }
+
+        return $this;
+    }
+
+    public function removePaymentToken(Payment $paymentToken): self
+    {
+        if ($this->paymentToken->removeElement($paymentToken)) {
+            // set the owning side to null (unless already changed)
+            if ($paymentToken->getorder() === $this) {
+                $paymentToken->setorder(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getPaymentMethod(): ?string
+    {
+        return $this->paymentMethod;
+    }
+
+    public function setPaymentMethod(string $paymentMethod): self
+    {
+        $this->paymentMethod = $paymentMethod;
 
         return $this;
     }
