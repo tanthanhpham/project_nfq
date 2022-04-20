@@ -33,11 +33,7 @@ class HomeController extends BaseController
      */
     public function getProducts(Request $request): Response
     {
-        $limit = $request->get('limit', self::ITEM_PAGE_LIMIT);
-        $page = $request->get('page', self::ITEM_PAGE_NUMBER);
-
-        $offset = $limit * ($page - 1);
-        $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'DESC'], $limit, $offset);
+        $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'DESC']);
         $productsList = array_map('self::dataTransferObject', $products);
 
         return $this->handleView($this->view($productsList, Response::HTTP_OK));

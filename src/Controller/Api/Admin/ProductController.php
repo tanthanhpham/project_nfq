@@ -6,7 +6,6 @@ use App\Controller\Api\BaseController;
 use App\Entity\Gallery;
 use App\Entity\Product;
 use App\Entity\ProductItem;
-use App\Form\ProductItemUpdateType;
 use App\Form\ProductType;
 use App\Form\ProductUpdateType;
 use App\Repository\ProductItemRepository;
