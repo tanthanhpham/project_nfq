@@ -112,7 +112,7 @@ class PaymentController extends BaseController
 
         $payment->getOrder()->setStatus(self::STATUS_PENDING_PAYMENT);
 
-        return $this->redirect('http://localhost:3000/user-profile', Response::HTTP_OK);
+        return $this->redirect('http://localhost:3000/user-profile');
     }
 
     /**

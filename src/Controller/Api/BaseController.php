@@ -39,9 +39,6 @@ class BaseController extends AbstractFOSRestController
     public const STATUS_COMPLETED = 4;
     public const STATUS_PENDING_PAYMENT = 5;
 
-    public const METHOD_CAST = 'cast';
-    public const METHOD_PAYPAL = 'paypal';
-
     /**
      * @var CartRepository
      */
@@ -126,6 +123,7 @@ class BaseController extends AbstractFOSRestController
      * @var string
      */
     protected $domain;
+
     /**
      * @param CartRepository $cartRepository
      * @param CategoryRepository $categoryRepository

@@ -163,9 +163,20 @@ class OrderController extends BaseController
         $item['amount'] = $orderDetail->getAmount();
         $item['unitPrice'] = $productItem->getProduct()->getPrice();
         $item['price'] = $orderDetail->getTotal();
-        $item['image'] = $orderDetail->getProductItem()->getProduct()->getImages();
+        $item['image'] = self::formatImages($orderDetail->getProductItem()->getProduct()->getImages());
         $item['color'] = $orderDetail->getProductItem()->getProduct()->getColor();
 
         return $item;
+    }
+
+    private function formatImages(array $arrImages): array
+    {
+        $images = [];
+        foreach ($arrImages as $image)
+        {
+            $images[] = $this->domain . self::PATH . $image;
+        }
+
+        return $images;
     }
 }
