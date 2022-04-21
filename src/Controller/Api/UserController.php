@@ -26,8 +26,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserController extends BaseController
 {
-    public const PATH = 'http://127.0.0.1/uploads/images/';
-
     /**
      * @Rest\Post ("/register")
      * @param Request $request
@@ -49,7 +47,6 @@ class UserController extends BaseController
                 $uploadFile = $request->files->get('image');
                 if ($uploadFile) {
                     $saveFile = $fileUploader->upload($uploadFile);
-                    $saveFile = self::PATH . $saveFile;
                     $user->setImage($saveFile);
                 }
                 $this->userRepository->add($user);
@@ -214,7 +211,6 @@ class UserController extends BaseController
                 return $this->handleView($this->view(['error' => $errors], Response::HTTP_BAD_REQUEST));
             }
             $saveFile = $fileUploader->upload($uploadFile);
-            $saveFile = self::PATH . $saveFile;
             $user->setImage($saveFile);
             $this->userRepository->add($user);
 

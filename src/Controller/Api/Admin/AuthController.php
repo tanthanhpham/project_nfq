@@ -24,8 +24,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
  */
 class AuthController extends BaseController
 {
-    public const PATH = 'http://127.0.0.1/uploads/images/';
-
     /**
      * @Rest\Get ("/admin/users")
      * @return Response
@@ -74,7 +72,6 @@ class AuthController extends BaseController
                 $uploadFile = $request->files->get('image');
                 if ($uploadFile) {
                     $saveFile = $fileUploader->upload($uploadFile);
-                    $saveFile = self::PATH . $saveFile;
                     $user->setImage($saveFile);
                 }
                 $this->userRepository->add($user);

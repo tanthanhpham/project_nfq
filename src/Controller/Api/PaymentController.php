@@ -42,7 +42,12 @@ class PaymentController extends BaseController
 
         $currency = 'USD';
         $amountPayable = $order->getShippingCost() + $order->getTotalPrice();
-        $payment = $this->paymentService->createPayment($order, $apiContext, $approveUrl, $cancelUrl);
+        $paymentResult = $this->paymentService->createPayment($order, $apiContext, $approveUrl, $cancelUrl);
+
+        if (isset($payment['error'])) {
+            return $this->handleView($this->view($paymentResult, Response::HTTP_BAD_REQUEST));
+        }
+        $payment = $paymentResult;
 
         $paymentEntity = new \App\Entity\Payment();
         $paymentEntity->setToken($payment->getToken());
@@ -85,7 +90,8 @@ class PaymentController extends BaseController
                 $order->setStatus(self::STATUS_COMPLETED);
                 $this->orderRepository->add($order);
 
-                return $this->handleView($this->view(['message' => 'Paid successfully'], Response::HTTP_OK));
+                return $this->redirect('http://localhost:3000/', Response::HTTP_OK);
+//                return $this->handleView($this->view(['message' => 'Paid successfully'], Response::HTTP_OK));
             } catch (\Exception $e) {
                 return $this->handleView($this->view(['error' => 'Something is wrong'], Response::HTTP_INTERNAL_SERVER_ERROR));
             }

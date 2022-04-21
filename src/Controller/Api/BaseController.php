@@ -28,6 +28,8 @@ use Symfony\Component\Form\FormInterface;
 
 class BaseController extends AbstractFOSRestController
 {
+    public const PATH = '/uploads/images/';
+
     public const ITEM_PAGE_LIMIT = 10;
     public const ITEM_PAGE_NUMBER = 1;
 

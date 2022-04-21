@@ -52,8 +52,7 @@ class PaymentService
      * @param ApiContext $apiContext
      * @param string $approveUrl
      * @param string $cancelUrl
-     * @return Payment
-     * @throws \Exception
+     * @return Payment|string[]
      */
     public function createPayment(Order $order, ApiContext $apiContext, string $approveUrl, string $cancelUrl)
     {
@@ -87,7 +86,7 @@ class PaymentService
         try {
             $payment->create($apiContext);
         } catch (\Exception $e) {
-            throw new \Exception('Unable to create link for payment');
+            return ['error' => 'Unable to create link for payment'];
         }
 
         return $payment;

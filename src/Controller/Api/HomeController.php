@@ -34,6 +34,7 @@ class HomeController extends BaseController
     public function getProducts(Request $request): Response
     {
         $products = $this->productRepository->findBy(['deletedAt' => null], ['createdAt' => 'DESC']);
+
         $productsList = array_map('self::dataTransferObject', $products);
 
         return $this->handleView($this->view($productsList, Response::HTTP_OK));
@@ -119,7 +120,7 @@ class HomeController extends BaseController
 
         $formattedProduct['id'] = $product->getId();
         $formattedProduct['name'] = $product->getName();
-        $formattedProduct['image'] = $product->getImages();
+        $formattedProduct['images'] = self::formatImages($product->getImages());
         $formattedProduct['category'] = $product->getCategory()->getName();
         $formattedProduct['price'] = $product->getPrice();
         $formattedProduct['color'] = $product->getColor();
@@ -142,7 +143,7 @@ class HomeController extends BaseController
         $formattedProduct['price'] = $product->getPrice();
         $formattedProduct['color'] = $product->getColor();
         $formattedProduct['material'] = $product->getMaterial();
-        $formattedProduct['images'] = $product->getImages();
+        $formattedProduct['images'] = self::formatImages($product->getImages());
 
         $items = $product->getProductItems();
         foreach ($items as $item) {
@@ -163,5 +164,16 @@ class HomeController extends BaseController
         $item['size'] = $productItem->getSize()->getName();
 
         return $item;
+    }
+
+    private function formatImages(array $arrImages): array
+    {
+        $images = [];
+        foreach ($arrImages as $image)
+        {
+            $images[] = $this->domain . self::PATH . $image;
+        }
+
+        return $images;
     }
 }

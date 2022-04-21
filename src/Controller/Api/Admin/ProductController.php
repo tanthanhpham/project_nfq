@@ -29,7 +29,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class ProductController extends BaseController
 {
-    public const PATH = 'http://127.0.0.1/uploads/images/';
 
     /**
      * @Rest\Get("/admin/products")
@@ -72,7 +71,6 @@ class ProductController extends BaseController
             $imagesPath = [];
             foreach ($gallery as $image) {
                 $saveFile = $fileUploader->upload($image);
-                $saveFile = self::PATH . $saveFile;
                 $imagesPath[] = $saveFile;
             }
 
@@ -115,7 +113,6 @@ class ProductController extends BaseController
             if (!empty($gallery)) {
                 foreach ($gallery as $image) {
                     $saveFile = $fileUploader->upload($image);
-                    $saveFile = self::PATH . $saveFile;
                     $imagesPath[] = $saveFile;
                 }
                 $product->setImages($imagesPath);
@@ -210,7 +207,7 @@ class ProductController extends BaseController
         $formattedProduct['price'] = $product->getPrice();
         $formattedProduct['color'] = $product->getColor();
         $formattedProduct['material'] = $product->getMaterial();
-        $formattedProduct['images'] = $product->getImages();
+        $formattedProduct['images'] = self::formatImages($product->getImages());
 
         return $formattedProduct;
     }
@@ -227,5 +224,16 @@ class ProductController extends BaseController
         $item['size'] = $productItem->getSize()->getName();
 
         return $item;
+    }
+
+    private function formatImages(array $arrImages): array
+    {
+        $images = [];
+        foreach ($arrImages as $image)
+        {
+            $images[] = $this->domain . self::PATH . $image;
+        }
+
+        return $images;
     }
 }
