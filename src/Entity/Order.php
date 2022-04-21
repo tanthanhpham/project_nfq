@@ -101,7 +101,7 @@ class Order
     private $subjectCancel;
 
     /**
-     * @ORM\OneToMany(targetEntity=Payment::class, mappedBy="á»order")
+     * @ORM\OneToMany(targetEntity=Payment::class, mappedBy="ï¿½order")
      */
     private $paymentToken;
 
@@ -360,7 +360,7 @@ class Order
     {
         if (!$this->paymentToken->contains($paymentToken)) {
             $this->paymentToken[] = $paymentToken;
-            $paymentToken->setá»order($this);
+            $paymentToken->setorder($this);
         }
 
         return $this;
@@ -370,8 +370,8 @@ class Order
     {
         if ($this->paymentToken->removeElement($paymentToken)) {
             // set the owning side to null (unless already changed)
-            if ($paymentToken->getá»order() === $this) {
-                $paymentToken->setá»order(null);
+            if ($paymentToken->getorder() === $this) {
+                $paymentToken->setorder(null);
             }
         }
 

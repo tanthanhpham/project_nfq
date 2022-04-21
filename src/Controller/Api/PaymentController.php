@@ -56,7 +56,6 @@ class PaymentController extends BaseController
         $paymentEntity->setStatus($payment->getState());
         $paymentEntity->setTransactionId($payment->getId());
         $paymentEntity->setOrder($order);
-        $order->setPaymentMethod(self::METHOD_PAYPAL);
         $order->setStatus(self::STATUS_PENDING_PAYMENT);
         $this->paymentRepository->add($paymentEntity);
 
@@ -90,7 +89,7 @@ class PaymentController extends BaseController
                 $order->setStatus(self::STATUS_COMPLETED);
                 $this->orderRepository->add($order);
 
-                return $this->redirect('http://localhost:3000/', Response::HTTP_OK);
+                return $this->redirect('http://localhost:3000/user-profile', Response::HTTP_OK);
 //                return $this->handleView($this->view(['message' => 'Paid successfully'], Response::HTTP_OK));
             } catch (\Exception $e) {
                 return $this->handleView($this->view(['error' => 'Something is wrong'], Response::HTTP_INTERNAL_SERVER_ERROR));
@@ -114,7 +113,7 @@ class PaymentController extends BaseController
 
         $payment->getOrder()->setStatus(self::STATUS_PENDING_PAYMENT);
 
-        return $this->handleView($this->view(['message' => 'Cancel payment successfully'], Response::HTTP_INTERNAL_SERVER_ERROR));
+        return $this->redirect('http://localhost:3000/user-profile', Response::HTTP_OK);
     }
 
     /**

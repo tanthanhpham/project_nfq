@@ -69,7 +69,6 @@ class OrderService extends AbstractController
                     $order->addOrderItem($orderDetail);
 //                    $this->cartRepository->remove($cartItemData);
                 }
-                $order->setPaymentMethod(self::METHOD_CAST);
                 $order->setTotalPrice($totalPrice);
                 $order->setTotalQuantity($totalQuantity);
                 $order->setUpdateAt(new \DateTime('now'));

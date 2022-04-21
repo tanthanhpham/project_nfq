@@ -118,7 +118,7 @@ class OrderController extends BaseController
                 $this->productItemRepository->add($productItem);
                 $orderDetail->setProductItem($productItem);
                 $order->addOrderItem($orderDetail);
-                $this->cartRepository->remove($cartItemData);
+//                $this->cartRepository->remove($cartItemData);
             }
             $order->setTotalPrice($totalPrice);
             $order->setTotalQuantity($totalQuantity);

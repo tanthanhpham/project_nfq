@@ -120,7 +120,7 @@ class HomeController extends BaseController
 
         $formattedProduct['id'] = $product->getId();
         $formattedProduct['name'] = $product->getName();
-        $formattedProduct['images'] = self::formatImages($product->getImages());
+        $formattedProduct['image'] = self::formatImages($product->getImages());
         $formattedProduct['category'] = $product->getCategory()->getName();
         $formattedProduct['price'] = $product->getPrice();
         $formattedProduct['color'] = $product->getColor();
