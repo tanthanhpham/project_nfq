@@ -1,4 +1,10 @@
 {
+    "alcohol/iso4217": {
+        "version": "4.0.0"
+    },
+    "clue/stream-filter": {
+        "version": "v1.6.0"
+    },
     "doctrine/annotations": {
         "version": "1.13",
         "recipe": {
@@ -158,6 +164,15 @@
     "lcobucci/jwt": {
         "version": "4.1.5"
     },
+    "league/uri": {
+        "version": "6.5.0"
+    },
+    "league/uri-components": {
+        "version": "2.4.0"
+    },
+    "league/uri-interfaces": {
+        "version": "2.3.0"
+    },
     "lexik/jwt-authentication-bundle": {
         "version": "2.14",
         "recipe": {
@@ -169,6 +184,9 @@
         "files": [
             "config/packages/lexik_jwt_authentication.yaml"
         ]
+    },
+    "moneyphp/money": {
+        "version": "v3.3.1"
     },
     "monolog/monolog": {
         "version": "2.4.0"
@@ -206,6 +224,21 @@
     "nikic/php-parser": {
         "version": "v4.13.2"
     },
+    "omnipay/common": {
+        "version": "v3.2.0"
+    },
+    "omnipay/paypal": {
+        "version": "v3.0.2"
+    },
+    "paypal/rest-api-sdk-php": {
+        "version": "1.14.0"
+    },
+    "payum/core": {
+        "version": "1.7.0"
+    },
+    "payum/iso4217": {
+        "version": "1.0.2"
+    },
     "phar-io/manifest": {
         "version": "2.0.3"
     },
@@ -217,6 +250,15 @@
     },
     "phenx/php-svg-lib": {
         "version": "0.4.1"
+    },
+    "php-http/discovery": {
+        "version": "1.14.1"
+    },
+    "php-http/message": {
+        "version": "1.13.0"
+    },
+    "php-http/message-factory": {
+        "version": "v1.0.2"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
@@ -270,6 +312,9 @@
     },
     "psr/event-dispatcher": {
         "version": "1.0.0"
+    },
+    "psr/http-message": {
+        "version": "1.0.1"
     },
     "psr/link": {
         "version": "1.0.0"

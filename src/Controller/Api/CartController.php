@@ -210,9 +210,20 @@ class CartController extends BaseController
         $formattedCart['amount'] = $cart->getAmount();
         $formattedCart['price'] = $cart->getTotal();
         $formattedCart['unitPrice'] = $cart->getProductItem()->getProduct()->getPrice();
-        $formattedCart['images'] = $cart->getProductItem()->getProduct()->getImages();
+        $formattedCart['images'] = self::formatImages($cart->getProductItem()->getProduct()->getImages());
         $formattedCart['totalAmount'] = $cart->getProductItem()->getAmount();
 
         return $formattedCart;
+    }
+
+    private function formatImages(array $arrImages): array
+    {
+        $images = [];
+        foreach ($arrImages as $image)
+        {
+            $images[] = $this->domain . self::PATH . $image;
+        }
+
+        return $images;
     }
 }

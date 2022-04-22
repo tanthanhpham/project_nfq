@@ -12,7 +12,6 @@ use App\Form\OrderType;
 use App\Repository\CartRepository;
 use App\Repository\OrderRepository;
 use App\Repository\ProductItemRepository;
-use App\Service\AddCart;
 use App\Service\GetUserInfo;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializationContext;
@@ -118,7 +117,7 @@ class OrderController extends BaseController
                 $this->productItemRepository->add($productItem);
                 $orderDetail->setProductItem($productItem);
                 $order->addOrderItem($orderDetail);
-                $this->cartRepository->remove($cartItemData);
+//                $this->cartRepository->remove($cartItemData);
             }
             $order->setTotalPrice($totalPrice);
             $order->setTotalQuantity($totalQuantity);
@@ -210,6 +209,7 @@ class OrderController extends BaseController
         $formattedPurchaseOrder['recipientPhone'] = $purchaseOrder->getRecipientPhone();
         $formattedPurchaseOrder['addressDelivery'] = $purchaseOrder->getAddressDelivery();
         $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt()->format('Y-m-d H:i');
+        $formattedPurchaseOrder['paymentMethod'] = $purchaseOrder->getPaymentMethod();
 
         switch (intval($purchaseOrder->getStatus())) {
             case self::STATUS_APPROVED:
@@ -223,6 +223,9 @@ class OrderController extends BaseController
                 break;
             case self::STATUS_COMPLETED:
                 $formattedPurchaseOrder['status'] = 'Completed';
+                break;
+            case self::STATUS_PENDING_PAYMENT:
+                $formattedPurchaseOrder['status'] = 'Pending';
                 break;
         }
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
@@ -270,9 +273,20 @@ class OrderController extends BaseController
         $item['amount'] = $orderDetail->getAmount();
         $item['unitPrice'] = $productItem->getProduct()->getPrice();
         $item['price'] = $orderDetail->getTotal();
-        $item['image'] = $orderDetail->getProductItem()->getProduct()->getImages();
+        $item['image'] = self::formatImages($orderDetail->getProductItem()->getProduct()->getImages());
         $item['color'] = $orderDetail->getProductItem()->getProduct()->getColor();
 
         return $item;
+    }
+
+    private function formatImages(array $arrImages): array
+    {
+        $images = [];
+        foreach ($arrImages as $image)
+        {
+            $images[] = $this->domain . self::PATH . $image;
+        }
+
+        return $images;
     }
 }

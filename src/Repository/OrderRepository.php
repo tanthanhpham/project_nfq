@@ -132,8 +132,11 @@ class OrderRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('o')
             ->select('SUM(o.totalPrice) as total')
-            ->andWhere('o.status = 4')
-            ->andWhere('o.deletedAt is NULL');
+            ->andWhere('o.status = 1')
+            ->andWhere('o.paymentMethod = :paymentMethod')
+            ->orWhere('o.status = 4')
+            ->andWhere('o.deletedAt is NULL')
+            ->setParameter('paymentMethod', 'paypal');
 
         if ($fromDate != '') {
             $queryBuilder->andWhere('o.createdAt >= :fromDate')
@@ -156,7 +159,7 @@ class OrderRepository extends ServiceEntityRepository
                 FROM `order`
                 WHERE deleted_at IS NULL
                 GROUP BY MONTH(created_at), YEAR(created_at)
-                ORDER BY YEAR(created_at) DESC, MONTH(created_at) DESC
+                ORDER BY YEAR(created_at) ASC, MONTH(created_at) ASC
                 LIMIT 12;";
         $stmt = $conn->prepare($sql);
 
