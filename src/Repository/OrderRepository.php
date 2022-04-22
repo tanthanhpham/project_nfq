@@ -132,8 +132,11 @@ class OrderRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('o')
             ->select('SUM(o.totalPrice) as total')
-            ->andWhere('o.status = 4')
-            ->andWhere('o.deletedAt is NULL');
+            ->andWhere('o.status = 1')
+            ->andWhere('o.paymentMethod = :paymentMethod')
+            ->orWhere('o.status = 4')
+            ->andWhere('o.deletedAt is NULL')
+            ->setParameter('paymentMethod', 'paypal');
 
         if ($fromDate != '') {
             $queryBuilder->andWhere('o.createdAt >= :fromDate')

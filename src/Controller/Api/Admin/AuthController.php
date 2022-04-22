@@ -32,7 +32,7 @@ class AuthController extends BaseController
     {
         $users = $this->userRepository->findByConditions(['deletedAt' => null, 'roles' => 'ROLE_USER'], ['createdAt' => 'DESC']);
 
-        $users = $this->transferDataGroup($users, 'showUser');
+        $users['data'] = self::dataTransferObject($users['data']);
 
         return $this->handleView($this->view($users, Response::HTTP_OK));
     }
@@ -45,9 +45,22 @@ class AuthController extends BaseController
     {
         $users = $this->userRepository->findByConditions(['deletedAt' => null, 'roles' => 'ROLE_ADMIN'], ['createdAt' => 'DESC']);
 
-        $users = $this->transferDataGroup($users, 'showUser');
+        $users['data'] = self::dataTransferObject($users['data']);
 
         return $this->handleView($this->view($users, Response::HTTP_OK));
+    }
+
+    /**
+     * @Rest\Get ("/admin/users/{id}")
+     * @return Response
+     */
+    public function getOneUser(int $id): Response
+    {
+        $user = $this->userRepository->findOneBy(['id' => $id, 'deletedAt' => null]);
+
+        $user = self::dataTransferUser($user);
+
+        return $this->handleView($this->view($user, Response::HTTP_OK));
     }
 
     /**
@@ -119,5 +132,30 @@ class AuthController extends BaseController
             ['error' => 'Something went wrong! Please contact support.'],
             Response::HTTP_INTERNAL_SERVER_ERROR
         ));
+    }
+
+    private function dataTransferObject(array $users): array
+    {
+        $formattedUser = [];
+
+        foreach ($users as $user) {
+            $formattedUser[] =  $this->dataTransferUser($user);
+        }
+
+        return $formattedUser;
+    }
+
+    private function dataTransferUser(User $user): array
+    {
+        $formattedUser = [];
+
+        $formattedUser['id'] = $user->getId();
+        $formattedUser['name'] = $user->getName();
+        $formattedUser['email'] = $user->getEmail();
+        $formattedUser['roles'] = $user->getRoles();
+        $formattedUser['address'] = $user->getAddress();
+        $formattedUser['image'] = $this->domain . self::PATH  . $user->getImage();
+
+        return $formattedUser;
     }
 }

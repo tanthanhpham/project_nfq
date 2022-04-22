@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\Order;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Form\UserUpdateType;
@@ -104,9 +105,7 @@ class UserController extends BaseController
     {
         $user = $this->userRepository->findOneBy(['id' => $id]);
 
-        $serializer = SerializerBuilder::create()->build();
-        $convertToJson = $serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('showUser')));
-        $user = $serializer->deserialize($convertToJson, 'array', 'json');
+        $user = self::dataTransferObject($user);
 
         return $this->handleView($this->view($user, Response::HTTP_OK));
     }
@@ -122,9 +121,7 @@ class UserController extends BaseController
         $email = $requestData['email'];
         $user = $this->userRepository->findOneBy(['email' => $email, 'deletedAt' => null]);
 
-        $serializer = SerializerBuilder::create()->build();
-        $convertToJson = $serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('showUser')));
-        $user = $serializer->deserialize($convertToJson, 'array', 'json');
+        $user = self::dataTransferObject($user);
 
         return $this->handleView($this->view($user, Response::HTTP_OK));
     }
@@ -220,5 +217,19 @@ class UserController extends BaseController
         }
 
         return $this->handleView($this->view([], Response::HTTP_INTERNAL_SERVER_ERROR));
+    }
+
+    private function dataTransferObject(User $user): array
+    {
+        $formattedUser = [];
+
+        $formattedUser['id'] = $user->getId();
+        $formattedUser['name'] = $user->getName();
+        $formattedUser['email'] = $user->getEmail();
+        $formattedUser['roles'] = $user->getRoles();
+        $formattedUser['address'] = $user->getAddress();
+        $formattedUser['image'] = $this->domain . self::PATH  . $user->getImage();
+
+        return $formattedUser;
     }
 }

@@ -86,11 +86,10 @@ class PaymentController extends BaseController
 
                 $paymentEntity->setStatus($payment->getState());
                 $order = $paymentEntity->getOrder();
-                $order->setStatus(self::STATUS_COMPLETED);
+                $order->setStatus(self::STATUS_APPROVED);
                 $this->orderRepository->add($order);
 
-                return $this->redirect('http://localhost:3000/user-profile', Response::HTTP_OK);
-//                return $this->handleView($this->view(['message' => 'Paid successfully'], Response::HTTP_OK));
+                return $this->redirect('http://localhost:3000/user-profile');
             } catch (\Exception $e) {
                 return $this->handleView($this->view(['error' => 'Something is wrong'], Response::HTTP_INTERNAL_SERVER_ERROR));
             }
@@ -113,7 +112,7 @@ class PaymentController extends BaseController
 
         $payment->getOrder()->setStatus(self::STATUS_PENDING_PAYMENT);
 
-        return $this->redirect('http://localhost:3000/user-profile', Response::HTTP_OK);
+        return $this->redirect('http://localhost:3000/user-profile');
     }
 
     /**
