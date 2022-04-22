@@ -110,8 +110,9 @@ class OrderController extends BaseController
         $formattedPurchaseOrder['recipientPhone'] = $purchaseOrder->getRecipientPhone();
         $formattedPurchaseOrder['addressDelivery'] = $purchaseOrder->getAddressDelivery();
         $formattedPurchaseOrder['orderDate'] = $purchaseOrder->getCreateAt()->format('Y-m-d H:i');
+        $formattedPurchaseOrder['paymentMethod'] = $purchaseOrder->getPaymentMethod();
 
-        switch ($purchaseOrder->getStatus()) {
+        switch (intval($purchaseOrder->getStatus())) {
             case self::STATUS_APPROVED:
                 $formattedPurchaseOrder['status'] = 'Approved';
                 break;
@@ -124,9 +125,18 @@ class OrderController extends BaseController
             case self::STATUS_COMPLETED:
                 $formattedPurchaseOrder['status'] = 'Completed';
                 break;
+            case self::STATUS_PENDING_PAYMENT:
+                $formattedPurchaseOrder['status'] = 'Pending';
+                break;
         }
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
-        $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();
+        $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice() + $purchaseOrder->getShippingCost();
+        $cartItems = $purchaseOrder->getOrderItems();
+
+        foreach ($cartItems as $cartItem) {
+            $formattedPurchaseOrder['firstItem'][] =  self::dataTransferItemObject($cartItem);
+            break;
+        }
 
         return $formattedPurchaseOrder;
     }
@@ -139,6 +149,7 @@ class OrderController extends BaseController
         $formattedPurchaseOrder['recipientEmail'] = $purchaseOrder->getRecipientEmail();
         $formattedPurchaseOrder['recipientPhone'] = $purchaseOrder->getRecipientPhone();
         $formattedPurchaseOrder['addressDelivery'] = $purchaseOrder->getAddressDelivery();
+        $formattedPurchaseOrder['paymentMethod'] = $purchaseOrder->getPaymentMethod();
         $formattedPurchaseOrder['status'] = $purchaseOrder->getStatus();
         $formattedPurchaseOrder['amount'] = $purchaseOrder->getTotalQuantity();
         $formattedPurchaseOrder['totalPrice'] = $purchaseOrder->getTotalPrice();

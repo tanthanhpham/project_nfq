@@ -51,6 +51,19 @@ class AuthController extends BaseController
     }
 
     /**
+     * @Rest\Get ("/admin/users/{id}")
+     * @return Response
+     */
+    public function getOneUser(int $id): Response
+    {
+        $user = $this->userRepository->findOneBy(['id' => $id, 'deletedAt' => null]);
+
+        $user = self::dataTransferUser($user);
+
+        return $this->handleView($this->view($user, Response::HTTP_OK));
+    }
+
+    /**
      * @Rest\Post ("/admin/users")
      * @param Request $request
      * @param UserPasswordHasherInterface $encoder
