@@ -63,7 +63,7 @@ class HomeController extends BaseController
             $product = $this->productRepository->find($item['id']);
             $formattedProduct['id'] = $product->getId();
             $formattedProduct['name'] = $product->getName();
-            $formattedProduct['image'] = $product->getImages();
+            $formattedProduct['image'] = self::formatImages($product->getImages());
             $formattedProduct['price'] = $product->getPrice();
             $formattedProduct['totalQuantity'] = $item['totalAmount'];
             $products[] = $formattedProduct;
