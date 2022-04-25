@@ -10,7 +10,6 @@ use App\Form\CartItemType;
 use App\Repository\CartRepository;
 use App\Repository\OrderRepository;
 use App\Repository\ProductItemRepository;
-use Proxies\__CG__\App\Entity\ProductItem;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -67,7 +66,7 @@ class OrderService extends AbstractController
                     $this->productItemRepository->add($productItem);
                     $orderDetail->setProductItem($productItem);
                     $order->addOrderItem($orderDetail);
-//                    $this->cartRepository->remove($cartItemData);
+                    $this->cartRepository->remove($cartItemData);
                 }
                 $order->setTotalPrice($totalPrice);
                 $order->setTotalQuantity($totalQuantity);
@@ -76,7 +75,6 @@ class OrderService extends AbstractController
                 return ['success' => 'Add order successfully.'];
             }
         } catch (\Exception $e) {
-            dd($e->getMessage());
         }
     }
 }
