@@ -75,14 +75,13 @@ class AuthController extends BaseController
             $user = new User();
             $form = $this->createForm(UserType::class, $user);
             $requestData = $request->request->all();
-
             $form->submit($requestData);
             if ($form->isSubmitted() && $form->isValid()) {
                 $user->setPassword($encoder->hashPassword($user, $requestData['password']));
                 $user->setUpdatedAt(new \DateTime());
                 $user->setRoles(['ROLE_ADMIN']);
-
                 $uploadFile = $request->files->get('image');
+
                 if ($uploadFile) {
                     $saveFile = $fileUploader->upload($uploadFile);
                     $user->setImage($saveFile);

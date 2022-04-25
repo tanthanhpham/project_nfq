@@ -228,6 +228,7 @@ class UserController extends BaseController
         $formattedUser['email'] = $user->getEmail();
         $formattedUser['roles'] = $user->getRoles();
         $formattedUser['address'] = $user->getAddress();
+        $formattedUser['phone'] = $user->getPhone();
         $formattedUser['image'] = $this->domain . self::PATH  . $user->getImage();
 
         return $formattedUser;
