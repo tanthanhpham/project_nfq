@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Controller\Api\BaseController;
 use App\Entity\Order;
+use App\Event\OrderEvent;
 use App\Form\OrderType;
 use PayPal\Api\Amount;
 use PayPal\Api\Payer;
@@ -86,6 +87,10 @@ class PaymentController extends BaseController
 
                 $paymentEntity->setStatus($payment->getState());
                 $order = $paymentEntity->getOrder();
+
+                $event = new OrderEvent($order);
+                $this->eventDispatcher->dispatch($event);
+
                 $order->setStatus(self::STATUS_APPROVED);
                 $this->orderRepository->add($order);
 
