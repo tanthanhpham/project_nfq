@@ -96,7 +96,7 @@ class OrderController extends BaseController
     {
         $html = $this->render('export/pdf.html.twig', ['order' => $order]);
 
-        $filePath = 'http://127.0.0.1' . $pdf->generateBinaryPDF($html);
+        $filePath = 'https://api.nfq-unlock.info' . $pdf->generateBinaryPDF($html);
 
         return $this->handleView($this->view($filePath, Response::HTTP_OK));
     }
