@@ -94,7 +94,7 @@ class PaymentController extends BaseController
                 $order->setStatus(self::STATUS_APPROVED);
                 $this->orderRepository->add($order);
 
-                return $this->redirect('http://localhost:3000/user-profile');
+                return $this->redirect('https://nfq-unlock.info/user-profile');
             } catch (\Exception $e) {
                 return $this->handleView($this->view(['error' => 'Something is wrong'], Response::HTTP_INTERNAL_SERVER_ERROR));
             }
@@ -117,7 +117,7 @@ class PaymentController extends BaseController
 
         $payment->getOrder()->setStatus(self::STATUS_PENDING_PAYMENT);
 
-        return $this->redirect('http://localhost:3000/user-profile');
+        return $this->redirect('https://nfq-unlock.info/user-profile');
     }
 
     /**

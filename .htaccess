@@ -4,3 +4,4 @@ RewriteBase /
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^api/(.*)$ public/index.php?$1 [L,QSA]
 RewriteRule ^uploads/(.*)$ public/uploads/$1 [L,QSA]
+RewriteRule ^files/(.*)$ public/files/$1 [L,QSA]
